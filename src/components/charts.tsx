@@ -43,9 +43,14 @@ export function niceCeiling(v: number) {
   return step * mag;
 }
 
-/** Evenly spaced whole number marks from 0 to the top of the scale. */
+/** Evenly spaced marks from 0 to the top of the scale, each step a round whole number (1, 2, 2.5 or 5 times a power of ten). */
 export function evenTicks(top: number) {
-  const intervals = [4, 5, 2, 1].find((n) => Number.isInteger(top / n)) ?? 1;
+  const isRound = (step: number) => {
+    if (!Number.isInteger(step) || step <= 0) return false;
+    const mantissa = step / Math.pow(10, Math.floor(Math.log10(step)));
+    return [1, 2, 2.5, 5].some((m) => Math.abs(mantissa - m) < 1e-9);
+  };
+  const intervals = [4, 5, 2].find((n) => isRound(top / n)) ?? 1;
   return Array.from({ length: intervals + 1 }, (_, i) => (top / intervals) * i);
 }
 
