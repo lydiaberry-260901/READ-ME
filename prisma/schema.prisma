@@ -1,0 +1,1083 @@
+// Moca CRM database design.
+// Shared by the web app and the background worker.
+// Every business record belongs to an organisation, so all queries filter by organisationId.
+// Money is stored in whole pounds. Dates and times are stored in UTC and shown in Europe/London.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums (fixed lists)
+// ---------------------------------------------------------------------------
+
+enum Role {
+  ADMIN
+  MANAGER
+  REP
+}
+
+enum CustomerGroup {
+  ASSET_ESG
+  PROPERTY_MANAGER
+  OCCUPIER
+}
+
+enum LawfulBasis {
+  LEGITIMATE_INTERESTS
+  CONSENT
+  CONTRACT
+}
+
+// Whether a contact works for a corporate body (business email generally allowed with
+// clear identification and an opt out) or is treated as an individual (consent needed).
+enum ContactEntityType {
+  LIMITED_COMPANY
+  PUBLIC_BODY
+  LLP
+  SOLE_TRADER
+  PARTNERSHIP
+  UNKNOWN
+}
+
+enum PhoneRegisterResult {
+  CLEAR
+  LISTED
+}
+
+enum StageKind {
+  OPEN
+  WON
+  LOST
+}
+
+enum HealthFlag {
+  ON_TRACK
+  AT_RISK
+  STALLED
+}
+
+enum LossReason {
+  BUDGET
+  TIMING
+  NO_DECISION
+  LOST_TO_COMPETITOR
+  NO_ECONOMIC_BUYER
+  PRODUCT_FIT
+  OTHER
+}
+
+enum StakeholderRole {
+  CHAMPION
+  ECONOMIC_BUYER
+  BLOCKER
+  INFLUENCER
+  USER
+}
+
+enum TaskType {
+  CALL
+  EMAIL
+  FOLLOW_UP
+  RESEARCH
+  MEETING
+  OTHER
+}
+
+enum TaskPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum TaskStatus {
+  OPEN
+  DONE
+  SNOOZED
+  CANCELLED
+}
+
+enum TaskOrigin {
+  MANUAL
+  RULE
+  NEWS
+  TRANSCRIPT
+  SYSTEM
+}
+
+enum ActivityType {
+  CALL
+  EMAIL
+  MEETING
+  NOTE
+}
+
+enum CallResult {
+  CONNECTED
+  NO_ANSWER
+  VOICEMAIL
+  WRONG_NUMBER
+}
+
+enum Provider {
+  GOOGLE
+  MICROSOFT
+}
+
+enum ConnectionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  ERROR
+}
+
+enum EmailDirection {
+  SENT
+  RECEIVED
+}
+
+enum OutreachReason {
+  EPC_RISK
+  NET_ZERO
+  NEW_ESG_HIRE
+  TENDER
+  ACQUISITION
+  GENERAL_INTRO
+}
+
+enum TranscriptSource {
+  PASTE
+  UPLOAD
+  WEBHOOK
+}
+
+enum MatchStatus {
+  MATCHED
+  NEEDS_MATCHING
+}
+
+enum ProcessingStatus {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
+}
+
+enum CallOutcome {
+  INTERESTED
+  SEND_INFORMATION
+  CALL_BACK_LATER
+  MEETING_BOOKED
+  NOT_NOW
+  WRONG_PERSON
+  NOT_INTERESTED
+}
+
+enum SuggestionKind {
+  STAGE_CHANGE
+  QUALIFICATION_FIELD
+}
+
+enum SuggestionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum NewsFrequency {
+  DAILY
+  WEEKLY
+}
+
+enum NewsType {
+  FUND_RAISE
+  PROPERTY_TRANSACTION
+  NEW_ESG_HIRE
+  BUILDING_WORK
+  EPC_CRREM
+  TENDER_APPOINTMENT
+  NEW_RULES
+  OTHER
+}
+
+enum NewsStatus {
+  NEW
+  READ
+  ACTED_ON
+}
+
+enum NotificationType {
+  DEAL_STAGE_CHANGED
+  DEAL_WON
+  DEAL_LOST
+  MORNING_SUMMARY
+  INVITATION
+  PRIVACY_REMINDER
+}
+
+enum NotificationStatus {
+  PENDING
+  SENDING
+  SENT
+  FAILED
+}
+
+// ---------------------------------------------------------------------------
+// Organisation, people and sign in
+// ---------------------------------------------------------------------------
+
+model Organisation {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Settings with sensible starting points. Admins can change these.
+  singleThreadedDays      Int     @default(14) // days with only one engaged contact before a warning
+  dailyTaskLimit          Int     @default(25) // most tasks created per person per day
+  phoneCheckMaxAgeDays    Int     @default(28) // TPS and CTPS check must be newer than this
+  retainContactsMonths    Int     @default(24)
+  retainTranscriptsMonths Int     @default(12)
+  retainNewsMonths        Int     @default(12)
+  privacyNoticeUrl        String?
+  dataProtectionLeadId    String?
+
+  users          User[]
+  teams          Team[]
+  invitations    Invitation[]
+  companies      Company[]
+  contacts       Contact[]
+  pipelines      Pipeline[]
+  deals          Deal[]
+  battlecards    Battlecard[]
+  tasks          Task[]
+  activities     Activity[]
+  emails         Email[]
+  calendarEvents CalendarEvent[]
+  emailTemplates EmailTemplate[]
+  callScripts    CallScript[]
+  transcripts    CallTranscript[]
+  newsWatches    NewsWatch[]
+  newsItems      NewsItem[]
+  notifications  Notification[]
+  auditLogs      AuditLog[]
+  suppressions   Suppression[]
+}
+
+model User {
+  id             String    @id @default(cuid())
+  organisationId String?
+  name           String?
+  email          String    @unique
+  emailVerified  DateTime?
+  image          String?
+  role           Role      @default(REP)
+  teamId         String?
+  jobTitle       String?
+  active         Boolean   @default(true)
+  lastSignInAt   DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organisation Organisation? @relation(fields: [organisationId], references: [id])
+  team         Team?         @relation("TeamMembers", fields: [teamId], references: [id])
+  managedTeams Team[]        @relation("TeamManager")
+
+  accounts          Account[]
+  sessions          Session[]
+  ownedCompanies    Company[]
+  ownedContacts     Contact[]
+  ownedDeals        Deal[]            @relation("DealOwner")
+  followedDeals     DealFollower[]
+  stageMoves        DealStageHistory[]
+  assignedTasks     Task[]            @relation("TaskAssignee")
+  createdTasks      Task[]            @relation("TaskCreator")
+  activities        Activity[]
+  emailAccounts     EmailAccount[]
+  calendarAccounts  CalendarAccount[]
+  emails            Email[]
+  calendarEvents    CalendarEvent[]
+  invitationsSent   Invitation[]
+  auditLogs         AuditLog[]
+  notifications     Notification[]
+  transcripts       CallTranscript[]
+  battlecardEdits   Battlecard[]
+  suggestionDecisions TranscriptSuggestion[]
+
+  @@index([organisationId])
+}
+
+model Team {
+  id             String   @id @default(cuid())
+  organisationId String
+  name           String
+  managerId      String?
+  createdAt      DateTime @default(now())
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  manager      User?        @relation("TeamManager", fields: [managerId], references: [id])
+  members      User[]       @relation("TeamMembers")
+  invitations  Invitation[]
+
+  @@unique([organisationId, name])
+}
+
+model Invitation {
+  id             String    @id @default(cuid())
+  organisationId String
+  email          String
+  role           Role      @default(REP)
+  teamId         String?
+  token          String    @unique
+  invitedById    String
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  revokedAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  team         Team?        @relation(fields: [teamId], references: [id])
+  invitedBy    User         @relation(fields: [invitedById], references: [id])
+
+  @@index([organisationId, email])
+}
+
+// Auth.js tables (sign in with Google and Microsoft)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------------------------------------------------------------------------
+// Companies and contacts
+// ---------------------------------------------------------------------------
+
+model Company {
+  id                   String         @id @default(cuid())
+  organisationId       String
+  name                 String
+  alternativeNames     String[]       @default([])
+  website              String?
+  domain               String? // cleaned website address, used to spot duplicates
+  customerGroup        CustomerGroup?
+  importance           Int            @default(2) // 1 = most important, 3 = least
+  description          String?
+  portfolioSize        String?
+  headOffice           String?
+  companiesHouseNumber String?
+  ownerId              String?
+  isShared             Boolean        @default(true) // shared prospect database by default
+
+  // "Why this company matters to Moca" (AI written, editable)
+  whyMatters       String?
+  score            Int? // 1 to 5
+  scoreReason      String?
+  aiSuggestedGroup CustomerGroup?
+  aiKeyFacts       Json?
+  aiModel          String?
+  aiGeneratedAt    DateTime?
+  aiEditedAt       DateTime?
+  aiEditedById     String?
+
+  // Extra details from the company website and Companies House
+  enrichment Json?
+  enrichedAt DateTime?
+
+  lastActivityAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organisation   Organisation    @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  owner          User?           @relation(fields: [ownerId], references: [id])
+  contacts       Contact[]
+  deals          Deal[]
+  tasks          Task[]
+  activities     Activity[]
+  emails         Email[]
+  calendarEvents CalendarEvent[]
+  transcripts    CallTranscript[]
+  newsWatch      NewsWatch?
+  newsItems      NewsItem[]
+
+  @@index([organisationId, domain])
+  @@index([organisationId, name])
+  @@index([organisationId, ownerId])
+  @@index([organisationId, score])
+}
+
+model Contact {
+  id             String   @id @default(cuid())
+  organisationId String
+  companyId      String?
+  firstName      String
+  lastName       String?
+  jobTitle       String?
+  email          String? // work email only
+  emailNormalised String? // lower case, used to spot duplicates and match emails
+  phone          String? // work phone only
+  linkedinUrl    String? // public professional profile
+  ownerId        String?
+  isShared       Boolean  @default(true)
+  notes          String? // business notes only, no personal opinions or sensitive details
+
+  // Data protection
+  lawfulBasis         LawfulBasis          @default(LEGITIMATE_INTERESTS)
+  source              String // where the details came from
+  collectedAt         DateTime             @default(now())
+  privacyNoticeSentAt DateTime? // first told how we use their data (within one month)
+  entityType          ContactEntityType    @default(UNKNOWN)
+  consentAt           DateTime? // needed for sole traders and some partnerships
+  phoneCheckedAt      DateTime? // last TPS and CTPS check
+  phoneCheckResult    PhoneRegisterResult?
+  optedOut            Boolean              @default(false)
+  optedOutAt          DateTime?
+  doNotContactReason  String?
+  restricted          Boolean              @default(false) // use limited after a rights request
+
+  lastActivityAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organisation   Organisation     @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  company        Company?         @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  owner          User?            @relation(fields: [ownerId], references: [id])
+  dealRoles      DealContact[]
+  tasks          Task[]
+  activities     Activity[]
+  emails         Email[]
+  calendarEvents CalendarEvent[]
+  transcripts    CallTranscript[]
+
+  @@index([organisationId, emailNormalised])
+  @@index([organisationId, companyId])
+  @@index([organisationId, ownerId])
+}
+
+// ---------------------------------------------------------------------------
+// Pipeline and deals
+// ---------------------------------------------------------------------------
+
+model Pipeline {
+  id             String   @id @default(cuid())
+  organisationId String
+  name           String
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  stages       Stage[]
+  deals        Deal[]
+}
+
+model Stage {
+  id              String    @id @default(cuid())
+  pipelineId      String
+  name            String
+  position        Int
+  colour          String    @default("#D9CFC4")
+  kind            StageKind @default(OPEN)
+  probability     Int       @default(0) // chance of winning, used for expected income
+  noActivityDays  Int       @default(14) // days without activity before a task is created
+  archived        Boolean   @default(false)
+
+  pipeline    Pipeline           @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  deals       Deal[]
+  movesFrom   DealStageHistory[] @relation("FromStage")
+  movesTo     DealStageHistory[] @relation("ToStage")
+
+  @@index([pipelineId, position])
+}
+
+model Deal {
+  id                String         @id @default(cuid())
+  organisationId    String
+  pipelineId        String
+  stageId           String
+  companyId         String
+  ownerId           String
+  name              String
+  value             Int            @default(0) // whole pounds
+  customerGroup     CustomerGroup?
+  expectedCloseDate DateTime?      @db.Date
+  nextStep          String?
+  stageEnteredAt    DateTime       @default(now())
+  isShared          Boolean        @default(false)
+
+  // Qualification (MEDDPICC), filled in gradually
+  metric           String?
+  economicBuyer    String?
+  decisionCriteria String?
+  decisionProcess  String?
+  paperProcess     String?
+  identifiedPain   String?
+  champion         String?
+  competition      String?
+  qualificationPct Int     @default(0) // 0 to 100, worked out from the eight fields above
+
+  // Health
+  healthScore          Int?
+  healthFlag           HealthFlag?
+  healthCalculatedAt   DateTime?
+  singleThreadedSince  DateTime? // when the deal first had only one engaged contact
+  singleThreadedWarnedAt DateTime?
+
+  competitor String? // competitor mentioned by the prospect, matched to a battlecard by name
+
+  // Closing
+  lossReason LossReason?
+  closeNote  String? // short win or loss note
+  finalValue Int?
+  closedAt   DateTime?
+
+  lastActivityAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  organisation   Organisation       @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  pipeline       Pipeline           @relation(fields: [pipelineId], references: [id])
+  stage          Stage              @relation(fields: [stageId], references: [id])
+  company        Company            @relation(fields: [companyId], references: [id])
+  owner          User               @relation("DealOwner", fields: [ownerId], references: [id])
+  stageHistory   DealStageHistory[]
+  contacts       DealContact[]
+  followers      DealFollower[]
+  tasks          Task[]
+  activities     Activity[]
+  emails         Email[]
+  calendarEvents CalendarEvent[]
+  transcripts    CallTranscript[]
+  suggestions    TranscriptSuggestion[]
+
+  @@index([organisationId, stageId])
+  @@index([organisationId, ownerId])
+  @@index([organisationId, healthFlag])
+}
+
+model DealStageHistory {
+  id          String   @id @default(cuid())
+  dealId      String
+  fromStageId String?
+  toStageId   String
+  movedById   String?
+  movedAt     DateTime @default(now())
+  secondsInPreviousStage Int?
+
+  deal      Deal   @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  fromStage Stage? @relation("FromStage", fields: [fromStageId], references: [id])
+  toStage   Stage  @relation("ToStage", fields: [toStageId], references: [id])
+  movedBy   User?  @relation(fields: [movedById], references: [id])
+
+  @@index([dealId, movedAt])
+}
+
+// Links a contact to a deal with a stakeholder role
+model DealContact {
+  id        String           @id @default(cuid())
+  dealId    String
+  contactId String
+  role      StakeholderRole?
+  engaged   Boolean          @default(true)
+  addedAt   DateTime         @default(now())
+
+  deal    Deal    @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([dealId, contactId])
+}
+
+model DealFollower {
+  dealId String
+  userId String
+
+  deal Deal @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([dealId, userId])
+}
+
+model Battlecard {
+  id             String   @id @default(cuid())
+  organisationId String
+  competitorName String
+  comparison     String
+  objections     Json     @default("[]") // list of { objection, response }
+  updatedById    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  updatedBy    User?        @relation(fields: [updatedById], references: [id])
+
+  @@unique([organisationId, competitorName])
+}
+
+// ---------------------------------------------------------------------------
+// Tasks and activities
+// ---------------------------------------------------------------------------
+
+model Task {
+  id              String       @id @default(cuid())
+  organisationId  String
+  assigneeId      String
+  createdById     String?
+  title           String
+  description     String?
+  type            TaskType     @default(OTHER)
+  priority        TaskPriority @default(MEDIUM)
+  status          TaskStatus   @default(OPEN)
+  dueAt           DateTime?
+  snoozedUntil    DateTime?
+  completedAt     DateTime?
+  reason          String? // why the task was created
+  origin          TaskOrigin   @default(MANUAL)
+  dedupeKey       String? // stable key so scheduled jobs never create the same task twice
+  suggestedAction String?
+  draftMessage    String?
+
+  companyId    String?
+  contactId    String?
+  dealId       String?
+  newsItemId   String?
+  transcriptId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organisation Organisation    @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  assignee     User            @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  createdBy    User?           @relation("TaskCreator", fields: [createdById], references: [id])
+  company      Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  contact      Contact?        @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  deal         Deal?           @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  newsItem     NewsItem?       @relation(fields: [newsItemId], references: [id], onDelete: SetNull)
+  transcript   CallTranscript? @relation(fields: [transcriptId], references: [id], onDelete: SetNull)
+
+  @@unique([organisationId, dedupeKey])
+  @@index([organisationId, assigneeId, status, dueAt])
+}
+
+model Activity {
+  id             String       @id @default(cuid())
+  organisationId String
+  type           ActivityType
+  userId         String?
+  occurredAt     DateTime     @default(now())
+  subject        String?
+  body           String?
+  callResult     CallResult?
+  durationSeconds Int?
+
+  companyId       String?
+  contactId       String?
+  dealId          String?
+  emailId         String?  @unique
+  calendarEventId String?  @unique
+  transcriptId    String?  @unique
+  emailTemplateId String?
+  callScriptId    String?
+
+  createdAt DateTime @default(now())
+
+  organisation  Organisation    @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  user          User?           @relation(fields: [userId], references: [id])
+  company       Company?        @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  contact       Contact?        @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  deal          Deal?           @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  email         Email?          @relation(fields: [emailId], references: [id], onDelete: SetNull)
+  calendarEvent CalendarEvent?  @relation(fields: [calendarEventId], references: [id], onDelete: SetNull)
+  transcript    CallTranscript? @relation(fields: [transcriptId], references: [id], onDelete: SetNull)
+  emailTemplate EmailTemplate?  @relation(fields: [emailTemplateId], references: [id], onDelete: SetNull)
+  callScript    CallScript?     @relation(fields: [callScriptId], references: [id], onDelete: SetNull)
+
+  @@index([organisationId, occurredAt])
+  @@index([organisationId, dealId])
+  @@index([organisationId, contactId])
+}
+
+// ---------------------------------------------------------------------------
+// Email and calendar connections
+// ---------------------------------------------------------------------------
+
+model EmailAccount {
+  id                String           @id @default(cuid())
+  userId            String
+  provider          Provider
+  emailAddress      String
+  accessTokenEnc    String? // encrypted
+  refreshTokenEnc   String? // encrypted
+  tokenExpiresAt    DateTime?
+  scopes            String?
+  status            ConnectionStatus @default(ACTIVE)
+  syncCursor        String?
+  lastSyncedAt      DateTime?
+  lastError         String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emails Email[]
+
+  @@unique([userId, provider, emailAddress])
+}
+
+model Email {
+  id                String         @id @default(cuid())
+  organisationId    String
+  emailAccountId    String?
+  userId            String?
+  providerMessageId String?
+  threadId          String?
+  direction         EmailDirection
+  fromAddress       String
+  toAddresses       String[]       @default([])
+  ccAddresses       String[]       @default([])
+  subject           String?
+  snippet           String? // short text only, never attachments
+  bodyText          String? // kept only for emails sent from the CRM
+  sentAt            DateTime
+  isFirstContact    Boolean        @default(false)
+  emailTemplateId   String?
+  repliedAt         DateTime?
+
+  contactId String?
+  companyId String?
+  dealId    String?
+
+  createdAt DateTime @default(now())
+
+  organisation  Organisation   @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  emailAccount  EmailAccount?  @relation(fields: [emailAccountId], references: [id], onDelete: SetNull)
+  user          User?          @relation(fields: [userId], references: [id])
+  contact       Contact?       @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  company       Company?       @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  deal          Deal?          @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  emailTemplate EmailTemplate? @relation(fields: [emailTemplateId], references: [id], onDelete: SetNull)
+  activity      Activity?
+
+  @@unique([emailAccountId, providerMessageId])
+  @@index([organisationId, contactId])
+  @@index([organisationId, threadId])
+}
+
+model CalendarAccount {
+  id              String           @id @default(cuid())
+  userId          String
+  provider        Provider
+  emailAddress    String
+  accessTokenEnc  String?
+  refreshTokenEnc String?
+  tokenExpiresAt  DateTime?
+  scopes          String?
+  status          ConnectionStatus @default(ACTIVE)
+  syncCursor      String?
+  lastSyncedAt    DateTime?
+  lastError       String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  user   User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events CalendarEvent[]
+
+  @@unique([userId, provider, emailAddress])
+}
+
+model CalendarEvent {
+  id                String   @id @default(cuid())
+  organisationId    String
+  calendarAccountId String?
+  userId            String
+  providerEventId   String?
+  title             String
+  description       String?
+  location          String?
+  meetingUrl        String?
+  startAt           DateTime
+  endAt             DateTime
+  allDay            Boolean  @default(false)
+  attendees         Json     @default("[]")
+  cancelled         Boolean  @default(false)
+
+  contactId String?
+  companyId String?
+  dealId    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organisation    Organisation     @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  calendarAccount CalendarAccount? @relation(fields: [calendarAccountId], references: [id], onDelete: SetNull)
+  user            User             @relation(fields: [userId], references: [id])
+  contact         Contact?         @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  company         Company?         @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  deal            Deal?            @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  activity        Activity?
+
+  @@unique([calendarAccountId, providerEventId])
+  @@index([organisationId, userId, startAt])
+}
+
+// ---------------------------------------------------------------------------
+// Outreach content
+// ---------------------------------------------------------------------------
+
+model EmailTemplate {
+  id             String         @id @default(cuid())
+  organisationId String
+  name           String
+  customerGroup  CustomerGroup?
+  reason         OutreachReason
+  subject        String
+  body           String
+  isMarketing    Boolean        @default(true) // marketing emails always get the identity, privacy and unsubscribe footer
+  active         Boolean        @default(true)
+  version        Int            @default(1)
+  createdById    String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  emails       Email[]
+  activities   Activity[]
+
+  @@index([organisationId, customerGroup, reason])
+}
+
+model CallScript {
+  id             String         @id @default(cuid())
+  organisationId String
+  name           String
+  customerGroup  CustomerGroup?
+  reason         OutreachReason
+  opening        String
+  questions      Json           @default("[]") // list of questions
+  objections     Json           @default("[]") // list of { objection, response }
+  ask            String // the clear request at the end of the call
+  active         Boolean        @default(true)
+  createdById    String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  activities   Activity[]
+
+  @@index([organisationId, customerGroup, reason])
+}
+
+// ---------------------------------------------------------------------------
+// Call transcripts
+// ---------------------------------------------------------------------------
+
+model CallTranscript {
+  id             String           @id @default(cuid())
+  organisationId String
+  source         TranscriptSource
+  externalId     String? // id from the call recording tool, to avoid saving the same call twice
+  text           String
+  callAt         DateTime?
+  durationSeconds Int?
+  participants   Json             @default("[]")
+  uploadedById   String?
+
+  // Call recording notice: was the person told the call was recorded, and why
+  recordingNoticeGiven  Boolean?
+  recordingNoticeDetail String?
+
+  contactId   String?
+  companyId   String?
+  dealId      String?
+  matchStatus MatchStatus @default(NEEDS_MATCHING)
+
+  // AI results, always for a person to review
+  processingStatus ProcessingStatus @default(PENDING)
+  outcome          CallOutcome?
+  summary          String?
+  promises         Json? // list of { text, dueDate }
+  objections       Json?
+  nextStep         String?
+  aiResult         Json?
+  aiModel          String?
+  processedAt      DateTime?
+  processingError  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organisation Organisation           @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  uploadedBy   User?                  @relation(fields: [uploadedById], references: [id])
+  contact      Contact?               @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  company      Company?               @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  deal         Deal?                  @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  suggestions  TranscriptSuggestion[]
+  tasks        Task[]
+  activity     Activity?
+
+  @@unique([organisationId, externalId])
+  @@index([organisationId, dealId])
+  @@index([organisationId, contactId])
+}
+
+// A change suggested by the AI from a transcript. A person approves or rejects each one.
+model TranscriptSuggestion {
+  id            String           @id @default(cuid())
+  transcriptId  String
+  dealId        String
+  kind          SuggestionKind
+  field         String? // qualification field name, or null for a stage change
+  proposedValue String
+  currentValue  String?
+  evidence      String? // the words in the transcript that support it
+  status        SuggestionStatus @default(PENDING)
+  decidedById   String?
+  decidedAt     DateTime?
+  createdAt     DateTime         @default(now())
+
+  transcript CallTranscript @relation(fields: [transcriptId], references: [id], onDelete: Cascade)
+  deal       Deal           @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  decidedBy  User?          @relation(fields: [decidedById], references: [id])
+
+  @@index([dealId, status])
+}
+
+// ---------------------------------------------------------------------------
+// News
+// ---------------------------------------------------------------------------
+
+model NewsWatch {
+  id             String        @id @default(cuid())
+  organisationId String
+  companyId      String        @unique
+  frequency      NewsFrequency @default(WEEKLY)
+  searchTerms    String[]      @default([])
+  paused         Boolean       @default(false)
+  lastCheckedAt  DateTime?
+  lastError      String?
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  company      Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model NewsItem {
+  id             String     @id @default(cuid())
+  organisationId String
+  companyId      String
+  headline       String
+  source         String
+  url            String
+  urlHash        String // used to avoid saving the same story twice
+  publishedAt    DateTime?
+  summary        String? // short AI summary, never the full article
+  newsType       NewsType?
+  relevance      Int? // 1 to 5
+  openingLine    String? // suggested opening line for outreach
+  aiModel        String?
+  status         NewsStatus @default(NEW)
+  createdAt      DateTime   @default(now())
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  company      Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  tasks        Task[]
+
+  @@unique([organisationId, companyId, urlHash])
+  @@index([organisationId, publishedAt])
+}
+
+// ---------------------------------------------------------------------------
+// Notifications, audit log and opt outs
+// ---------------------------------------------------------------------------
+
+model Notification {
+  id              String             @id @default(cuid())
+  organisationId  String
+  type            NotificationType
+  recipientUserId String?
+  recipientEmail  String
+  subject         String
+  bodyText        String
+  bodyHtml        String?
+  payload         Json?
+  dedupeKey       String // stops the same alert being sent twice
+  status          NotificationStatus @default(PENDING)
+  attempts        Int                @default(0)
+  lastError       String?
+  lastAttemptAt   DateTime?
+  sentAt          DateTime?
+  createdAt       DateTime           @default(now())
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  recipient    User?        @relation(fields: [recipientUserId], references: [id])
+
+  @@unique([organisationId, dedupeKey])
+  @@index([organisationId, status])
+}
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  organisationId String
+  userId         String?
+  action         String // for example "contact.viewed", "deal.stage_changed", "export.contacts"
+  entityType     String?
+  entityId       String?
+  details        Json?
+  ipAddress      String?
+  createdAt      DateTime @default(now())
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  user         User?        @relation(fields: [userId], references: [id])
+
+  @@index([organisationId, createdAt])
+  @@index([organisationId, entityType, entityId])
+}
+
+// Minimal record kept so an opted out person is never contacted again.
+// Survives deletion of the rest of their record. Addresses are stored as keyed hashes,
+// with only a masked hint (for example j***@example.com) so admins can recognise entries.
+model Suppression {
+  id             String   @id @default(cuid())
+  organisationId String
+  emailHash      String?
+  phoneHash      String?
+  hint           String?
+  reason         String
+  createdAt      DateTime @default(now())
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  @@unique([organisationId, emailHash])
+  @@unique([organisationId, phoneHash])
+}

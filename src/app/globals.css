@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/* Colour and radius values come from src/design/tokens.ts, injected as CSS variables
+   in the root layout. Edit colours there, not here. */
+@theme inline {
+  --color-mocha: var(--moca-mocha);
+  --color-mocha-muted: var(--moca-mocha-muted);
+  --color-mocha-soft: var(--moca-mocha-soft);
+  --color-mocha-deep: var(--moca-mocha-deep);
+  --color-cream: var(--moca-cream);
+  --color-surface: var(--moca-surface);
+  --color-surface-sunk: var(--moca-surface-sunk);
+  --color-green: var(--moca-green);
+  --color-green-ink: var(--moca-green-ink);
+  --color-green-hover: var(--moca-green-hover);
+  --color-green-tint: var(--moca-green-tint);
+  --color-amber: var(--moca-amber);
+  --color-amber-ink: var(--moca-amber-ink);
+  --color-amber-tint: var(--moca-amber-tint);
+  --color-stone: var(--moca-stone);
+  --color-stone-strong: var(--moca-stone-strong);
+  --color-red: var(--moca-red);
+  --color-red-ink: var(--moca-red-ink);
+  --color-red-tint: var(--moca-red-tint);
+
+  --radius-sm: var(--moca-radius-sm);
+  --radius-md: var(--moca-radius-md);
+  --radius-lg: var(--moca-radius-lg);
+
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  body {
+    background: var(--moca-cream);
+    color: var(--moca-mocha);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 {
+    color: var(--moca-mocha);
+    letter-spacing: -0.01em;
+  }
+  a {
+    color: var(--moca-green-ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--moca-focus);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  /* Use together with .btn, for example class="btn btn-primary" */
+  .btn-primary {
+    @apply bg-green text-white hover:bg-green-hover;
+  }
+  .btn-secondary {
+    @apply border border-stone-strong bg-surface text-mocha hover:bg-surface-sunk;
+  }
+  .btn-danger {
+    @apply bg-red text-white hover:bg-red-ink;
+  }
+  .card {
+    @apply rounded-lg border border-stone bg-surface;
+  }
+  .field {
+    @apply w-full rounded-md border border-stone-strong bg-surface px-3 py-2 text-sm text-mocha placeholder:text-mocha-muted;
+  }
+  .label {
+    @apply mb-1 block text-sm font-medium text-mocha;
+  }
+}
