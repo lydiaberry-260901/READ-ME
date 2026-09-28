@@ -7,7 +7,12 @@ import { Sidebar, type NavItem } from "@/components/Sidebar";
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
 
-  const items: NavItem[] = [{ href: "/", label: "Home", icon: "home" }];
+  const items: NavItem[] = [
+    { href: "/", label: "Home", icon: "home" },
+    { href: "/companies", label: "Companies", icon: "building" },
+    { href: "/contacts", label: "Contacts", icon: "person" },
+    { href: "/import", label: "Import", icon: "upload" },
+  ];
   if (can(user, "users.manage")) {
     items.push({ href: "/settings/users", label: "People and teams", icon: "users" });
   }

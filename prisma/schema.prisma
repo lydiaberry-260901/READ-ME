@@ -267,6 +267,11 @@ model Organisation {
   notifications  Notification[]
   auditLogs      AuditLog[]
   suppressions   Suppression[]
+  tags           Tag[]
+  prospectLists  ProspectList[]
+  savedViews     SavedView[]
+  importRuns     ImportRun[]
+  aiUsage        AiUsage[]
 }
 
 model User {
@@ -308,6 +313,9 @@ model User {
   transcripts       CallTranscript[]
   battlecardEdits   Battlecard[]
   suggestionDecisions TranscriptSuggestion[]
+  prospectLists     ProspectList[]
+  savedViews        SavedView[]
+  importRuns        ImportRun[]
 
   @@index([organisationId])
 }
@@ -434,6 +442,8 @@ model Company {
   transcripts    CallTranscript[]
   newsWatch      NewsWatch?
   newsItems      NewsItem[]
+  tags           CompanyTag[]
+  listMembers    ProspectListMember[]
 
   @@index([organisationId, domain])
   @@index([organisationId, name])
@@ -483,6 +493,8 @@ model Contact {
   emails         Email[]
   calendarEvents CalendarEvent[]
   transcripts    CallTranscript[]
+  tags           ContactTag[]
+  listMembers    ProspectListMember[]
 
   @@index([organisationId, emailNormalised])
   @@index([organisationId, companyId])
@@ -1062,6 +1074,132 @@ model AuditLog {
 
   @@index([organisationId, createdAt])
   @@index([organisationId, entityType, entityId])
+}
+
+// ---------------------------------------------------------------------------
+// Prospecting: tags, lists, saved views, imports and AI usage
+// ---------------------------------------------------------------------------
+
+model Tag {
+  id             String   @id @default(cuid())
+  organisationId String
+  name           String
+  createdAt      DateTime @default(now())
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  companies    CompanyTag[]
+  contacts     ContactTag[]
+
+  @@unique([organisationId, name])
+}
+
+model CompanyTag {
+  companyId String
+  tagId     String
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, tagId])
+}
+
+model ContactTag {
+  contactId String
+  tagId     String
+
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([contactId, tagId])
+}
+
+// A named group of companies and contacts, for example "Q4 fund managers".
+model ProspectList {
+  id             String   @id @default(cuid())
+  organisationId String
+  ownerId        String
+  name           String
+  description    String?
+  isShared       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  organisation Organisation         @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  owner        User                 @relation(fields: [ownerId], references: [id])
+  members      ProspectListMember[]
+
+  @@unique([organisationId, name])
+}
+
+model ProspectListMember {
+  id        String   @id @default(cuid())
+  listId    String
+  companyId String?
+  contactId String?
+  addedAt   DateTime @default(now())
+
+  list    ProspectList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  company Company?     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  contact Contact?     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([listId, companyId])
+  @@unique([listId, contactId])
+}
+
+// A saved set of filters on a list page.
+model SavedView {
+  id             String   @id @default(cuid())
+  organisationId String
+  userId         String
+  entity         String // "companies" or "contacts"
+  name           String
+  query          String // the filters, as they appear in the page address
+  isShared       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([organisationId, entity])
+}
+
+model ImportRun {
+  id             String   @id @default(cuid())
+  organisationId String
+  userId         String
+  fileName       String
+  source         String
+  rowCount       Int
+  companiesCreated Int    @default(0)
+  companiesMatched Int    @default(0)
+  contactsCreated  Int    @default(0)
+  contactsUpdated  Int    @default(0)
+  skipped          Int    @default(0)
+  failed           Int    @default(0)
+  report           Json? // one line per row: what happened and why
+  createdAt      DateTime @default(now())
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id])
+}
+
+// A record of every AI request, for usage and cost reporting.
+model AiUsage {
+  id             String   @id @default(cuid())
+  organisationId String?
+  userId         String?
+  feature        String // for example "company_summary"
+  promptVersion  String
+  model          String
+  inputTokens    Int      @default(0)
+  outputTokens   Int      @default(0)
+  costMicroUsd   Int      @default(0) // cost in millionths of a US dollar, as billed by the provider
+  success        Boolean
+  error          String?
+  createdAt      DateTime @default(now())
+
+  organisation Organisation? @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+
+  @@index([organisationId, createdAt])
 }
 
 // Minimal record kept so an opted out person is never contacted again.

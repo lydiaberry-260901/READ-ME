@@ -9,7 +9,8 @@ The full project brief is in [CLAUDE.md](CLAUDE.md).
 | Phase | What it covers | Status |
 | --- | --- | --- |
 | 1 | Foundation: database design, sign in, roles, invitations, design settings, background worker, demo data | Done |
-| 2 to 11 | Prospecting, outreach, email and calendar, deals, tasks, news, transcripts, dashboards, privacy, going live | To do |
+| 2 | Prospecting: companies and contacts, search, filters, bulk actions, saved views, lists, tags, CSV import, company details lookup, AI summary and score | Done |
+| 3 to 11 | Outreach, email and calendar, deals, tasks, news, transcripts, dashboards, privacy, going live | To do |
 
 ## What you need on your computer
 
@@ -81,6 +82,32 @@ All demo companies, people and deals are fictional. Company websites use the res
 * Every page and every action checks the person's role before doing anything. Roles are read fresh on every request, so changes and switched off accounts take effect straight away.
 * Important changes, such as invitations and role changes, are recorded in the audit log.
 
+## Prospecting
+
+* **Companies and Contacts** pages list every record you may see, with search, filters (customer group, importance, owner, score, tag, list and data protection status) and sorting.
+* **Bulk actions:** tick several rows to tag them, add them to a list, change the owner, group or importance, share them, or (for companies) ask the AI to write summaries or fetch public details in the background.
+* **Saved views:** after filtering, click "Save these filters" to keep the view for yourself or share it with the team.
+* **Lists** group companies and contacts, for example "Q4 fund managers". Create one by typing a new name in the "Add to a list" bulk action.
+* **Data protection on every contact:** lawful reason, source and date collected, whether they have been told how we use their data (due within one month), business type (sole traders and some partnerships need consent), TPS and CTPS check (must be newer than 28 days before a cold call), and a one click opt out that blocks everyone from contacting them and adds them to the opt out list. Viewing a contact is recorded in the audit log.
+
+### CSV import
+
+Go to Import. Choose a CSV file, match its columns, say where the data came from (required), then check the file before importing. A sample file is at [public/samples/moca-import-sample.csv](public/samples/moca-import-sample.csv).
+
+* Duplicate companies are spotted by website, then by name (ignoring endings such as Ltd). Duplicate contacts are spotted by email address, within the file and against the CRM.
+* People on the opt out list are never imported, and personal email addresses (such as Gmail) are refused.
+* Every imported contact gets the source, lawful reason and date collected. A report is shown at the end and can be downloaded.
+
+### Company details and the AI summary
+
+* **Fetch details** reads the company's public home page (following its robots.txt rules, with time and size limits, one visit per site every 10 seconds) and, when a number is given, its Companies House record. Only the page title, description and a short excerpt are kept, with any email addresses and phone numbers removed. Officers and other people are never fetched. Failures are shown on the page rather than stopping anything.
+* **Write summary and score** asks the AI for "Why this company matters to Moca" (2 or 3 sentences), a score from 1 to 5 with a one line reason, a suggested customer group, key facts and what is not yet known. The AI is given only company information, never details about people, and is told never to invent facts.
+* Every answer comes back in a fixed format and is checked again before saving (for example, the score must be a whole number from 1 to 5). If an answer breaks the rules, the AI is asked once more, and nothing is saved if it fails again.
+* The model, date and prompt version are shown with each summary. People can edit the summary, score and reason, or regenerate them.
+* Prompts are separate, versioned files in [prompts/](prompts/). The scoring guide is [prompts/scoring-guide.v1.md](prompts/scoring-guide.v1.md). To change one, add a new version and update the version number in the code, so saved results always show which version produced them.
+* All AI requests go through one module, [src/lib/ai](src/lib/ai), so the provider can be changed later. Every request is recorded with its model, tokens used and estimated cost.
+* The default model is Claude Opus 5 (`claude-opus-5`), set with `AI_MODEL`. If Claude declines a request, the Claude API tries a fallback model automatically (the `fallbacks: "default"` option). Anthropic does not train its models on data sent through its API by default.
+
 ## Settings
 
 All settings live in `.env` on your computer, and in the server's settings on Hostinger. Placeholders are in `.env.example`.
@@ -99,6 +126,8 @@ All settings live in `.env` on your computer, and in the server's settings on Ho
 | `ENCRYPTION_KEY` | 32 random bytes in base64. Encrypts stored email and calendar sign in details. |
 | `SUPPRESSION_HMAC_KEY` | 32 random bytes in base64. Lets the opt out list be checked without storing readable addresses. |
 | `ANTHROPIC_API_KEY` | Key for the Claude API, used for AI summaries and drafts. |
+| `AI_MODEL` | Which Claude model to use. Leave blank for the default, `claude-opus-5`. |
+| `COMPANIES_HOUSE_API_KEY` | Free key from the Companies House developer hub, used to look up company records. |
 | `SEED_ADMIN_EMAIL` | Demo data only. This address is invited as an Admin when the demo data is loaded. |
 | `NEXT_TELEMETRY_DISABLED` | Set to `1` to stop Next.js sending anonymous usage statistics. |
 
@@ -126,6 +155,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ## How the project is organised
 
 ```
+prompts/               AI prompts and the scoring guide, as separate versioned files
+public/samples/        Sample CSV file for importing
 prisma/
   schema.prisma        Database design, shared by the web app and the worker
   migrations/          Step by step changes to the database, applied in order
@@ -163,7 +194,7 @@ The background job list uses pg-boss, which keeps its jobs in a separate `pgboss
 
 ## Tests
 
-`npm test` runs every test. Tests that need a database use `TEST_DATABASE_URL` and empty it before each test, so they never touch your development data. So far the tests cover access rights, sign in and invitations, British date, time and money formats, encryption, opt out matching, the fixed lists (loss reasons, health flags, stakeholder roles) and qualification completeness.
+`npm test` runs every test. Tests that need a database use `TEST_DATABASE_URL` and empty it before each test, so they never touch your development data. So far the tests cover access rights, sign in and invitations, British date, time and money formats, encryption, opt out matching, the fixed lists (loss reasons, health flags, stakeholder roles), qualification completeness, CSV duplicate checks, checking AI answers against the fixed format, AI usage records, robots.txt rules, blocking internal network addresses, and removing personal details before anything is sent out.
 
 ## Putting it online
 

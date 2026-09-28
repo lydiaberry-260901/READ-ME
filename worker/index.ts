@@ -3,12 +3,12 @@
 import "dotenv/config";
 import { getBoss } from "@/jobs/boss";
 import { handlers } from "@/jobs/handlers";
-import { SCHEDULES, SCHEDULE_TIME_ZONE, type QueueName } from "@/jobs/queues";
+import { CONCURRENCY, SCHEDULES, SCHEDULE_TIME_ZONE, type QueueName } from "@/jobs/queues";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/db";
 
 async function main() {
-  const boss = await getBoss();
+  const boss = await getBoss("worker");
 
   for (const s of SCHEDULES) {
     await boss.schedule(s.queue, s.cron, null, { tz: SCHEDULE_TIME_ZONE });
@@ -16,7 +16,8 @@ async function main() {
   }
 
   for (const [queue, handler] of Object.entries(handlers) as [QueueName, (data: unknown) => Promise<void>][]) {
-    await boss.work(queue, async (jobs) => {
+    const localConcurrency = CONCURRENCY[queue] ?? 2;
+    await boss.work(queue, { batchSize: 1, localConcurrency }, async (jobs) => {
       for (const job of jobs) {
         const started = Date.now();
         try {

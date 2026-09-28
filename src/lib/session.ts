@@ -3,50 +3,17 @@ import "server-only";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/db";
-import { can, computeVisibleOwnerIds, type Actor, type Capability } from "@/lib/permissions";
+import { loadActor, type LoadedActor } from "@/lib/actor";
+import { can, type Capability } from "@/lib/permissions";
 
-export type CurrentUser = Actor & {
-  name: string | null;
-  email: string;
-  image: string | null;
-  teamId: string | null;
-  organisationName: string;
-};
+export type CurrentUser = LoadedActor;
 
 /** The signed in person, read fresh from the database once per request. Null if not signed in. */
 export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return null;
-
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    include: {
-      organisation: true,
-      team: { include: { members: { select: { id: true } } } },
-      managedTeams: { include: { members: { select: { id: true } } } },
-    },
-  });
-  if (!user || !user.active || !user.organisationId || !user.organisation) return null;
-
-  return {
-    id: user.id,
-    organisationId: user.organisationId,
-    organisationName: user.organisation.name,
-    role: user.role,
-    name: user.name,
-    email: user.email,
-    image: user.image,
-    teamId: user.teamId,
-    isDataProtectionLead: user.organisation.dataProtectionLeadId === user.id,
-    visibleOwnerIds: computeVisibleOwnerIds({
-      userId: user.id,
-      role: user.role,
-      teamMemberIdsOfManagedTeams: user.managedTeams.flatMap((t) => t.members.map((m) => m.id)),
-      teamMemberIdsOfOwnTeam: user.team?.members.map((m) => m.id) ?? [],
-    }),
-  };
+  return loadActor(userId);
 });
 
 /** Use at the top of every signed in page. Sends people who are not signed in to the sign in page. */
