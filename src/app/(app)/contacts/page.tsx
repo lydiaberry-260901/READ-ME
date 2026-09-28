@@ -10,6 +10,7 @@ import { PageHeader, EmptyState, Badge } from "@/components/ui";
 import { Pagination } from "@/components/Pagination";
 import { BulkBar, SelectAll, type BulkAction } from "@/components/BulkBar";
 import { SavedViews } from "@/components/SavedViews";
+import { ContactSummary } from "@/components/ListSummaries";
 import { bulkContacts } from "./actions";
 
 export const metadata = { title: "Contacts" };
@@ -64,6 +65,8 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
           </>
         }
       />
+
+      <ContactSummary where={where} phoneCheckMaxAgeDays={org.phoneCheckMaxAgeDays} />
 
       <SavedViews user={user} entity="contacts" currentQuery={currentQuery} />
 

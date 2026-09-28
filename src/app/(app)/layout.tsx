@@ -16,10 +16,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     { href: "/contacts", label: "Contacts" },
     { href: "/outreach", label: "Outreach" },
     { href: "/knowledge", label: "Knowledge" },
-    { href: "/import", label: "Import" },
+    { href: "/automations", label: "Automations" },
   ];
 
-  const adminItems: NavItem[] = [{ href: "/battlecards", label: "Battlecards" }];
+  const adminItems: NavItem[] = [{ href: "/battlecards", label: "Battlecards" }, { href: "/import", label: "Import a CSV file" }];
   if (can(user, "pipelineReview.view")) adminItems.unshift({ href: "/deals/review", label: "Pipeline review" });
   if (can(user, "users.manage")) adminItems.push({ href: "/settings/users", label: "People and teams" });
   if (can(user, "settings.manage")) {

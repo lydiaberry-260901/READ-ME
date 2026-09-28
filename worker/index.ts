@@ -3,7 +3,7 @@
 import "dotenv/config";
 import { getBoss } from "@/jobs/boss";
 import { handlers } from "@/jobs/handlers";
-import { CONCURRENCY, SCHEDULES, SCHEDULE_TIME_ZONE, type QueueName } from "@/jobs/queues";
+import { CONCURRENCY, QUEUES, SCHEDULES, SCHEDULE_TIME_ZONE, type QueueName } from "@/jobs/queues";
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/db";
 
@@ -31,6 +31,8 @@ async function main() {
     });
   }
 
+  // Check in straight away, so the app shows the worker as running without waiting 15 minutes.
+  await boss.send(QUEUES.heartbeat, {});
   logger.info("Worker started", { queues: Object.keys(handlers) });
 
   const shutdown = async (signal: string) => {

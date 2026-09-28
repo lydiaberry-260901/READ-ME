@@ -101,6 +101,7 @@ export function LiveAutomations() {
               </li>
             ))}
           </ul>
+          <a href="/automations" className="mt-3 block text-xs">See all automations</a>
         </div>
       ) : null}
     </div>

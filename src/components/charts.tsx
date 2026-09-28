@@ -43,6 +43,12 @@ export function niceCeiling(v: number) {
   return step * mag;
 }
 
+/** Evenly spaced whole number marks from 0 to the top of the scale. */
+export function evenTicks(top: number) {
+  const intervals = [4, 5, 2, 1].find((n) => Number.isInteger(top / n)) ?? 1;
+  return Array.from({ length: intervals + 1 }, (_, i) => (top / intervals) * i);
+}
+
 export type Series = { key: string; label: string; colour: string };
 
 /** Frame around every chart: title, a short note, and a switch between chart and table. */
@@ -143,7 +149,7 @@ export function ColumnChart<T extends Record<string, unknown>>({
         <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }} barGap={2} barCategoryGap="28%">
           <CartesianGrid vertical={false} stroke={chart.grid} strokeWidth={1} />
           <XAxis dataKey={xKey as string} tickFormatter={xLabel} tick={{ fill: chart.axis, fontSize: 11 }} axisLine={{ stroke: chart.grid }} tickLine={false} interval="preserveStartEnd" minTickGap={16} />
-          <YAxis tickFormatter={(v: number) => compact(v, format)} tick={{ fill: chart.axis, fontSize: 11 }} axisLine={false} tickLine={false} width={48} allowDecimals={false} domain={[0, top]} tickCount={5} />
+          <YAxis tickFormatter={(v: number) => compact(v, format)} tick={{ fill: chart.axis, fontSize: 11 }} axisLine={false} tickLine={false} width={48} allowDecimals={false} domain={[0, top]} ticks={evenTicks(top)} />
           <Tooltip cursor={{ fill: "rgba(242,237,230,0.06)" }} content={(p) => <TooltipBox {...(p as TooltipContentProps<number, string>)} format={format} labelFormat={xLabel} />} />
           {series.length > 1 ? <Legend verticalAlign="top" align="right" iconType="square" iconSize={8} wrapperStyle={{ fontSize: 12, color: chart.axis, paddingBottom: 8 }} /> : null}
           {series.map((s, i) => (

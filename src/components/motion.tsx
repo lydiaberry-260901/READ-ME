@@ -63,7 +63,7 @@ export function AnimatedNumber({ value, format = "number", durationMs = 900 }: {
 }
 
 /** A bar that grows from nothing to its width when the page opens. */
-export function GrowBar({ pct, className, delayMs = 0 }: { pct: number; className: string; delayMs?: number }) {
+export function GrowBar({ pct, className, delayMs = 0, colour }: { pct: number; className: string; delayMs?: number; colour?: string }) {
   const reduced = usePrefersReducedMotion();
   const [w, setW] = useState(reduced ? pct : 0);
   useEffect(() => {
@@ -74,5 +74,5 @@ export function GrowBar({ pct, className, delayMs = 0 }: { pct: number; classNam
     const t = setTimeout(() => setW(pct), 30 + delayMs);
     return () => clearTimeout(t);
   }, [pct, reduced, delayMs]);
-  return <span className={className} style={{ width: `${w}%`, transition: "width 900ms cubic-bezier(0.22, 1, 0.36, 1)" }} />;
+  return <span className={className} style={{ width: `${w}%`, background: colour, transition: "width 900ms cubic-bezier(0.22, 1, 0.36, 1)" }} />;
 }

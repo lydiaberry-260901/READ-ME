@@ -19,7 +19,8 @@ export type AutomationStatus = {
   queues: { name: string; label: string; running: number; waiting: number; lastFinished: string | null }[];
 };
 
-type Row = { name: string; running: bigint; waiting: bigint; failed_today: bigint; last_finished: Date | null };
+// Times come back as milliseconds since 1970, which avoids any time zone confusion in the driver.
+type Row = { name: string; running: bigint; waiting: bigint; failed_today: bigint; last_finished_ms: number | null };
 
 export async function getAutomationStatus(): Promise<AutomationStatus> {
   let rows: Row[] = [];
@@ -29,7 +30,7 @@ export async function getAutomationStatus(): Promise<AutomationStatus> {
              count(*) FILTER (WHERE state = 'active') AS running,
              count(*) FILTER (WHERE state IN ('created', 'retry')) AS waiting,
              count(*) FILTER (WHERE state = 'failed' AND completed_on > now() - interval '1 day') AS failed_today,
-             max(completed_on) FILTER (WHERE state = 'completed') AS last_finished
+             (extract(epoch from max(completed_on) FILTER (WHERE state = 'completed')) * 1000)::float8 AS last_finished_ms
       FROM pgboss.job
       GROUP BY name`;
   } catch {
@@ -43,14 +44,14 @@ export async function getAutomationStatus(): Promise<AutomationStatus> {
       label: automationLabels[name],
       running: Number(r?.running ?? 0),
       waiting: Number(r?.waiting ?? 0),
-      lastFinished: r?.last_finished ? r.last_finished.toISOString() : null,
+      lastFinished: r?.last_finished_ms ? new Date(r.last_finished_ms).toISOString() : null,
     };
   });
   return {
     running: queues.reduce((s, q) => s + q.running, 0),
     waiting: queues.reduce((s, q) => s + q.waiting, 0),
     failedToday: rows.reduce((s, r) => s + Number(r.failed_today), 0),
-    workerLastSeen: byName.get(QUEUES.heartbeat)?.last_finished?.toISOString() ?? null,
+    workerLastSeen: byName.get(QUEUES.heartbeat)?.last_finished_ms ? new Date(byName.get(QUEUES.heartbeat)!.last_finished_ms!).toISOString() : null,
     queues: queues.filter((q) => q.name !== QUEUES.heartbeat),
   };
 }

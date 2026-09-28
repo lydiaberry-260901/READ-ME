@@ -9,6 +9,7 @@ import { ScoreBadge } from "@/components/ScoreBadge";
 import { Pagination } from "@/components/Pagination";
 import { BulkBar, SelectAll, type BulkAction } from "@/components/BulkBar";
 import { SavedViews } from "@/components/SavedViews";
+import { CompanySummary } from "@/components/ListSummaries";
 import { bulkCompanies } from "./actions";
 
 export const metadata = { title: "Companies" };
@@ -70,6 +71,8 @@ export default async function CompaniesPage({ searchParams }: { searchParams: Pr
           </>
         }
       />
+
+      <CompanySummary where={where} />
 
       <SavedViews user={user} entity="companies" currentQuery={currentQuery} />
 
