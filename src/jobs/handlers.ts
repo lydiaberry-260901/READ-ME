@@ -10,6 +10,7 @@ import { DEFAULT_RETRY, QUEUES, type JobData, type QueueName } from "@/jobs/queu
 import { getBoss } from "@/jobs/boss";
 import { syncMailAccount } from "@/lib/integrations/mail-sync";
 import { syncCalendarAccount } from "@/lib/integrations/calendar-sync";
+import { runDailyTasks } from "@/lib/tasks/daily";
 import { deliverNotification } from "@/lib/notifications/deal-alerts";
 import { recalculateOrganisation } from "@/lib/deals/recalculate";
 
@@ -97,6 +98,14 @@ export const handlers: Handlers = {
   [QUEUES.calendarSync]: async ({ accountId }) => {
     const r = await syncCalendarAccount(accountId);
     logger.info("Calendar sync", { accountId, ...r });
+  },
+
+  [QUEUES.dailyTasks]: async () => {
+    const r = await runDailyTasks();
+    logger.info("Daily task lists built", { people: r.people, created: r.created });
+    // Send any morning summaries straight away rather than waiting for the next sweep.
+    const boss = await getBoss("worker");
+    await boss.send(QUEUES.sendNotification, null as never, { ...DEFAULT_RETRY });
   },
 
   [QUEUES.companyEnrich]: async ({ companyId, userId }) => {

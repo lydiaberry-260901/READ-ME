@@ -17,7 +17,8 @@ The full project brief is in [CLAUDE.md](CLAUDE.md).
 | 9 | Analytics dashboards with animated charts, manager pipeline review, CSV downloads for every list and table | Done (brought forward) |
 | Visuals | Command centre home page, Automations page, visual summaries on lists | Done |
 | 4 | Email and calendar: connect Gmail or Outlook and Google or Outlook calendar, email sync, sending from the CRM, two way calendar, calendar page, booking meetings | Done |
-| 6, 7, 8, 10, 11 | Daily tasks, news, transcripts, privacy centre, going live | To do |
+| 6 | Daily task list: manual tasks, Today page, 07:00 weekday suggestions with reasons, no duplicates, daily limit, morning summary email | Done |
+| 7, 8, 10, 11 | News, transcripts, privacy centre, going live | To do |
 
 ## What you need on your computer
 
@@ -158,6 +159,21 @@ Go to Import. Choose a CSV file, match its columns, say where the data came from
 * **Marketing email footer:** every marketing email ends with who we are, a privacy line with a link to the privacy notice, and a personal unsubscribe link. It is added when the email is put together and is never stored in a template, so it cannot be edited out. Admins set the legal name, address and privacy notice link under Settings, Organisation.
 * **Unsubscribe:** each link names one contact and carries a keyed check value, so it cannot be changed to opt out someone else. The public page opts the person out with one button press. Opening the link does not do it on its own, because email security scanners open links automatically. Email programs' own unsubscribe buttons are supported too (`/api/unsubscribe/...`). Opting out blocks everyone in the team from contacting them and adds them to the opt out list.
 * The template or script used is saved on every draft, so later dashboards can show which ones work best.
+
+## Daily task list
+
+* **Today** (in the top bar) shows each person's tasks: overdue, today, the next 7 days, later and snoozed, with a ring showing progress for the day. Managers can look at their team's lists and admins at anyone's.
+* **Adding a task:** choose a type (call, email, follow up, research, meeting, other), a priority and a due date and time. Tick the circle to complete a task, snooze it until tomorrow, in 3 days or next week (it comes back at 08:00), or remove it.
+* **Suggested tasks, every weekday at 07:00 London time.** The worker builds each active person's list from these rules:
+  1. An outreach step is waiting: an email draft started more than a day ago and not sent, or a call script marked ready.
+  2. A follow up is due: an email sent 5 to 14 days ago with no reply (only the newest to each person, never to someone who opted out). A draft follow up message is included. Follow ups promised in calls are added from call transcripts (Phase 8).
+  3. A deal has had no activity for longer than its stage allows (set per stage under Deal stages).
+  4. A deal has just become at risk or stalled. Single threaded deals get their own task as soon as they are spotted.
+  5. A very relevant news item (4 or 5 out of 5) has appeared for a company the person owns, with a suggested opening line (Phase 7 collects the news).
+  6. The highest scoring companies (4 or 5 out of 5) the person owns, with no open deal and no contact for 60 days, up to 3 a day.
+* Every suggested task says why it was created, where it came from and what to do, with a draft message where useful. Each has a stable key, so running the job again never creates the same task twice. At most 25 suggestions per person per day (a setting under Organisation), most important first: high priority, then stalled or at risk deals, ready calls, news, follow ups, quiet deals, unsent drafts and new prospects. Suggestions about deals that have since closed are removed each morning.
+* **Check for new suggestions** on the Today page runs the rules for you straight away. Admins can run the whole job from the Automations page, and `npm run tasks:daily` does the same from the terminal.
+* **Morning summary:** anyone can switch on a 07:00 weekday email listing the day's tasks, sent through the alert email system.
 
 ## Email and calendar
 

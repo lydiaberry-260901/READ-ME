@@ -19,7 +19,7 @@ export default async function OrganisationPage() {
         </div>
       ) : null}
       <div className="grid gap-12 xl:grid-cols-[1fr_1fr]">
-        <OrganisationForm org={{ name: org.name, legalName: org.legalName, postalAddress: org.postalAddress, websiteUrl: org.websiteUrl, privacyNoticeUrl: org.privacyNoticeUrl, phoneCheckMaxAgeDays: org.phoneCheckMaxAgeDays }} />
+        <OrganisationForm org={{ name: org.name, legalName: org.legalName, postalAddress: org.postalAddress, websiteUrl: org.websiteUrl, privacyNoticeUrl: org.privacyNoticeUrl, phoneCheckMaxAgeDays: org.phoneCheckMaxAgeDays, dailyTaskLimit: org.dailyTaskLimit, singleThreadedDays: org.singleThreadedDays }} />
         <section aria-labelledby="footer-heading">
           <h2 id="footer-heading" className="text-sm font-semibold">The footer as it appears today</h2>
           <div className="mt-2 whitespace-pre-wrap rounded-md border border-dashed border-line bg-panel px-4 py-3 text-sm leading-relaxed text-fg-muted">

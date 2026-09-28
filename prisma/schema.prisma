@@ -291,6 +291,7 @@ model User {
   teamId         String?
   jobTitle       String?
   active         Boolean   @default(true)
+  morningSummary Boolean   @default(false) // email the day's task list at 07:00 on weekdays
   lastSignInAt   DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
@@ -576,6 +577,7 @@ model Deal {
   healthScore          Int?
   healthFlag           HealthFlag?
   healthCalculatedAt   DateTime?
+  healthFlagChangedAt  DateTime? // when the flag last changed, so "newly at risk" can be spotted
   singleThreadedSince  DateTime? // when the deal first had only one engaged contact
   singleThreadedWarnedAt DateTime?
 

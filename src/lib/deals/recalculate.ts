@@ -62,6 +62,8 @@ export async function recalculateDeal(dealId: string, opts: { now?: Date; averag
     healthCalculatedAt: now,
     singleThreadedSince: single.since,
   };
+  const newFlag = isOpen ? health.flag : null;
+  if (newFlag !== deal.healthFlag) data.healthFlagChangedAt = now;
   if (!single.since) data.singleThreadedWarnedAt = null;
 
   // Warn once per single threaded spell, with a task for the owner. The stable key means

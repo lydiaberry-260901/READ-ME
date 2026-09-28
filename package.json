@@ -24,6 +24,7 @@
     "outreach:starter": "tsx scripts/install-starter-library.ts",
     "deals:recalculate": "tsx scripts/recalculate-health.ts",
     "db:demo-activity": "tsx scripts/add-demo-activity.ts",
+    "tasks:daily": "tsx scripts/run-daily-tasks.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

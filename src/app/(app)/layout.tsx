@@ -10,18 +10,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   // Everyone sees analytics, limited to the records they are allowed to see.
   const items: NavItem[] = [
     { href: "/", label: "Home" },
+    { href: "/tasks", label: "Today" },
     { href: "/deals", label: "Deals" },
     { href: "/analytics", label: "Analytics" },
     { href: "/companies", label: "Companies" },
     { href: "/contacts", label: "Contacts" },
     { href: "/outreach", label: "Outreach" },
     { href: "/calendar", label: "Calendar" },
-    { href: "/knowledge", label: "Knowledge" },
     { href: "/automations", label: "Automations" },
   ];
 
   const adminItems: NavItem[] = [
     { href: "/settings/connections", label: "Email and calendar" },
+    { href: "/knowledge", label: "Knowledge library" },
     { href: "/battlecards", label: "Battlecards" },
     { href: "/import", label: "Import a CSV file" },
   ];

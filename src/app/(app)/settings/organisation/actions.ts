@@ -20,6 +20,8 @@ export async function saveOrganisation(_prev: ActionResult | null, formData: For
         websiteUrl: url,
         privacyNoticeUrl: url,
         phoneCheckMaxAgeDays: z.coerce.number().int().min(1, "Use a number from 1 to 28.").max(28, "The TPS and CTPS check must be no older than 28 days."),
+        dailyTaskLimit: z.coerce.number().int().min(1, "Allow at least one task a day.").max(100, "Please keep the daily limit to 100 or fewer."),
+        singleThreadedDays: z.coerce.number().int().min(1).max(90, "Use a number of days from 1 to 90."),
       })
       .parse(Object.fromEntries(formData));
     await prisma.organisation.update({ where: { id: me.organisationId }, data: input });

@@ -12,6 +12,7 @@ export const QUEUES = {
   mailSync: "mail-sync",
   calendarSyncAll: "calendar-sync-all",
   calendarSync: "calendar-sync",
+  dailyTasks: "daily-tasks",
 } as const;
 
 export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];
@@ -27,6 +28,7 @@ export type JobData = {
   [QUEUES.mailSync]: { accountId: string };
   [QUEUES.calendarSyncAll]: Record<string, never> | null;
   [QUEUES.calendarSync]: { accountId: string };
+  [QUEUES.dailyTasks]: Record<string, never> | null;
 };
 
 /** Scheduled jobs. Cron timings use the Europe/London time zone, so they follow British Summer Time. */
@@ -37,6 +39,7 @@ export const SCHEDULES: { queue: QueueName; cron: string; description: string }[
   { queue: QUEUES.sendNotification, cron: "*/10 * * * *", description: "Sends any waiting alert emails, every 10 minutes." },
   { queue: QUEUES.mailSyncAll, cron: "*/10 * * * *", description: "Collects new emails with CRM contacts from every connected email account." },
   { queue: QUEUES.calendarSyncAll, cron: "*/15 * * * *", description: "Brings every connected calendar up to date, both ways." },
+  { queue: QUEUES.dailyTasks, cron: "0 7 * * 1-5", description: "Builds each person's task list for the day and sends morning summaries to those who want one." },
 ];
 
 export const SCHEDULE_TIME_ZONE = TIME_ZONE;
@@ -51,4 +54,5 @@ export const CONCURRENCY: Partial<Record<QueueName, number>> = {
   [QUEUES.recalculateHealth]: 1,
   [QUEUES.mailSync]: 2,
   [QUEUES.calendarSync]: 2,
+  [QUEUES.dailyTasks]: 1,
 };
