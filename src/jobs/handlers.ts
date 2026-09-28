@@ -7,6 +7,10 @@ import { generateCompanySummary } from "@/lib/companies/summary";
 import { enrichCompany } from "@/lib/enrichment";
 import { AiNotConfiguredError } from "@/lib/ai";
 import { QUEUES, type JobData, type QueueName } from "@/jobs/queues";
+import { deliverNotification } from "@/lib/notifications/deal-alerts";
+import { recalculateOrganisation } from "@/lib/deals/recalculate";
+
+const MAX_ALERT_ATTEMPTS = 8;
 
 type Handlers = { [Q in QueueName]: (data: JobData[Q]) => Promise<void> };
 
@@ -41,6 +45,33 @@ export const handlers: Handlers = {
       }
       throw error;
     }
+  },
+
+  [QUEUES.sendNotification]: async (data) => {
+    if (data?.notificationId) {
+      await deliverNotification(data.notificationId);
+      return;
+    }
+    // Scheduled sweep: send anything still waiting, and retry failures up to a limit.
+    const waiting = await prisma.notification.findMany({
+      where: { OR: [{ status: "PENDING" }, { status: "FAILED", attempts: { lt: MAX_ALERT_ATTEMPTS } }] },
+      select: { id: true },
+      take: 200,
+    });
+    for (const n of waiting) {
+      try {
+        await deliverNotification(n.id);
+      } catch (error) {
+        logger.warn("Alert could not be sent, it will be tried again", { notificationId: n.id, error: String(error) });
+      }
+    }
+  },
+
+  [QUEUES.recalculateHealth]: async () => {
+    const orgs = await prisma.organisation.findMany({ select: { id: true } });
+    let total = 0;
+    for (const o of orgs) total += await recalculateOrganisation(o.id);
+    logger.info("Deal health recalculated", { deals: total });
   },
 
   [QUEUES.companyEnrich]: async ({ companyId, userId }) => {

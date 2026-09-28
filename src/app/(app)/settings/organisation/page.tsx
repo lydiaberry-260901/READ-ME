@@ -22,7 +22,7 @@ export default async function OrganisationPage() {
         <OrganisationForm org={{ name: org.name, legalName: org.legalName, postalAddress: org.postalAddress, websiteUrl: org.websiteUrl, privacyNoticeUrl: org.privacyNoticeUrl, phoneCheckMaxAgeDays: org.phoneCheckMaxAgeDays }} />
         <section aria-labelledby="footer-heading">
           <h2 id="footer-heading" className="text-sm font-semibold">The footer as it appears today</h2>
-          <div className="mt-2 whitespace-pre-wrap rounded-md border border-dashed border-stone bg-surface px-4 py-3 text-sm leading-relaxed text-ink-muted">
+          <div className="mt-2 whitespace-pre-wrap rounded-md border border-dashed border-line bg-panel px-4 py-3 text-sm leading-relaxed text-fg-muted">
             {marketingFooter(org, "(each person's own unsubscribe link)")}
           </div>
         </section>

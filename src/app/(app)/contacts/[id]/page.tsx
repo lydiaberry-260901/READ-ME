@@ -21,13 +21,13 @@ import { outreachReasonLabels } from "@/lib/labels";
 function Check({ ok, label, detail }: { ok: boolean; label: string; detail?: string }) {
   return (
     <li className="flex gap-3">
-      <span aria-hidden="true" className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-xs font-bold ${ok ? "bg-green-tint text-green-ink" : "bg-amber-tint text-amber-ink"}`}>
+      <span aria-hidden="true" className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-xs font-bold ${ok ? "bg-green-tint text-green-text" : "bg-amber-tint text-amber-text"}`}>
         {ok ? "✓" : "!"}
       </span>
       <span>
         <span className="font-medium">{label}</span>
         <span className="sr-only">{ok ? " (done)" : " (needs attention)"}</span>
-        {detail ? <span className="block text-ink-muted">{detail}</span> : null}
+        {detail ? <span className="block text-fg-muted">{detail}</span> : null}
       </span>
     </li>
   );
@@ -78,13 +78,13 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
 
   return (
     <>
-      <p className="mb-3 text-sm"><Link href="/contacts">Contacts</Link> <span className="text-ink-muted">/ {contact.firstName} {contact.lastName}</span></p>
+      <p className="mb-3 text-sm"><Link href="/contacts">Contacts</Link> <span className="text-fg-muted">/ {contact.firstName} {contact.lastName}</span></p>
       <header className="mb-8">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-semibold sm:text-3xl">{contact.firstName} {contact.lastName}</h1>
           {contact.optedOut ? <Badge tone="red">Opted out: do not contact</Badge> : null}
         </div>
-        <p className="mt-1.5 text-ink-muted">
+        <p className="mt-1.5 text-fg-muted">
           {contact.jobTitle ?? "Job title not recorded"}
           {contact.company ? <> at <Link href={`/companies/${contact.company.id}`}>{contact.company.name}</Link></> : null}
         </p>
@@ -96,7 +96,7 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
                 <form action={removeContactTag}>
                   <input type="hidden" name="id" value={contact.id} />
                   <input type="hidden" name="tagId" value={t.tagId} />
-                  <button type="submit" aria-label={`Remove tag ${t.tag.name}`} className="text-xs text-ink-muted hover:text-red-ink">×</button>
+                  <button type="submit" aria-label={`Remove tag ${t.tag.name}`} className="text-xs text-fg-muted hover:text-red-text">×</button>
                 </form>
               ) : null}
             </span>
@@ -132,10 +132,10 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
             />
           ) : (
             <dl className="grid gap-3 text-sm">
-              <div><dt className="text-ink-muted">Work email</dt><dd>{contact.email ?? "None"}</dd></div>
-              <div><dt className="text-ink-muted">Work phone</dt><dd>{contact.phone ?? "None"}</dd></div>
-              <div><dt className="text-ink-muted">Profile link</dt><dd>{contact.linkedinUrl ? <a href={contact.linkedinUrl} target="_blank" rel="noopener noreferrer">{contact.linkedinUrl}</a> : "None"}</dd></div>
-              <div><dt className="text-ink-muted">Notes</dt><dd className="whitespace-pre-wrap">{contact.notes ?? "None"}</dd></div>
+              <div><dt className="text-fg-muted">Work email</dt><dd>{contact.email ?? "None"}</dd></div>
+              <div><dt className="text-fg-muted">Work phone</dt><dd>{contact.phone ?? "None"}</dd></div>
+              <div><dt className="text-fg-muted">Profile link</dt><dd>{contact.linkedinUrl ? <a href={contact.linkedinUrl} target="_blank" rel="noopener noreferrer">{contact.linkedinUrl}</a> : "None"}</dd></div>
+              <div><dt className="text-fg-muted">Notes</dt><dd className="whitespace-pre-wrap">{contact.notes ?? "None"}</dd></div>
             </dl>
           )}
         </section>
@@ -156,14 +156,14 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
           <section className="card p-6" aria-labelledby="dp-heading">
             <h2 id="dp-heading" className="text-lg font-semibold">Data protection</h2>
             <dl className="mt-4 grid grid-cols-[9rem_1fr] gap-x-3 gap-y-2 text-sm">
-              <dt className="text-ink-muted">Lawful reason</dt><dd>{lawfulBasisLabels[contact.lawfulBasis]}</dd>
-              <dt className="text-ink-muted">Source</dt><dd>{contact.source}</dd>
-              <dt className="text-ink-muted">Collected on</dt><dd>{formatDate(contact.collectedAt)}</dd>
-              <dt className="text-ink-muted">Business type</dt><dd>{entityTypeLabels[contact.entityType]}</dd>
-              <dt className="text-ink-muted">Owner</dt><dd>{contact.owner?.name ?? "No owner"}</dd>
+              <dt className="text-fg-muted">Lawful reason</dt><dd>{lawfulBasisLabels[contact.lawfulBasis]}</dd>
+              <dt className="text-fg-muted">Source</dt><dd>{contact.source}</dd>
+              <dt className="text-fg-muted">Collected on</dt><dd>{formatDate(contact.collectedAt)}</dd>
+              <dt className="text-fg-muted">Business type</dt><dd>{entityTypeLabels[contact.entityType]}</dd>
+              <dt className="text-fg-muted">Owner</dt><dd>{contact.owner?.name ?? "No owner"}</dd>
             </dl>
 
-            <ul className="mt-5 space-y-4 border-t border-stone pt-5 text-sm">
+            <ul className="mt-5 space-y-4 border-t border-line pt-5 text-sm">
               <li>
                 <ul>
                   <Check
@@ -187,7 +187,7 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
                 {editable && !contact.optedOut && treatedAsIndividual(contact.entityType) && !contact.consentAt ? (
                   <DateRecordForm id={contact.id} kind="consent" todayIso={today} label="Date they gave consent" button="Record consent" />
                 ) : null}
-                {contact.consentAt ? <p className="ml-8 mt-1 text-xs text-ink-muted">Consent recorded on {formatDate(contact.consentAt)}.</p> : null}
+                {contact.consentAt ? <p className="ml-8 mt-1 text-xs text-fg-muted">Consent recorded on {formatDate(contact.consentAt)}.</p> : null}
               </li>
               <li>
                 <ul>
@@ -206,27 +206,27 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
             </ul>
 
             {!contact.optedOut ? (
-              <div className="mt-6 border-t border-stone pt-5">
-                <p className="mb-3 text-sm text-ink-muted">If this person asks us to stop contacting them, record it straight away.</p>
+              <div className="mt-6 border-t border-line pt-5">
+                <p className="mb-3 text-sm text-fg-muted">If this person asks us to stop contacting them, record it straight away.</p>
                 <OptOutForm id={contact.id} />
               </div>
             ) : null}
             {org.privacyNoticeUrl ? (
-              <p className="mt-4 text-xs text-ink-muted">Full privacy notice: <a href={org.privacyNoticeUrl} target="_blank" rel="noopener noreferrer">{org.privacyNoticeUrl}</a></p>
+              <p className="mt-4 text-xs text-fg-muted">Full privacy notice: <a href={org.privacyNoticeUrl} target="_blank" rel="noopener noreferrer">{org.privacyNoticeUrl}</a></p>
             ) : null}
           </section>
 
           <section className="section-plain" aria-labelledby="deals-heading">
             <h2 id="deals-heading" className="text-lg font-semibold">Deals</h2>
             {deals.length === 0 ? (
-              <p className="mt-3 text-sm text-ink-muted">Not linked to any deals you can see.</p>
+              <p className="mt-3 text-sm text-fg-muted">Not linked to any deals you can see.</p>
             ) : (
-              <ul className="mt-3 divide-y divide-stone text-sm">
+              <ul className="mt-3 divide-y divide-line text-sm">
                 {deals.map((r) => (
                   <li key={r.id} className="flex justify-between gap-3 py-2.5">
                     <span>
                       <span className="font-medium">{r.deal.name}</span>
-                      <span className="block text-ink-muted">{r.deal.stage.name}{r.role ? `, ${stakeholderRoleLabels[r.role]}` : ""}</span>
+                      <span className="block text-fg-muted">{r.deal.stage.name}{r.role ? `, ${stakeholderRoleLabels[r.role]}` : ""}</span>
                     </span>
                     <span className="tabular-nums">{formatPounds(r.deal.value)}</span>
                   </li>

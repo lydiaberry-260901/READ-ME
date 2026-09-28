@@ -16,7 +16,7 @@ export default async function TemplatePage({ params }: { params: Promise<{ id: s
 
   return (
     <>
-      <p className="mb-3 text-sm"><Link href="/outreach">Outreach</Link> <span className="text-ink-muted">/ {t.name}</span></p>
+      <p className="mb-3 text-sm"><Link href="/outreach">Outreach</Link> <span className="text-fg-muted">/ {t.name}</span></p>
       <PageHeader
         title={t.name}
         description={editable ? `Version ${t.version}. Changes apply to new drafts only.` : "To use this template, open a contact and choose it there. Admins and managers can edit templates."}

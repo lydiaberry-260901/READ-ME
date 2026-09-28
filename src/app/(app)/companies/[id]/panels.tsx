@@ -22,7 +22,7 @@ export function GenerateSummaryButton({ id, hasSummary, aiReady }: { id: string;
       <button type="submit" className={hasSummary ? "btn btn-secondary" : "btn btn-primary"} disabled={pending || !aiReady}>
         {pending ? "Writing, this can take up to a minute" : hasSummary ? "Regenerate" : "Write summary and score"}
       </button>
-      {!aiReady ? <p className="mt-2 text-xs text-ink-muted">AI is not set up yet. An admin needs to add the ANTHROPIC_API_KEY setting.</p> : null}
+      {!aiReady ? <p className="mt-2 text-xs text-fg-muted">AI is not set up yet. An admin needs to add the ANTHROPIC_API_KEY setting.</p> : null}
       <Message state={state} />
     </form>
   );
@@ -39,7 +39,7 @@ export function EditSummary({ id, whyMatters, score, scoreReason }: { id: string
     );
   }
   return (
-    <form action={action} className="mt-4 grid w-full gap-4 rounded-md border border-stone bg-surface-sunk p-4">
+    <form action={action} className="mt-4 grid w-full gap-4 rounded-md border border-line bg-panel-sunk p-4">
       <input type="hidden" name="id" value={id} />
       <div>
         <label htmlFor="s-summary" className="label">Why this company matters to Moca (2 or 3 sentences)</label>
@@ -75,7 +75,7 @@ export function EnrichButton({ id, disabledReason }: { id: string; disabledReaso
       <button type="submit" className="btn btn-secondary" disabled={pending || Boolean(disabledReason)}>
         {pending ? "Fetching" : "Fetch details"}
       </button>
-      {disabledReason ? <p className="mt-2 text-xs text-ink-muted">{disabledReason}</p> : null}
+      {disabledReason ? <p className="mt-2 text-xs text-fg-muted">{disabledReason}</p> : null}
       <Message state={state} />
     </form>
   );
@@ -89,7 +89,7 @@ export function AddTagForm({ id }: { id: string }) {
       <label htmlFor="new-tag" className="sr-only">New tag</label>
       <input id="new-tag" name="name" maxLength={40} placeholder="Add a tag" className="field w-40 py-1" required />
       <button type="submit" className="btn btn-secondary py-1" disabled={pending}>Add</button>
-      {state && !state.ok ? <span role="status" className="text-sm text-red-ink">{state.message}</span> : null}
+      {state && !state.ok ? <span role="status" className="text-sm text-red-text">{state.message}</span> : null}
     </form>
   );
 }

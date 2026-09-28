@@ -87,10 +87,10 @@ export function TemplateEditor({ template, canEdit, footerPreview }: { template:
         {canEdit ? (
           <div>
             <p className="label">Insert a merge field</p>
-            <p className="mb-2 text-xs text-ink-muted">Adds it where your cursor is, in the {focused === "subject" ? "subject line" : "email"}.</p>
+            <p className="mb-2 text-xs text-fg-muted">Adds it where your cursor is, in the {focused === "subject" ? "subject line" : "email"}.</p>
             <div className="flex flex-wrap gap-1.5">
               {MERGE_FIELDS.map((f) => (
-                <button key={f.key} type="button" onClick={() => insert(f.key)} className="rounded-full border border-stone bg-surface px-2.5 py-1 text-xs hover:border-ink" title={`{{${f.key}}}`}>
+                <button key={f.key} type="button" onClick={() => insert(f.key)} className="rounded-full border border-line bg-panel px-2.5 py-1 text-xs hover:border-fg" title={`{{${f.key}}}`}>
                   {f.label}
                 </button>
               ))}
@@ -101,7 +101,7 @@ export function TemplateEditor({ template, canEdit, footerPreview }: { template:
           <input type="checkbox" name="isMarketing" checked={isMarketing} onChange={(e) => setIsMarketing(e.target.checked)} className="mt-0.5 size-4 accent-green" />
           <span>
             Marketing email
-            <span className="block text-xs text-ink-muted">Marketing emails always end with who we are, a privacy line and an unsubscribe link, and are blocked for anyone who does not meet the marketing rules. Untick only for replies to someone who contacted us first.</span>
+            <span className="block text-xs text-fg-muted">Marketing emails always end with who we are, a privacy line and an unsubscribe link, and are blocked for anyone who does not meet the marketing rules. Untick only for replies to someone who contacted us first.</span>
           </span>
         </label>
         <label className="flex items-center gap-2 text-sm">
@@ -120,15 +120,15 @@ export function TemplateEditor({ template, canEdit, footerPreview }: { template:
 
       <section aria-labelledby="preview-heading" className="xl:sticky xl:top-8 xl:self-start">
         <h2 id="preview-heading" className="text-sm font-semibold">Preview with sample details</h2>
-        <div className="mt-2 overflow-hidden rounded-lg border border-stone bg-surface">
-          <div className="border-b border-stone px-5 py-3 text-sm">
-            <span className="text-ink-muted">Subject: </span>
+        <div className="mt-2 overflow-hidden rounded-lg border border-line bg-panel">
+          <div className="border-b border-line px-5 py-3 text-sm">
+            <span className="text-fg-muted">Subject: </span>
             <span className="font-medium">{preview.subject}</span>
           </div>
           <div className="whitespace-pre-wrap px-5 py-4 text-sm leading-relaxed">{preview.body}</div>
           {isMarketing ? (
-            <div className="whitespace-pre-wrap border-t border-dashed border-stone bg-surface-sunk px-5 py-4 text-xs leading-relaxed text-ink-muted">
-              <p className="mb-2 font-semibold text-ink">Added to every marketing email, and cannot be removed:</p>
+            <div className="whitespace-pre-wrap border-t border-dashed border-line bg-panel-sunk px-5 py-4 text-xs leading-relaxed text-fg-muted">
+              <p className="mb-2 font-semibold text-fg">Added to every marketing email, and cannot be removed:</p>
               {footerPreview}
             </div>
           ) : null}

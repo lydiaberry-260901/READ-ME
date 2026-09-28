@@ -21,11 +21,11 @@ export default async function KnowledgeDocumentPage({ params }: { params: Promis
 
   return (
     <>
-      <p className="mb-3 text-sm"><Link href="/knowledge">Knowledge</Link> <span className="text-ink-muted">/ {doc.title}</span></p>
+      <p className="mb-3 text-sm"><Link href="/knowledge">Knowledge</Link> <span className="text-fg-muted">/ {doc.title}</span></p>
       <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold sm:text-3xl">{doc.title}</h1>
-          <p className="mt-1.5 text-sm text-ink-muted">
+          <p className="mt-1.5 text-sm text-fg-muted">
             {knowledgeKindLabels[doc.kind]}, added {formatDateTime(doc.createdAt)}{doc.uploadedBy?.name ? ` by ${doc.uploadedBy.name}` : ""}
             {doc.fileName ? `, from ${doc.fileName}` : ", pasted in"}
           </p>
@@ -39,8 +39,8 @@ export default async function KnowledgeDocumentPage({ params }: { params: Promis
       <div className="grid gap-8 lg:grid-cols-[1.6fr_1fr]">
         <section className="card p-6" aria-labelledby="text-heading">
           <h2 id="text-heading" className="text-lg font-semibold">Text</h2>
-          <p className="text-sm text-ink-muted">The text read from the file. The original file is not kept.</p>
-          <div className="mt-4 max-h-[70vh] overflow-auto whitespace-pre-wrap rounded-md border border-stone bg-surface-sunk p-4 text-sm leading-relaxed">
+          <p className="text-sm text-fg-muted">The text read from the file. The original file is not kept.</p>
+          <div className="mt-4 max-h-[70vh] overflow-auto whitespace-pre-wrap rounded-md border border-line bg-panel-sunk p-4 text-sm leading-relaxed">
             {doc.text}
           </div>
         </section>
@@ -52,7 +52,7 @@ export default async function KnowledgeDocumentPage({ params }: { params: Promis
             </section>
             <section className="card p-6">
               <h2 className="text-lg font-semibold">Remove</h2>
-              <p className="mt-1 text-sm text-ink-muted">Deleting removes the text for good. The AI stops using it straight away.</p>
+              <p className="mt-1 text-sm text-fg-muted">Deleting removes the text for good. The AI stops using it straight away.</p>
               <form action={deleteDocument} className="mt-4">
                 <input type="hidden" name="id" value={doc.id} />
                 <button type="submit" className="btn btn-danger">Delete this document</button>

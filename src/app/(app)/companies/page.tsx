@@ -154,7 +154,7 @@ export default async function CompaniesPage({ searchParams }: { searchParams: Pr
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[860px] text-left text-sm">
-              <thead className="border-b border-stone text-ink-muted">
+              <thead className="border-b border-line text-fg-muted">
                 <tr>
                   <th scope="col" className="w-10 py-2.5 pl-6"><SelectAll formId={FORM_ID} label="Select all companies on this page" /></th>
                   <th scope="col" className="px-3 py-2.5 font-medium">Company</th>
@@ -165,29 +165,29 @@ export default async function CompaniesPage({ searchParams }: { searchParams: Pr
                   <th scope="col" className="px-3 py-2.5 pr-6 font-medium">Contacts</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone">
+              <tbody className="divide-y divide-line">
                 {companies.map((c) => (
-                  <tr key={c.id} className="align-top hover:bg-surface-sunk">
+                  <tr key={c.id} className="align-top hover:bg-panel-sunk">
                     <td className="py-3 pl-6">
                       <input type="checkbox" name="ids" value={c.id} form={FORM_ID} aria-label={`Select ${c.name}`} className="size-4 accent-green" />
                     </td>
                     <td className="px-3 py-3">
-                      <Link href={`/companies/${c.id}`} className="font-medium text-ink underline-offset-4 hover:underline">{c.name}</Link>
-                      {c.domain ? <p className="text-xs text-ink-muted">{c.domain}</p> : null}
+                      <Link href={`/companies/${c.id}`} className="font-medium text-fg underline-offset-4 hover:underline">{c.name}</Link>
+                      {c.domain ? <p className="text-xs text-fg-muted">{c.domain}</p> : null}
                       {c.tags.length ? (
                         <p className="mt-1 flex flex-wrap gap-1">{c.tags.map((t) => <Badge key={t.tagId}>{t.tag.name}</Badge>)}</p>
                       ) : null}
-                      {c.isShared ? null : <p className="mt-1 text-xs text-ink-muted">Private</p>}
+                      {c.isShared ? null : <p className="mt-1 text-xs text-fg-muted">Private</p>}
                     </td>
                     <td className="max-w-sm px-3 py-3">
                       <div className="flex items-start gap-2">
                         <ScoreBadge score={c.score} />
-                        {c.scoreReason ? <span className="text-xs text-ink-muted">{c.scoreReason}</span> : null}
+                        {c.scoreReason ? <span className="text-xs text-fg-muted">{c.scoreReason}</span> : null}
                       </div>
                     </td>
-                    <td className="px-3 py-3">{c.customerGroup ? customerGroupLabels[c.customerGroup] : <span className="text-ink-muted">Not set</span>}</td>
+                    <td className="px-3 py-3">{c.customerGroup ? customerGroupLabels[c.customerGroup] : <span className="text-fg-muted">Not set</span>}</td>
                     <td className="px-3 py-3 tabular-nums">{c.importance}</td>
-                    <td className="px-3 py-3">{c.owner?.name ?? <span className="text-ink-muted">No owner</span>}</td>
+                    <td className="px-3 py-3">{c.owner?.name ?? <span className="text-fg-muted">No owner</span>}</td>
                     <td className="px-3 py-3 pr-6 tabular-nums">{c._count.contacts}</td>
                   </tr>
                 ))}

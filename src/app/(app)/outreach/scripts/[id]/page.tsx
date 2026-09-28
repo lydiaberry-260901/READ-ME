@@ -15,7 +15,7 @@ export default async function ScriptPage({ params }: { params: Promise<{ id: str
   const editable = can(user, "templates.manage");
   return (
     <>
-      <p className="mb-3 text-sm"><Link href="/outreach">Outreach</Link> <span className="text-ink-muted">/ {s.name}</span></p>
+      <p className="mb-3 text-sm"><Link href="/outreach">Outreach</Link> <span className="text-fg-muted">/ {s.name}</span></p>
       <PageHeader title={s.name} description={editable ? "Changes apply to new drafts only." : "To use this script, open a contact and choose it there."} />
       <ScriptEditor
         canEdit={editable}

@@ -50,11 +50,11 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
 
   return (
     <>
-      <p className="mb-3 text-sm"><Link href="/companies">Companies</Link> <span className="text-ink-muted">/ {company.name}</span></p>
+      <p className="mb-3 text-sm"><Link href="/companies">Companies</Link> <span className="text-fg-muted">/ {company.name}</span></p>
       <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold sm:text-3xl">{company.name}</h1>
-          <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-muted">
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-fg-muted">
             {company.website ? <a href={company.website} target="_blank" rel="noopener noreferrer">{company.domain ?? company.website}</a> : <span>No website</span>}
             <span>{company.customerGroup ? customerGroupLabels[company.customerGroup] : "No customer group"}</span>
             <span>Importance {company.importance}</span>
@@ -69,7 +69,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
                   <form action={removeCompanyTag}>
                     <input type="hidden" name="id" value={company.id} />
                     <input type="hidden" name="tagId" value={t.tagId} />
-                    <button type="submit" aria-label={`Remove tag ${t.tag.name}`} className="text-xs text-ink-muted hover:text-red-ink">×</button>
+                    <button type="submit" aria-label={`Remove tag ${t.tag.name}`} className="text-xs text-fg-muted hover:text-red-text">×</button>
                   </form>
                 ) : null}
               </span>
@@ -95,7 +95,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
                 </p>
               </>
             ) : (
-              <p className="mt-3 text-ink-muted">
+              <p className="mt-3 text-fg-muted">
                 Not written yet. The AI uses only the details saved on this page, and never invents facts.
                 For a better result, fetch the website and Companies House details first.
               </p>
@@ -110,7 +110,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
         </div>
 
         {aiFacts.keyFacts?.length || aiFacts.missingInformation?.length ? (
-          <div className="mt-5 grid gap-5 border-t border-stone pt-5 md:grid-cols-2">
+          <div className="mt-5 grid gap-5 border-t border-line pt-5 md:grid-cols-2">
             {aiFacts.keyFacts?.length ? (
               <div>
                 <h3 className="text-sm font-semibold">Key facts found</h3>
@@ -120,7 +120,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
             {aiFacts.missingInformation?.length ? (
               <div>
                 <h3 className="text-sm font-semibold">Not known yet</h3>
-                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-muted">{aiFacts.missingInformation.map((f) => <li key={f}>{f}</li>)}</ul>
+                <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-fg-muted">{aiFacts.missingInformation.map((f) => <li key={f}>{f}</li>)}</ul>
               </div>
             ) : null}
           </div>
@@ -135,7 +135,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
         ) : null}
 
         {company.aiGeneratedAt ? (
-          <p className="mt-5 text-xs text-ink-muted">
+          <p className="mt-5 text-xs text-fg-muted">
             Written by {company.aiModel} on {formatDateTime(company.aiGeneratedAt)}
             {aiFacts.promptVersion ? `, using ${aiFacts.promptVersion}` : ""}.
             {company.aiEditedAt ? ` Edited by ${editor?.name ?? "a team member"} on ${formatDateTime(company.aiEditedAt)}.` : " Not yet checked by a person."}
@@ -157,10 +157,10 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
               owners={owners} allowNoOwner={user.role !== "REP"} action={updateCompany} submitLabel="Save details" />
           ) : (
             <dl className="grid gap-3 text-sm">
-              <div><dt className="text-ink-muted">Description</dt><dd>{company.description ?? "Not recorded"}</dd></div>
-              <div><dt className="text-ink-muted">Portfolio size</dt><dd>{company.portfolioSize ?? "Not recorded"}</dd></div>
-              <div><dt className="text-ink-muted">Head office</dt><dd>{company.headOffice ?? "Not recorded"}</dd></div>
-              <div><dt className="text-ink-muted">Companies House number</dt><dd>{company.companiesHouseNumber ?? "Not recorded"}</dd></div>
+              <div><dt className="text-fg-muted">Description</dt><dd>{company.description ?? "Not recorded"}</dd></div>
+              <div><dt className="text-fg-muted">Portfolio size</dt><dd>{company.portfolioSize ?? "Not recorded"}</dd></div>
+              <div><dt className="text-fg-muted">Head office</dt><dd>{company.headOffice ?? "Not recorded"}</dd></div>
+              <div><dt className="text-fg-muted">Companies House number</dt><dd>{company.companiesHouseNumber ?? "Not recorded"}</dd></div>
             </dl>
           )}
         </section>
@@ -170,7 +170,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <h2 id="extra-heading" className="text-lg font-semibold">Public details</h2>
-                <p className="text-sm text-ink-muted">From the company's website and Companies House.</p>
+                <p className="text-sm text-fg-muted">From the company's website and Companies House.</p>
               </div>
               {editable ? (
                 <EnrichButton
@@ -180,7 +180,7 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
               ) : null}
             </div>
             {!enrichment.website && !enrichment.companiesHouse ? (
-              <p className="mt-4 text-sm text-ink-muted">Nothing fetched yet.</p>
+              <p className="mt-4 text-sm text-fg-muted">Nothing fetched yet.</p>
             ) : (
               <div className="mt-4 space-y-5 text-sm">
                 {enrichment.companiesHouse ? (
@@ -188,17 +188,17 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
                     <h3 className="font-semibold">Companies House</h3>
                     {enrichment.companiesHouse.status === "ok" ? (
                       <dl className="mt-2 grid grid-cols-[8rem_1fr] gap-x-3 gap-y-1">
-                        <dt className="text-ink-muted">Registered name</dt><dd>{enrichment.companiesHouse.companyName}</dd>
-                        <dt className="text-ink-muted">Status</dt><dd>{enrichment.companiesHouse.companyStatus}</dd>
-                        <dt className="text-ink-muted">Type</dt><dd>{enrichment.companiesHouse.companyType}</dd>
-                        <dt className="text-ink-muted">Incorporated</dt><dd>{formatDate(enrichment.companiesHouse.incorporatedOn)}</dd>
-                        <dt className="text-ink-muted">Industry codes</dt><dd>{enrichment.companiesHouse.sicCodes?.join(", ") || "None listed"}</dd>
-                        <dt className="text-ink-muted">Registered office</dt><dd>{enrichment.companiesHouse.registeredOffice}</dd>
+                        <dt className="text-fg-muted">Registered name</dt><dd>{enrichment.companiesHouse.companyName}</dd>
+                        <dt className="text-fg-muted">Status</dt><dd>{enrichment.companiesHouse.companyStatus}</dd>
+                        <dt className="text-fg-muted">Type</dt><dd>{enrichment.companiesHouse.companyType}</dd>
+                        <dt className="text-fg-muted">Incorporated</dt><dd>{formatDate(enrichment.companiesHouse.incorporatedOn)}</dd>
+                        <dt className="text-fg-muted">Industry codes</dt><dd>{enrichment.companiesHouse.sicCodes?.join(", ") || "None listed"}</dd>
+                        <dt className="text-fg-muted">Registered office</dt><dd>{enrichment.companiesHouse.registeredOffice}</dd>
                       </dl>
                     ) : (
-                      <p className="mt-1 text-amber-ink">{enrichment.companiesHouse.error}</p>
+                      <p className="mt-1 text-amber-text">{enrichment.companiesHouse.error}</p>
                     )}
-                    <p className="mt-1 text-xs text-ink-muted">Checked {formatDateTime(enrichment.companiesHouse.fetchedAt)}</p>
+                    <p className="mt-1 text-xs text-fg-muted">Checked {formatDateTime(enrichment.companiesHouse.fetchedAt)}</p>
                   </div>
                 ) : null}
                 {enrichment.website ? (
@@ -210,9 +210,9 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
                         {enrichment.website.description ? <p className="mt-1">{enrichment.website.description}</p> : null}
                       </>
                     ) : (
-                      <p className="mt-1 text-amber-ink">{enrichment.website.error}</p>
+                      <p className="mt-1 text-amber-text">{enrichment.website.error}</p>
                     )}
-                    <p className="mt-1 text-xs text-ink-muted">Checked {formatDateTime(enrichment.website.fetchedAt)}</p>
+                    <p className="mt-1 text-xs text-fg-muted">Checked {formatDateTime(enrichment.website.fetchedAt)}</p>
                   </div>
                 ) : null}
               </div>
@@ -225,14 +225,14 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
               <Link href={`/contacts/new?companyId=${company.id}`} className="btn btn-secondary py-1.5 no-underline">Add a contact</Link>
             </div>
             {contacts.length === 0 ? (
-              <p className="mt-4 text-sm text-ink-muted">No contacts you can see.</p>
+              <p className="mt-4 text-sm text-fg-muted">No contacts you can see.</p>
             ) : (
-              <ul className="mt-4 divide-y divide-stone text-sm">
+              <ul className="mt-4 divide-y divide-line text-sm">
                 {contacts.map((c) => (
                   <li key={c.id} className="flex items-start justify-between gap-3 py-2.5">
                     <span>
-                      <Link href={`/contacts/${c.id}`} className="font-medium text-ink">{c.firstName} {c.lastName}</Link>
-                      <span className="block text-ink-muted">{c.jobTitle ?? "Job title not recorded"}</span>
+                      <Link href={`/contacts/${c.id}`} className="font-medium text-fg">{c.firstName} {c.lastName}</Link>
+                      <span className="block text-fg-muted">{c.jobTitle ?? "Job title not recorded"}</span>
                     </span>
                     {c.optedOut ? <Badge tone="red">Opted out</Badge> : null}
                   </li>
@@ -246,12 +246,12 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
             {deals.length === 0 ? (
               <div className="mt-4"><EmptyState title="No deals you can see" /></div>
             ) : (
-              <ul className="mt-4 divide-y divide-stone text-sm">
+              <ul className="mt-4 divide-y divide-line text-sm">
                 {deals.map((d) => (
                   <li key={d.id} className="flex items-start justify-between gap-3 py-2.5">
                     <span>
                       <span className="font-medium">{d.name}</span>
-                      <span className="block text-ink-muted">{d.stage.name}, owned by {d.owner.name}</span>
+                      <span className="block text-fg-muted">{d.stage.name}, owned by {d.owner.name}</span>
                     </span>
                     <span className="tabular-nums">{formatPounds(d.value)}</span>
                   </li>

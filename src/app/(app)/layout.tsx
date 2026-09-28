@@ -2,30 +2,35 @@ import { signOut } from "@/auth";
 import { requireUser } from "@/lib/session";
 import { can } from "@/lib/permissions";
 import { roleLabels } from "@/lib/labels";
-import { Sidebar, type NavItem } from "@/components/Sidebar";
+import { TopBar, type NavItem } from "@/components/TopBar";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
 
+  // Everyone sees analytics, limited to the records they are allowed to see.
   const items: NavItem[] = [
-    { href: "/", label: "Home", icon: "home" },
-    { href: "/companies", label: "Companies", icon: "building" },
-    { href: "/contacts", label: "Contacts", icon: "person" },
-    { href: "/outreach", label: "Outreach", icon: "mail" },
-    { href: "/import", label: "Import", icon: "upload" },
-    { href: "/knowledge", label: "Knowledge", icon: "book" },
+    { href: "/", label: "Home" },
+    { href: "/deals", label: "Deals" },
+    { href: "/companies", label: "Companies" },
+    { href: "/contacts", label: "Contacts" },
+    { href: "/outreach", label: "Outreach" },
+    { href: "/knowledge", label: "Knowledge" },
+    { href: "/import", label: "Import" },
   ];
-  if (can(user, "users.manage")) {
-    items.push({ href: "/settings/users", label: "People and teams", icon: "users" });
-  }
+
+  const adminItems: NavItem[] = [{ href: "/battlecards", label: "Battlecards" }];
+  if (can(user, "users.manage")) adminItems.push({ href: "/settings/users", label: "People and teams" });
   if (can(user, "settings.manage")) {
-    items.push({ href: "/settings/organisation", label: "Organisation", icon: "settings" });
+    adminItems.push({ href: "/settings/organisation", label: "Organisation" });
+    adminItems.push({ href: "/settings/pipeline", label: "Deal stages" });
   }
+  if (can(user, "alerts.view")) adminItems.push({ href: "/settings/alerts", label: "Alert log" });
 
   return (
     <div className="min-h-screen">
-      <Sidebar
+      <TopBar
         items={items}
+        adminItems={adminItems}
         userName={user.name ?? user.email}
         userEmail={user.email}
         roleLabel={roleLabels[user.role]}
@@ -36,15 +41,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               await signOut({ redirectTo: "/signin" });
             }}
           >
-            <button type="submit" className="text-sm font-medium text-ink-soft underline-offset-4 hover:text-cream hover:underline">
+            <button type="submit" className="w-full rounded px-0 py-1.5 text-left text-sm text-fg-muted hover:text-fg">
               Sign out
             </button>
           </form>
         }
       />
-      <main className="lg:pl-64">
-        <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:py-12">{children}</div>
-      </main>
+      <main className="mx-auto max-w-[1600px] px-4 py-8 sm:px-6 lg:py-10">{children}</main>
     </div>
   );
 }

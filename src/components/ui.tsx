@@ -14,7 +14,7 @@ export function PageHeader({
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 className="text-2xl font-semibold sm:text-3xl">{title}</h1>
-        {description ? <p className="mt-1.5 max-w-2xl text-ink-muted">{description}</p> : null}
+        {description ? <p className="mt-1.5 max-w-2xl text-fg-muted">{description}</p> : null}
       </div>
       {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
     </div>
@@ -24,10 +24,10 @@ export function PageHeader({
 type Tone = "neutral" | "green" | "amber" | "red";
 
 const toneClasses: Record<Tone, string> = {
-  neutral: "bg-surface-sunk text-ink border-stone",
-  green: "bg-green-tint text-green-ink border-green/30",
-  amber: "bg-amber-tint text-amber-ink border-amber/50",
-  red: "bg-red-tint text-red-ink border-red/30",
+  neutral: "bg-panel-sunk text-fg border-line",
+  green: "bg-green-tint text-green-text border-green/30",
+  amber: "bg-amber-tint text-amber-text border-amber/50",
+  red: "bg-red-tint text-red-text border-red/30",
 };
 
 /** A small label. Always has text, so meaning never depends on colour alone. */
@@ -51,19 +51,19 @@ export function Notice({ tone = "neutral", title, children }: { tone?: Tone; tit
 
 export function StatCard({ label, value, hint }: { label: string; value: React.ReactNode; hint?: React.ReactNode }) {
   return (
-    <div className="border-t-2 border-ink pt-3">
-      <p className="text-sm text-ink-muted">{label}</p>
+    <div className="border-t-2 border-fg pt-3">
+      <p className="text-sm text-fg-muted">{label}</p>
       <p className="mt-1 text-3xl font-semibold tabular-nums tracking-tight">{value}</p>
-      {hint ? <p className="mt-1 text-xs text-ink-muted">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs text-fg-muted">{hint}</p> : null}
     </div>
   );
 }
 
 export function EmptyState({ title, children }: { title: string; children?: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-dashed border-stone-strong/60 bg-surface-sunk px-6 py-10 text-center">
+    <div className="rounded-lg border border-dashed border-line-strong/60 bg-panel-sunk px-6 py-10 text-center">
       <p className="font-medium">{title}</p>
-      {children ? <div className="mt-1 text-sm text-ink-muted">{children}</div> : null}
+      {children ? <div className="mt-1 text-sm text-fg-muted">{children}</div> : null}
     </div>
   );
 }

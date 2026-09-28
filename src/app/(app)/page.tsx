@@ -54,7 +54,7 @@ export default async function HomePage() {
 
       <section className="card mt-8 p-6">
         <h2 className="text-lg font-semibold">Open deals by stage</h2>
-        <p className="text-sm text-ink-muted">Only deals you are allowed to see are counted.</p>
+        <p className="text-sm text-fg-muted">Only deals you are allowed to see are counted.</p>
         {openDeals.length === 0 ? (
           <div className="mt-5">
             <EmptyState title="No open deals yet">Deals will appear here once they are added.</EmptyState>
@@ -64,10 +64,10 @@ export default async function HomePage() {
             {byStage.map((s) => (
               <li key={s.id} className="grid grid-cols-[8rem_1fr_auto] items-center gap-4 text-sm sm:grid-cols-[10rem_1fr_9rem]">
                 <span className="font-medium">{s.name}</span>
-                <span className="h-2.5 overflow-hidden rounded-full bg-surface-sunk" aria-hidden="true">
-                  <span className="block h-full rounded-full bg-green" style={{ width: `${(s.value / maxValue) * 100}%` }} />
+                <span className="h-2.5 overflow-hidden rounded-full bg-panel-sunk" aria-hidden="true">
+                  <span className="block h-full rounded-full bg-green-text" style={{ width: `${(s.value / maxValue) * 100}%` }} />
                 </span>
-                <span className="text-right tabular-nums text-ink-muted">
+                <span className="text-right tabular-nums text-fg-muted">
                   {s.count} {s.count === 1 ? "deal" : "deals"}, {formatPounds(s.value)}
                 </span>
               </li>

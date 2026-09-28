@@ -38,12 +38,12 @@ export default async function DraftPage({ params }: { params: Promise<{ id: stri
     <>
       <p className="mb-3 text-sm">
         <Link href="/outreach/drafts">My drafts</Link>
-        {draft.contact ? <> <span className="text-ink-muted">/</span> <Link href={`/contacts/${draft.contact.id}`}>{contactName}</Link></> : null}
+        {draft.contact ? <> <span className="text-fg-muted">/</span> <Link href={`/contacts/${draft.contact.id}`}>{contactName}</Link></> : null}
       </p>
       <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold sm:text-3xl">{draft.kind === "EMAIL" ? "Email draft" : "Call script"} for {contactName}</h1>
-          <p className="mt-1.5 text-sm text-ink-muted">
+          <p className="mt-1.5 text-sm text-fg-muted">
             {draft.company ? `${draft.company.name}. ` : ""}
             From {draft.emailTemplate?.name ?? draft.callScript?.name ?? "a template that has since been removed"}. Started {formatDateTime(draft.createdAt)}.
           </p>
@@ -86,7 +86,7 @@ export default async function DraftPage({ params }: { params: Promise<{ id: stri
           {notes.missingMergeFields?.length ? (
             <div className="section-plain">
               <h2 className="font-semibold">Details we do not have</h2>
-              <p className="mt-1 text-ink-muted">These are shown as [[...]] in the draft: {notes.missingMergeFields.map(fieldLabel).join(", ")}.</p>
+              <p className="mt-1 text-fg-muted">These are shown as [[...]] in the draft: {notes.missingMergeFields.map(fieldLabel).join(", ")}.</p>
             </div>
           ) : null}
           {notes.personalisationNotes?.length ? (
@@ -98,19 +98,19 @@ export default async function DraftPage({ params }: { params: Promise<{ id: stri
           {notes.missingInformation?.length ? (
             <div className="section-plain">
               <h2 className="font-semibold">Information the AI could not find</h2>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-ink-muted">{notes.missingInformation.map((n) => <li key={n}>{n}</li>)}</ul>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-fg-muted">{notes.missingInformation.map((n) => <li key={n}>{n}</li>)}</ul>
             </div>
           ) : null}
           {gaps.length ? (
             <div className="section-plain">
               <h2 className="font-semibold">Footer details still needed</h2>
-              <p className="mt-1 text-ink-muted">An admin needs to add {gaps.join(", ")} under Settings, Organisation.</p>
+              <p className="mt-1 text-fg-muted">An admin needs to add {gaps.join(", ")} under Settings, Organisation.</p>
             </div>
           ) : null}
           {!locked ? (
             <form action={discardDraft} className="section-plain">
               <input type="hidden" name="id" value={draft.id} />
-              <button type="submit" className="text-sm font-medium text-red-ink underline-offset-4 hover:underline">Discard this draft</button>
+              <button type="submit" className="text-sm font-medium text-red-text underline-offset-4 hover:underline">Discard this draft</button>
             </form>
           ) : null}
         </aside>

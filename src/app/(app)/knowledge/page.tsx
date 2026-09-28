@@ -37,19 +37,19 @@ export default async function KnowledgePage() {
         />
       </section>
 
-      {manage ? <UploadPanel /> : <p className="mb-6 text-sm text-ink-muted">Admins and managers can add documents to the library.</p>}
+      {manage ? <UploadPanel /> : <p className="mb-6 text-sm text-fg-muted">Admins and managers can add documents to the library.</p>}
 
       <section className="card mt-8 overflow-hidden" aria-labelledby="lib-heading">
         <h2 id="lib-heading" className="px-6 pb-3 pt-6 text-lg font-semibold">Library</h2>
         {docs.length === 0 ? (
           <div className="px-6 pb-6"><EmptyState title="Nothing here yet">Add Moca's company overview, product notes and case studies to get started.</EmptyState></div>
         ) : (
-          <ul className="divide-y divide-stone border-t border-stone">
+          <ul className="divide-y divide-line border-t border-line">
             {docs.map((d) => (
               <li key={d.id} className="flex flex-wrap items-start justify-between gap-3 px-6 py-4">
                 <div className="min-w-0">
-                  <Link href={`/knowledge/${d.id}`} className="font-medium text-ink underline-offset-4 hover:underline">{d.title}</Link>
-                  <p className="mt-0.5 text-sm text-ink-muted">
+                  <Link href={`/knowledge/${d.id}`} className="font-medium text-fg underline-offset-4 hover:underline">{d.title}</Link>
+                  <p className="mt-0.5 text-sm text-fg-muted">
                     {knowledgeKindLabels[d.kind]}, {d.charCount.toLocaleString("en-GB")} characters, added {formatDate(d.createdAt)}
                     {d.uploadedBy?.name ? ` by ${d.uploadedBy.name}` : ""}
                     {d.fileName ? `, from ${d.fileName}` : ", pasted in"}

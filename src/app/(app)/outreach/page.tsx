@@ -70,7 +70,7 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
       </form>
 
       {manage && starterMissing ? (
-        <form action={addStarterLibrary} className="mb-8 flex flex-wrap items-center gap-3 rounded-md border border-stone bg-surface-sunk px-4 py-3 text-sm">
+        <form action={addStarterLibrary} className="mb-8 flex flex-wrap items-center gap-3 rounded-md border border-line bg-panel-sunk px-4 py-3 text-sm">
           <span>Some of the starter templates and scripts are missing.</span>
           <button type="submit" className="btn btn-secondary py-1.5">Add the starter library</button>
         </form>
@@ -87,40 +87,40 @@ export default async function OutreachPage({ searchParams }: { searchParams: Pro
           if (!groupEmails.length && !groupScripts.length) return null;
           return (
             <section key={g ?? "any"} aria-labelledby={`g-${g ?? "any"}`}>
-              <h2 id={`g-${g ?? "any"}`} className="border-b-2 border-ink pb-2 text-xl font-semibold">
+              <h2 id={`g-${g ?? "any"}`} className="border-b-2 border-fg pb-2 text-xl font-semibold">
                 {g ? customerGroupLabels[g] : "Any customer group"}
               </h2>
               <div className="mt-5 grid gap-8 lg:grid-cols-2">
                 <div>
-                  <h3 className="text-sm font-semibold text-ink-muted">Email templates</h3>
-                  {groupEmails.length === 0 ? <p className="mt-2 text-sm text-ink-muted">None yet.</p> : (
-                    <ul className="mt-2 divide-y divide-stone">
+                  <h3 className="text-sm font-semibold text-fg-muted">Email templates</h3>
+                  {groupEmails.length === 0 ? <p className="mt-2 text-sm text-fg-muted">None yet.</p> : (
+                    <ul className="mt-2 divide-y divide-line">
                       {groupEmails.map((e) => (
                         <li key={e.id} className="py-3">
                           <div className="flex flex-wrap items-center gap-2">
-                            <Link href={`/outreach/emails/${e.id}`} className="font-medium text-ink">{e.name}</Link>
+                            <Link href={`/outreach/emails/${e.id}`} className="font-medium text-fg">{e.name}</Link>
                             <Badge>{outreachReasonLabels[e.reason]}</Badge>
                             {!e.active ? <Badge tone="amber">Switched off</Badge> : null}
                           </div>
-                          <p className="mt-0.5 truncate text-sm text-ink-muted">{e.subject}</p>
-                          <p className="text-xs text-ink-muted">Used in {e._count.drafts} {e._count.drafts === 1 ? "draft" : "drafts"}</p>
+                          <p className="mt-0.5 truncate text-sm text-fg-muted">{e.subject}</p>
+                          <p className="text-xs text-fg-muted">Used in {e._count.drafts} {e._count.drafts === 1 ? "draft" : "drafts"}</p>
                         </li>
                       ))}
                     </ul>
                   )}
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-ink-muted">Call scripts</h3>
-                  {groupScripts.length === 0 ? <p className="mt-2 text-sm text-ink-muted">None yet.</p> : (
-                    <ul className="mt-2 divide-y divide-stone">
+                  <h3 className="text-sm font-semibold text-fg-muted">Call scripts</h3>
+                  {groupScripts.length === 0 ? <p className="mt-2 text-sm text-fg-muted">None yet.</p> : (
+                    <ul className="mt-2 divide-y divide-line">
                       {groupScripts.map((s) => (
                         <li key={s.id} className="py-3">
                           <div className="flex flex-wrap items-center gap-2">
-                            <Link href={`/outreach/scripts/${s.id}`} className="font-medium text-ink">{s.name}</Link>
+                            <Link href={`/outreach/scripts/${s.id}`} className="font-medium text-fg">{s.name}</Link>
                             <Badge>{outreachReasonLabels[s.reason]}</Badge>
                             {!s.active ? <Badge tone="amber">Switched off</Badge> : null}
                           </div>
-                          <p className="mt-0.5 line-clamp-2 text-sm text-ink-muted">{s.opening}</p>
+                          <p className="mt-0.5 line-clamp-2 text-sm text-fg-muted">{s.opening}</p>
                         </li>
                       ))}
                     </ul>

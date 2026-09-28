@@ -24,8 +24,8 @@ export function EmailDraftEditor({ id, subject, body, footer, locked }: { id: st
         <textarea id="d-body" name="body" value={text} onChange={(e) => setText(e.target.value)} disabled={locked} rows={16} className="field leading-relaxed" />
       </div>
       {footer ? (
-        <div className="whitespace-pre-wrap rounded-md border border-dashed border-stone bg-surface-sunk px-4 py-3 text-xs leading-relaxed text-ink-muted" aria-label="Fixed footer">
-          <p className="mb-1 font-semibold text-ink">Added automatically when sent, and cannot be removed:</p>
+        <div className="whitespace-pre-wrap rounded-md border border-dashed border-line bg-panel-sunk px-4 py-3 text-xs leading-relaxed text-fg-muted" aria-label="Fixed footer">
+          <p className="mb-1 font-semibold text-fg">Added automatically when sent, and cannot be removed:</p>
           {footer}
         </div>
       ) : null}
@@ -33,7 +33,7 @@ export function EmailDraftEditor({ id, subject, body, footer, locked }: { id: st
       {!locked ? (
         <div className="flex flex-wrap items-center gap-3">
           <button type="submit" className="btn btn-primary" disabled={pending}>{pending ? "Saving" : "Save draft"}</button>
-          <span className="text-sm text-ink-muted">Sending from the CRM arrives once email accounts can be connected. Nothing is ever sent automatically.</span>
+          <span className="text-sm text-fg-muted">Sending from the CRM arrives once email accounts can be connected. Nothing is ever sent automatically.</span>
         </div>
       ) : null}
       {state ? <Notice tone={state.ok ? "green" : "red"}>{state.message}</Notice> : null}
@@ -56,13 +56,13 @@ export function ScriptDraftEditor({ id, fields, ready, locked }: { id: string; f
         ) : null}
         {state ? <Notice tone={state.ok ? "green" : "red"}>{state.message}</Notice> : null}
       </form>
-      <form action={readyAction} className="grid gap-3 border-t border-stone pt-5">
+      <form action={readyAction} className="grid gap-3 border-t border-line pt-5">
         <input type="hidden" name="id" value={id} />
         {ready ? (
           <Notice tone="green" title="Ready to call">The number was checked against the TPS and CTPS do not call lists recently enough.</Notice>
         ) : (
           <>
-            <p className="text-sm text-ink-muted">Before calling, the number must have been checked against the TPS and CTPS do not call lists within the allowed time.</p>
+            <p className="text-sm text-fg-muted">Before calling, the number must have been checked against the TPS and CTPS do not call lists within the allowed time.</p>
             <div>
               <button type="submit" className="btn btn-primary" disabled={readying || locked}>{readying ? "Checking" : "Mark ready to call"}</button>
             </div>

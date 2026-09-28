@@ -35,7 +35,7 @@ export function OrganisationForm({ org }: { org: Org }) {
       <div className="max-w-xs">
         <label htmlFor="org-tps" className="label">Days before a TPS and CTPS check must be repeated</label>
         <input id="org-tps" name="phoneCheckMaxAgeDays" type="number" min={1} max={28} defaultValue={org.phoneCheckMaxAgeDays} className="field" />
-        <p className="mt-1 text-xs text-ink-muted">At most 28 days, as the do not call lists change regularly.</p>
+        <p className="mt-1 text-xs text-fg-muted">At most 28 days, as the do not call lists change regularly.</p>
       </div>
       <div className="flex items-center gap-3">
         <button type="submit" className="btn btn-primary" disabled={pending}>{pending ? "Saving" : "Save"}</button>

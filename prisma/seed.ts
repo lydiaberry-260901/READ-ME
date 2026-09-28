@@ -9,6 +9,7 @@ import "dotenv/config";
 import { createClient } from "../src/lib/db";
 import { createOrganisation } from "../src/lib/organisation";
 import { qualificationCompleteness } from "../src/lib/qualification";
+import { recalculateOrganisation } from "../src/lib/deals/recalculate";
 import { normaliseEmail, randomToken, suppressionHash, maskEmail } from "../src/lib/crypto";
 import type { CustomerGroup, Role, StakeholderRole } from "../src/generated/prisma/enums";
 
@@ -414,6 +415,8 @@ async function main() {
       companyId: companyIds.get("harbourline")!, contactId: contactIds.get("Grace Okafor")!,
     },
   });
+
+  await recalculateOrganisation(org.id);
 
   console.log(`Demo data loaded: ${USERS.length} users, ${COMPANIES.length} companies, ${contactIds.size} contacts, ${DEALS.length} deals.`);
   if (adminEmail) console.log(`${adminEmail} is invited as an Admin and can sign in with Google or Microsoft.`);

@@ -9,7 +9,7 @@ export function SaveViewForm({ entity, query }: { entity: "companies" | "contact
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="rounded-full border border-dashed border-stone-strong px-3 py-1 text-ink hover:bg-surface">
+      <button type="button" onClick={() => setOpen(true)} className="rounded-full border border-dashed border-line-strong px-3 py-1 text-fg hover:bg-panel">
         Save these filters
       </button>
     );
@@ -24,7 +24,7 @@ export function SaveViewForm({ entity, query }: { entity: "companies" | "contact
         <input type="checkbox" name="isShared" className="size-4 accent-green" /> Share with the team
       </label>
       <button type="submit" disabled={pending} className="btn btn-primary py-1">Save</button>
-      {state ? <span role="status" className={state.ok ? "text-green-ink" : "text-red-ink"}>{state.message}</span> : null}
+      {state ? <span role="status" className={state.ok ? "text-green-text" : "text-red-text"}>{state.message}</span> : null}
     </form>
   );
 }

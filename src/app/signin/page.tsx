@@ -44,27 +44,27 @@ export default async function SignInPage({
   return (
     <main className="grid min-h-screen lg:grid-cols-[1.1fr_1fr]">
       {/* Brand panel */}
-      <section className="hidden bg-ink px-14 py-12 text-cream lg:flex lg:flex-col">
+      <section className="hidden border-r border-line bg-canvas-deep px-14 py-12 lg:flex lg:flex-col">
         <div className="my-auto max-w-md">
-          <Logo onDark height={112} showProduct={false} />
-          <h1 className="mt-12 text-3xl font-medium leading-snug text-cream">
+          <Logo height={112} showProduct={false} />
+          <h1 className="mt-12 text-3xl font-medium leading-snug">
             Our prospects, customers, deals and follow ups, in one place.
           </h1>
-          <p className="mt-4 max-w-sm leading-relaxed text-ink-soft">
+          <p className="mt-4 max-w-sm leading-relaxed text-fg-muted">
             For the team selling energy software to asset and ESG managers, property managers and occupiers.
           </p>
         </div>
-        <p className="text-xs text-ink-soft">For Moca staff only.</p>
+        <p className="text-xs text-fg-muted">For Moca staff only.</p>
       </section>
 
       {/* Sign in */}
       <section className="flex items-center justify-center px-5 py-12 sm:px-10">
         <div className="w-full max-w-sm">
-          <div className="mb-10">
+          <div className="mb-10 lg:hidden">
             <Logo height={36} />
           </div>
           <h2 className="text-2xl font-semibold">Sign in</h2>
-          <p className="mt-1 text-ink-muted">Use your Moca work account.</p>
+          <p className="mt-1 text-fg-muted">Use your Moca work account.</p>
 
           {error ? (
             <div className="mt-6">
@@ -96,13 +96,13 @@ export default async function SignInPage({
           </div>
 
           {devLoginEnabled ? (
-            <div className="mt-10 border-t border-stone pt-6">
+            <div className="mt-10 border-t border-line pt-6">
               <p className="text-sm font-semibold">Demo sign in (this computer only)</p>
-              <p className="mt-1 text-xs text-ink-muted">
+              <p className="mt-1 text-xs text-fg-muted">
                 Available while developing, never on the live site. Pick a fictional demo user to try each role.
               </p>
               {demoUsers.length === 0 ? (
-                <p className="mt-3 text-sm text-ink-muted">No demo users yet. Run npm run db:seed first.</p>
+                <p className="mt-3 text-sm text-fg-muted">No demo users yet. Run npm run db:seed first.</p>
               ) : (
                 <ul className="mt-3 flex flex-col gap-2">
                   {demoUsers.map((u) => (
@@ -115,13 +115,13 @@ export default async function SignInPage({
                       >
                         <button
                           type="submit"
-                          className="flex w-full items-center justify-between rounded-md border border-stone bg-surface px-3 py-2 text-left text-sm hover:border-stone-strong"
+                          className="flex w-full items-center justify-between rounded-md border border-line bg-panel px-3 py-2 text-left text-sm hover:border-line-strong"
                         >
                           <span>
                             <span className="font-medium">{u.name}</span>
-                            <span className="block text-xs text-ink-muted">{u.email}</span>
+                            <span className="block text-xs text-fg-muted">{u.email}</span>
                           </span>
-                          <span className="text-xs text-ink-muted">{roleLabels[u.role]}</span>
+                          <span className="text-xs text-fg-muted">{roleLabels[u.role]}</span>
                         </button>
                       </form>
                     </li>
@@ -131,7 +131,7 @@ export default async function SignInPage({
             </div>
           ) : null}
 
-          <p className="mt-10 text-xs text-ink-muted">
+          <p className="mt-10 text-xs text-fg-muted">
             This site uses only essential cookies, which keep you signed in.
           </p>
         </div>

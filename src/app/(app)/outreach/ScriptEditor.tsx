@@ -30,17 +30,17 @@ export function ScriptFieldsEditor({ initial, disabled }: { initial: ScriptField
         <ol className="grid gap-2">
           {questions.map((q, i) => (
             <li key={i} className="flex items-start gap-2">
-              <span className="mt-2 w-5 shrink-0 text-right text-sm text-ink-muted">{i + 1}.</span>
+              <span className="mt-2 w-5 shrink-0 text-right text-sm text-fg-muted">{i + 1}.</span>
               <label htmlFor={`s-q-${i}`} className="sr-only">Question {i + 1}</label>
               <input id={`s-q-${i}`} name="question" value={q} onChange={(e) => setQuestions((all) => all.map((x, j) => (j === i ? e.target.value : x)))} className="field" />
               {!disabled && questions.length > 1 ? (
-                <button type="button" onClick={() => setQuestions((all) => all.filter((_, j) => j !== i))} className="mt-2 text-sm text-red-ink" aria-label={`Remove question ${i + 1}`}>Remove</button>
+                <button type="button" onClick={() => setQuestions((all) => all.filter((_, j) => j !== i))} className="mt-2 text-sm text-red-text" aria-label={`Remove question ${i + 1}`}>Remove</button>
               ) : null}
             </li>
           ))}
         </ol>
         {!disabled && questions.length < 6 ? (
-          <button type="button" onClick={() => setQuestions((all) => [...all, ""])} className="mt-2 text-sm font-medium text-green-ink">Add a question</button>
+          <button type="button" onClick={() => setQuestions((all) => [...all, ""])} className="mt-2 text-sm font-medium text-green-text">Add a question</button>
         ) : null}
       </div>
       <div>
@@ -53,13 +53,13 @@ export function ScriptFieldsEditor({ initial, disabled }: { initial: ScriptField
               <label htmlFor={`s-r-${i}`} className="sr-only">Reply {i + 1}</label>
               <textarea id={`s-r-${i}`} name="response" placeholder="How to reply" rows={2} value={o.response} onChange={(e) => setObjections((all) => all.map((x, j) => (j === i ? { ...x, response: e.target.value } : x)))} className="field" />
               {!disabled && objections.length > 1 ? (
-                <button type="button" onClick={() => setObjections((all) => all.filter((_, j) => j !== i))} className="justify-self-start text-sm text-red-ink">Remove this objection</button>
+                <button type="button" onClick={() => setObjections((all) => all.filter((_, j) => j !== i))} className="justify-self-start text-sm text-red-text">Remove this objection</button>
               ) : null}
             </div>
           ))}
         </div>
         {!disabled && objections.length < 6 ? (
-          <button type="button" onClick={() => setObjections((all) => [...all, { objection: "", response: "" }])} className="mt-2 text-sm font-medium text-green-ink">Add an objection</button>
+          <button type="button" onClick={() => setObjections((all) => [...all, { objection: "", response: "" }])} className="mt-2 text-sm font-medium text-green-text">Add an objection</button>
         ) : null}
       </div>
       <div>
@@ -113,7 +113,7 @@ export function ScriptEditor({
           In use
         </label>
       </fieldset>
-      <p className="text-sm text-ink-muted">You can use merge fields such as {"{{contact.firstName}}"}, {"{{company.name}}"} and {"{{sender.name}}"}.</p>
+      <p className="text-sm text-fg-muted">You can use merge fields such as {"{{contact.firstName}}"}, {"{{company.name}}"} and {"{{sender.name}}"}.</p>
       <ScriptFieldsEditor initial={script} disabled={!canEdit} />
       {canEdit ? (
         <div className="flex flex-wrap items-center gap-3">

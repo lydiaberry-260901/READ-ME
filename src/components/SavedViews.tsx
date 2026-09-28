@@ -14,20 +14,20 @@ export async function SavedViews({ user, entity, currentQuery }: { user: Current
 
   return (
     <div className="mb-4 flex flex-wrap items-center gap-2 text-sm">
-      <span className="text-ink-muted">Saved views:</span>
-      <Link href={`/${entity}`} className={`rounded-full border px-3 py-1 no-underline ${currentQuery === "" ? "border-green bg-green-tint text-green-ink" : "border-stone bg-surface text-ink"}`}>
+      <span className="text-fg-muted">Saved views:</span>
+      <Link href={`/${entity}`} className={`rounded-full border px-3 py-1 no-underline ${currentQuery === "" ? "border-green bg-green-tint text-green-text" : "border-line bg-panel text-fg"}`}>
         All
       </Link>
       {views.map((v) => (
-        <span key={v.id} className={`inline-flex items-center gap-1 rounded-full border py-1 pl-3 pr-1 ${currentQuery === v.query ? "border-green bg-green-tint" : "border-stone bg-surface"}`}>
-          <Link href={`/${entity}${v.query}`} className={`no-underline ${currentQuery === v.query ? "text-green-ink" : "text-ink"}`}>
+        <span key={v.id} className={`inline-flex items-center gap-1 rounded-full border py-1 pl-3 pr-1 ${currentQuery === v.query ? "border-green bg-green-tint" : "border-line bg-panel"}`}>
+          <Link href={`/${entity}${v.query}`} className={`no-underline ${currentQuery === v.query ? "text-green-text" : "text-fg"}`}>
             {v.name}
-            {v.userId !== user.id ? <span className="text-ink-muted">, from {v.user.name}</span> : null}
+            {v.userId !== user.id ? <span className="text-fg-muted">, from {v.user.name}</span> : null}
           </Link>
           {v.userId === user.id || user.role === "ADMIN" ? (
             <form action={deleteView}>
               <input type="hidden" name="id" value={v.id} />
-              <button type="submit" className="rounded-full px-1.5 text-ink-muted hover:text-red-ink" aria-label={`Delete view ${v.name}`}>
+              <button type="submit" className="rounded-full px-1.5 text-fg-muted hover:text-red-text" aria-label={`Delete view ${v.name}`}>
                 ×
               </button>
             </form>

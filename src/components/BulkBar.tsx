@@ -38,7 +38,7 @@ export function BulkBar({
   }, [formId, state]);
 
   return (
-    <form id={formId} action={formAction} className="flex flex-wrap items-end gap-3 border-b border-stone bg-surface-sunk px-6 py-3">
+    <form id={formId} action={formAction} className="flex flex-wrap items-end gap-3 border-b border-line bg-panel-sunk px-6 py-3">
       <p className="self-center text-sm font-medium">
         {count === 0 ? `Tick ${noun} to act on several at once` : `${count} selected`}
       </p>
@@ -79,7 +79,7 @@ export function BulkBar({
         {pending ? "Working" : "Apply"}
       </button>
       {state ? (
-        <p role="status" className={`self-center text-sm ${state.ok ? "text-green-ink" : "text-red-ink"}`}>
+        <p role="status" className={`self-center text-sm ${state.ok ? "text-green-text" : "text-red-text"}`}>
           {state.message}
         </p>
       ) : null}

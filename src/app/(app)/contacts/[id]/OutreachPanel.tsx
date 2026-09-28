@@ -33,9 +33,9 @@ export function OutreachPanel({
     <form action={action} className="grid gap-4">
       <input type="hidden" name="contactId" value={contactId} />
       <input type="hidden" name="kind" value={kind} />
-      <div role="tablist" aria-label="What to prepare" className="inline-flex w-fit rounded-md border border-stone p-0.5 text-sm">
+      <div role="tablist" aria-label="What to prepare" className="inline-flex w-fit rounded-md border border-line p-0.5 text-sm">
         {(["email", "script"] as const).map((k) => (
-          <button key={k} type="button" role="tab" aria-selected={kind === k} onClick={() => setKind(k)} className={`rounded px-3 py-1.5 font-medium ${kind === k ? "bg-ink text-cream" : "text-ink hover:bg-surface-sunk"}`}>
+          <button key={k} type="button" role="tab" aria-selected={kind === k} onClick={() => setKind(k)} className={`rounded px-3 py-1.5 font-medium ${kind === k ? "bg-fg text-canvas" : "text-fg hover:bg-panel-sunk"}`}>
             {k === "email" ? "Email" : "Call script"}
           </button>
         ))}
@@ -62,7 +62,7 @@ export function OutreachPanel({
               {pending ? "Preparing the draft" : "Draft with AI"}
             </button>
           </div>
-          <p className="text-xs text-ink-muted">
+          <p className="text-xs text-fg-muted">
             Either way you get a draft to read and edit. The AI sees the company's details and this person's job title, not their name or contact details.
           </p>
         </>

@@ -94,7 +94,7 @@ export function UserRowForm({
         {pending ? "Saving" : "Save"}
       </button>
       {state ? (
-        <span role="status" className={state.ok ? "text-sm text-green-ink" : "text-sm text-red-ink"}>
+        <span role="status" className={state.ok ? "text-sm text-green-text" : "text-sm text-red-text"}>
           {state.message}
         </span>
       ) : null}

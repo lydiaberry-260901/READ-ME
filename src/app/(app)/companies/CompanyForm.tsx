@@ -46,7 +46,7 @@ export function CompanyForm({
       <div>
         <label htmlFor="c-website" className="label">Website</label>
         <input id="c-website" name="website" defaultValue={c.website ?? ""} placeholder="www.example.co.uk" className="field" />
-        <p className="mt-1 text-xs text-ink-muted">Used to spot duplicates and to fetch public details.</p>
+        <p className="mt-1 text-xs text-fg-muted">Used to spot duplicates and to fetch public details.</p>
       </div>
       <div>
         <label htmlFor="c-ch" className="label">Companies House number</label>
@@ -80,12 +80,12 @@ export function CompanyForm({
       <div className="sm:col-span-2">
         <label htmlFor="c-description" className="label">Description</label>
         <textarea id="c-description" name="description" rows={3} defaultValue={c.description ?? ""} className="field" />
-        <p className="mt-1 text-xs text-ink-muted">Facts about the company only. Do not record personal opinions about people.</p>
+        <p className="mt-1 text-xs text-fg-muted">Facts about the company only. Do not record personal opinions about people.</p>
       </div>
       <div className="sm:col-span-2">
         <label htmlFor="c-alt" className="label">Other names the company is known by</label>
         <input id="c-alt" name="alternativeNames" defaultValue={(c.alternativeNames ?? []).join(", ")} placeholder="Separate names with commas" className="field" />
-        <p className="mt-1 text-xs text-ink-muted">Used when searching for news.</p>
+        <p className="mt-1 text-xs text-fg-muted">Used when searching for news.</p>
       </div>
       <div>
         <label htmlFor="c-owner" className="label">Owner</label>

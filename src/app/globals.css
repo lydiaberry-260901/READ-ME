@@ -3,25 +3,25 @@
 /* Colour and radius values come from src/design/tokens.ts, injected as CSS variables
    in the root layout. Edit colours there, not here. */
 @theme inline {
-  --color-ink: var(--moca-ink);
-  --color-ink-muted: var(--moca-ink-muted);
-  --color-ink-soft: var(--moca-ink-soft);
-  --color-ink-deep: var(--moca-ink-deep);
-  --color-cream: var(--moca-cream);
-  --color-surface: var(--moca-surface);
-  --color-surface-sunk: var(--moca-surface-sunk);
+  --color-canvas: var(--moca-canvas);
+  --color-canvas-deep: var(--moca-canvas-deep);
+  --color-panel: var(--moca-panel);
+  --color-panel-sunk: var(--moca-panel-sunk);
+  --color-panel-raised: var(--moca-panel-raised);
+  --color-fg: var(--moca-fg);
+  --color-fg-muted: var(--moca-fg-muted);
+  --color-fg-soft: var(--moca-fg-soft);
+  --color-line: var(--moca-line);
+  --color-line-strong: var(--moca-line-strong);
   --color-green: var(--moca-green);
-  --color-green-ink: var(--moca-green-ink);
   --color-green-hover: var(--moca-green-hover);
+  --color-green-text: var(--moca-green-text);
   --color-green-tint: var(--moca-green-tint);
-  --color-green-on-ink: var(--moca-green-on-ink);
   --color-amber: var(--moca-amber);
-  --color-amber-ink: var(--moca-amber-ink);
+  --color-amber-text: var(--moca-amber-text);
   --color-amber-tint: var(--moca-amber-tint);
-  --color-stone: var(--moca-stone);
-  --color-stone-strong: var(--moca-stone-strong);
   --color-red: var(--moca-red);
-  --color-red-ink: var(--moca-red-ink);
+  --color-red-text: var(--moca-red-text);
   --color-red-tint: var(--moca-red-tint);
 
   --radius-sm: var(--moca-radius-sm);
@@ -33,53 +33,74 @@
 
 @layer base {
   html {
-    color-scheme: light;
+    color-scheme: dark;
   }
   body {
-    background: var(--moca-cream);
-    color: var(--moca-ink);
+    background: var(--moca-canvas);
+    color: var(--moca-fg);
     font-family: var(--font-sans);
+    font-feature-settings: "tnum" 1;
     -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3 {
-    color: var(--moca-ink);
+    color: var(--moca-fg);
     letter-spacing: -0.01em;
   }
   a {
-    color: var(--moca-green-ink);
+    color: var(--moca-green-text);
   }
   :focus-visible {
     outline: 2px solid var(--moca-focus);
     outline-offset: 2px;
     border-radius: 4px;
   }
+  ::selection {
+    background: var(--moca-green);
+    color: #fff;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.8);
+  }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
   }
   /* Use together with .btn, for example class="btn btn-primary" */
   .btn-primary {
     @apply bg-green text-white hover:bg-green-hover;
   }
   .btn-secondary {
-    @apply border border-stone-strong bg-surface text-ink hover:bg-surface-sunk;
+    @apply border border-line-strong bg-panel text-fg hover:bg-panel-raised;
   }
   .btn-danger {
-    @apply bg-red text-white hover:bg-red-ink;
+    @apply bg-red text-white hover:brightness-110;
   }
   /* Main panels only. Secondary information sits in plain sections with dividers. */
   .card {
-    @apply rounded-lg border border-stone bg-surface;
+    @apply rounded-lg border border-line bg-panel;
   }
   .section-plain {
-    @apply border-t border-stone pt-6;
+    @apply border-t border-line pt-6;
   }
   .field {
-    @apply w-full rounded-md border border-stone-strong bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-muted;
+    @apply w-full rounded-md border border-line-strong bg-canvas-deep px-3 py-2 text-sm text-fg placeholder:text-fg-soft;
   }
   .label {
-    @apply mb-1 block text-sm font-medium text-ink;
+    @apply mb-1 block text-sm font-medium text-fg;
   }
+}
+
+/* The live automations dot pulses only while something is running. */
+@keyframes moca-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.8); }
+}
+.live-dot {
+  animation: moca-pulse 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-dot { animation: none; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }

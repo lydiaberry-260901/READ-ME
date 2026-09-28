@@ -46,7 +46,7 @@ export function ContactForm({
   return (
     <form action={formAction} className="grid gap-5 sm:grid-cols-2">
       {c.id ? <input type="hidden" name="id" value={c.id} /> : null}
-      <p className="text-sm text-ink-muted sm:col-span-2">
+      <p className="text-sm text-fg-muted sm:col-span-2">
         Collect business details only: name, job title, work email, work phone, company and a public professional profile link.
       </p>
       <div>
@@ -75,7 +75,7 @@ export function ContactForm({
       <div>
         <label htmlFor="p-phone" className="label">Work phone</label>
         <input id="p-phone" name="phone" type="tel" maxLength={40} defaultValue={c.phone ?? ""} className="field" />
-        {!isNew ? <p className="mt-1 text-xs text-ink-muted">Changing the number means it must be checked against the do not call lists again.</p> : null}
+        {!isNew ? <p className="mt-1 text-xs text-fg-muted">Changing the number means it must be checked against the do not call lists again.</p> : null}
       </div>
       <div className="sm:col-span-2">
         <label htmlFor="p-link" className="label">Public professional profile link</label>
@@ -91,7 +91,7 @@ export function ContactForm({
           <option value="PARTNERSHIP">Other partnership</option>
           <option value="UNKNOWN">Not known yet</option>
         </select>
-        <p className="mt-1 text-xs text-ink-muted">Sole traders and other partnerships are treated as individuals, so marketing emails need their consent.</p>
+        <p className="mt-1 text-xs text-fg-muted">Sole traders and other partnerships are treated as individuals, so marketing emails need their consent.</p>
       </div>
       <div>
         <label htmlFor="p-owner" className="label">Owner</label>
@@ -102,7 +102,7 @@ export function ContactForm({
       </div>
 
       {isNew ? (
-        <fieldset className="grid gap-5 rounded-md border border-stone bg-surface-sunk p-4 sm:col-span-2 sm:grid-cols-3">
+        <fieldset className="grid gap-5 rounded-md border border-line bg-panel-sunk p-4 sm:col-span-2 sm:grid-cols-3">
           <legend className="px-1 text-sm font-semibold">Where these details came from (required by data protection law)</legend>
           <div className="sm:col-span-3">
             <label htmlFor="p-source" className="label">Source</label>
@@ -125,7 +125,7 @@ export function ContactForm({
 
       <div className="sm:col-span-2">
         <label htmlFor="p-notes" className="label">Notes</label>
-        <p id="p-notes-warning" className="mb-2 rounded-md border border-amber/50 bg-amber-tint px-3 py-2 text-sm text-amber-ink">
+        <p id="p-notes-warning" className="mb-2 rounded-md border border-amber/50 bg-amber-tint px-3 py-2 text-sm text-amber-text">
           <strong>Please note:</strong> {NOTES_WARNING}
         </p>
         <textarea id="p-notes" name="notes" rows={4} maxLength={4000} defaultValue={c.notes ?? ""} aria-describedby="p-notes-warning" className="field" />

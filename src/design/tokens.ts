@@ -1,71 +1,87 @@
 // Moca CRM design settings. Every colour and font used by the app and its charts lives here.
 // To change the look, edit this file only.
 //
-// Brand: the ink colour is the charcoal of Moca's official logo (public/brand/moca-logo.png),
-// which replaces the brief's suggested mocha brown. The other colours are the brief's suggestions
-// and should be replaced if Moca supplies official codes for them.
+// Look: "Control room", chosen by Moca on 28/09/2026. A dark canvas built from the charcoal of
+// Moca's official logo, cream text, fine grid lines, and colour used only where it means something:
+// green for actions and good results, amber for attention, red for errors and lost deals.
 //
-// Contrast notes (WCAG AA needs 4.5 to 1 for normal text):
-//   ink on cream 10.9, inkMuted on cream 5.6, white on green 5.0, greenInk on cream 5.7,
-//   red on cream 5.3, amberInk on amberTint 5.0, inkSoft on ink 6.2.
-//   Amber and stone are too light for text, so they are only used for fills and borders.
+// Colours are named by their job (canvas, panel, fg for text, line), not by their hue, so the
+// theme can change without renaming anything in the screens.
+//
+// Contrast notes (WCAG AA needs 4.5 to 1 for text, 3 to 1 for form borders):
+//   fg on canvas 14.3, fg on panel 12.7, fgMuted on panel 5.9, greenText on panel 6.7,
+//   amberText on panel 7.9, redText on panel 6.1, white on green 5.0, lineStrong on panel 3.4.
 
 export const brand = {
-  ink: "#353535", // Moca logo charcoal: headings, side menu, main text
-  cream: "#F7F1EA", // page backgrounds
-  green: "#2E7D5B", // main buttons, positive results
-  amber: "#E8A33D", // highlights, warnings, things needing attention
-  stone: "#D9CFC4", // borders and dividers
-  red: "#B3392F", // errors and lost deals only
+  charcoal: "#353535", // Moca logo colour
+  cream: "#F7F1EA",
+  green: "#2E7D5B", // energy green
+  amber: "#E8A33D", // sunrise amber
+  stone: "#D9CFC4",
+  red: "#B3392F",
 } as const;
 
 export const colours = {
-  ...brand,
-  surface: "#FFFFFF", // main panels on the cream background
-  surfaceSunk: "#FBF7F2", // subtle alternate rows and wells
-  inkMuted: "#65605A", // secondary text
-  inkSoft: "#BDB8B2", // secondary text on the charcoal side menu
-  inkDeep: "#262626", // pressed states on the side menu
-  greenInk: "#256B4D", // link text and green text on light backgrounds
-  greenHover: "#256B4D",
-  greenTint: "#E6F0EA",
-  greenOnInk: "#6FBF97", // green used on the charcoal side menu
-  amberInk: "#8A5A12", // warning text
-  amberTint: "#FBEBD2",
-  redInk: "#8F2D25",
-  redTint: "#F8E4E1",
-  stoneStrong: "#8A8178", // form field borders (3.4 to 1 or more against the background)
-  focus: "#2E7D5B",
+  canvas: "#1E1E1E", // page background: deep logo charcoal
+  canvasDeep: "#171717", // top bar and wells
+  panel: "#282828", // main panels
+  panelSunk: "#232323", // table headings, alternate rows
+  panelRaised: "#313131", // hover and selected rows, menus
+  fg: "#F2EDE6", // main text: Moca cream
+  fgMuted: "#A9A39C", // secondary text
+  fgSoft: "#8B857E", // hints on large text only
+  line: "#3A3A3A", // grid lines and dividers
+  lineStrong: "#7A746D", // form field borders
+  green: brand.green, // main buttons, positive results
+  greenHover: "#358E68",
+  greenText: "#6FBF97", // green text and marks on dark
+  greenTint: "#1F3A2E",
+  amber: brand.amber, // attention
+  amberText: "#F0B35A",
+  amberTint: "#3D3121",
+  red: brand.red, // errors and lost deals only
+  redText: "#F08A7E",
+  redTint: "#3E2422",
+  focus: "#6FBF97",
 } as const;
 
 export const healthColours = {
-  ON_TRACK: { fill: colours.green, tint: colours.greenTint, ink: colours.greenInk },
-  AT_RISK: { fill: colours.amber, tint: colours.amberTint, ink: colours.amberInk },
-  STALLED: { fill: colours.red, tint: colours.redTint, ink: colours.redInk },
+  ON_TRACK: { fill: colours.greenText, tint: colours.greenTint, text: colours.greenText },
+  AT_RISK: { fill: colours.amber, tint: colours.amberTint, text: colours.amberText },
+  STALLED: { fill: colours.redText, tint: colours.redTint, text: colours.redText },
 } as const;
 
 // Starting colours for the default deal stages. Admins can recolour stages later.
 export const defaultStageColours = {
-  Prospect: colours.stone,
-  Contacted: colours.inkSoft,
-  Conversation: "#E8C27A", // light amber
-  Demo: colours.amber,
-  Proposal: "#9DBFA9", // light green
-  Negotiation: "#5E9C7C", // mid green
-  Won: colours.green,
-  Lost: colours.red,
+  Prospect: "#8B857E",
+  Contacted: "#A9A39C",
+  Conversation: "#E8C27A",
+  Demo: brand.amber,
+  Proposal: "#9DBFA9",
+  Negotiation: "#5E9C7C",
+  Won: "#6FBF97",
+  Lost: "#F08A7E",
 } as const;
 
-// Palette for charts, in order of use. Starts with the brand colours so charts match the app.
+// Palette for charts, in order of use. Chosen to read clearly on the dark panels.
 export const chartPalette = [
-  colours.green,
+  colours.greenText,
   colours.amber,
-  colours.ink,
+  colours.fg,
   "#7FA88F", // soft green
   "#C98A5B", // copper
-  colours.inkMuted,
-  colours.red,
+  colours.fgMuted,
+  colours.redText,
 ] as const;
+
+export const chart = {
+  grid: colours.line,
+  axis: colours.fgMuted,
+  tooltipBg: colours.panelRaised,
+  // Charts grow into the shape of the data when a page opens, and morph when filters change.
+  animationMs: 900,
+  animationEasing: "ease-out" as const,
+} as const;
 
 export const fonts = {
   // One typeface for everything: a geometric sans with a single storey "a", like the Moca logo.
@@ -74,11 +90,11 @@ export const fonts = {
   fallback: "ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif",
 } as const;
 
-// Radius follows hierarchy: large for main panels, medium for controls, full for pills and dots.
+// Radius follows hierarchy: small for controls and panels (a technical feel), full for pills and dots.
 export const radii = {
-  sm: "6px",
-  md: "8px",
-  lg: "14px",
+  sm: "4px",
+  md: "6px",
+  lg: "8px",
 } as const;
 
 export const logo = {
