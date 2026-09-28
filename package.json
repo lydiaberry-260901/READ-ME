@@ -23,6 +23,7 @@
     "db:studio": "prisma studio",
     "outreach:starter": "tsx scripts/install-starter-library.ts",
     "deals:recalculate": "tsx scripts/recalculate-health.ts",
+    "db:demo-activity": "tsx scripts/add-demo-activity.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

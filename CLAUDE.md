@@ -78,6 +78,7 @@ This CRM holds personal data about business contacts, so data protection must be
 * Text and buttons must have strong enough contrast to be easy to read (meeting WCAG AA). Do not rely on colour alone to show meaning.
 * Use one clean, readable font. Charts use the same palette. Works well on a laptop, and is usable on a phone.
 * If Moca's official colour codes are given later, use those in place of the suggestions.
+* Update chosen by Moca on 28/09/2026: the app uses a dark "control room" layout (a top bar, Ctrl+K search, a live automations indicator) built from the charcoal of Moca's official logo (public/brand/moca-logo.png), with cream text and green, amber and red kept for their meanings. Charts and headline figures animate into shape when a page opens and morph when filters change, respecting reduced motion. Screens follow the frontend design guide from the Claude Code frontend design plugin.
 
 ## Technical choices
 

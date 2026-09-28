@@ -63,18 +63,24 @@ export const defaultStageColours = {
   Lost: "#F08A7E",
 } as const;
 
-// Palette for charts, in order of use. Chosen to read clearly on the dark panels.
+// Chart colours.
+// Green, amber and red mean good, attention and bad across the app, so they are kept for health
+// and won or lost figures, and never used as ordinary series colours.
+// Series colours are assigned in this fixed order and never cycled. Checked with the dataviz
+// palette validator on the dark panel (#282828): lightness band, chroma, colour blind separation
+// (worst adjacent 15.9) and contrast all pass.
 export const chartPalette = [
-  colours.greenText,
-  colours.amber,
-  colours.fg,
-  "#7FA88F", // soft green
-  "#C98A5B", // copper
-  colours.fgMuted,
-  colours.redText,
+  "#3987E5", // blue
+  "#D55181", // magenta
+  "#9085E9", // violet
+  "#D95926", // orange
 ] as const;
 
 export const chart = {
+  single: brand.stone, // a chart with one series uses the brand stone
+  good: colours.greenText,
+  bad: colours.redText,
+  attention: colours.amber,
   grid: colours.line,
   axis: colours.fgMuted,
   tooltipBg: colours.panelRaised,

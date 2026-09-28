@@ -65,7 +65,7 @@ export default async function CompaniesPage({ searchParams }: { searchParams: Pr
         description="Every company in our prospecting database. Filter, tag and group them, and let the AI explain why each one matters to Moca."
         actions={
           <>
-            <Link href="/import" className="btn btn-secondary no-underline">Import a CSV file</Link>
+            <a href={`/api/export/companies${currentQuery}`} className="btn btn-secondary no-underline">Download CSV</a>
             <Link href="/companies/new" className="btn btn-primary no-underline">Add a company</Link>
           </>
         }

@@ -34,7 +34,7 @@ export default async function DealsPage({ searchParams }: { searchParams: Promis
           <Link href={`/deals${filtersToQuery({ ...rest, view: other })}`} className="btn btn-secondary no-underline">
             {view === "board" ? "Show as a list" : "Show as a board"}
           </Link>
-          <Link href="/deals/new" className="btn btn-primary no-underline">New deal</Link>
+          <a href={`/api/export/deals${filtersToQuery(rest)}`} className="btn btn-secondary no-underline">Download CSV</a>
         </div>
       </div>
 

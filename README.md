@@ -12,7 +12,10 @@ The full project brief is in [CLAUDE.md](CLAUDE.md).
 | 2 | Prospecting: companies and contacts, search, filters, bulk actions, saved views, lists, tags, CSV import, company details lookup, AI summary and score | Done |
 | Extra | Knowledge library: drag and drop company context, case studies and transcripts to give the AI context on Moca | Done |
 | 3 | Outreach: email templates and call scripts by customer group and reason, merge fields and preview, starter library, drafts with AI help, fixed marketing footer, unsubscribe page, contact rules | Done |
-| 4 to 11 | Email and calendar, deals, tasks, news, transcripts, dashboards, privacy, going live | To do |
+| Layout | Control room: dark theme, top bar, Ctrl+K search, live automations indicator, animated figures and charts | Done |
+| 5 | Deals: drag and drop board, qualification, stakeholders, health score, battlecards, win and loss reasons, alert emails | Done |
+| 9 | Analytics dashboards with animated charts, manager pipeline review, CSV downloads for every list and table | Done (brought forward) |
+| 4, 6, 7, 8, 10, 11 | Email and calendar, daily tasks, news, transcripts, privacy centre, going live | To do |
 
 ## What you need on your computer
 
@@ -86,10 +89,32 @@ All demo companies, people and deals are fictional. Company websites use the res
 
 ## Look and feel
 
-* Moca's official logo is [public/brand/moca-logo.png](public/brand/moca-logo.png). On the charcoal side menu the same file is shown in cream, so there is only one logo file to update.
-* The logo's charcoal (#353535) is the main text and side menu colour ("ink"). The other colours come from the project brief. Every colour, the font and the logo details live in [src/design/tokens.ts](src/design/tokens.ts).
+* **Control room** (chosen by Moca on 28/09/2026): a dark canvas built from the charcoal of Moca's logo, cream text, fine grid lines between panels, and colour only where it means something: green for actions and good results, amber for attention, red for errors and lost deals.
+* A slim top bar holds the main sections, a search box (Ctrl+K, or Cmd+K on a Mac) that finds deals, companies and contacts and jumps to any page, and a live indicator showing what the background automations are doing (running, waiting, failed, or worker offline).
+* Motion: headline figures count up, and charts grow from the baseline into the shape of the data when a page opens. Changing a dashboard filter morphs the charts into their new shape. Anyone whose computer asks for reduced motion sees everything still.
+* Moca's official logo is [public/brand/moca-logo.png](public/brand/moca-logo.png). It is shown in the text colour through a mask, so there is only one logo file to update.
+* Every colour, the font, the chart palette and the logo details live in [src/design/tokens.ts](src/design/tokens.ts). Colours are named by their job (canvas, panel, fg for text, line), so the theme can change without renaming anything in the screens.
 * One typeface, Outfit, chosen because its rounded geometric shapes match the logo.
-* Screens follow the frontend design guide from the Claude Code frontend design plugin: one memorable element (the logo's dots, used for the company score), plain wording, and no decoration that does not carry information.
+* Chart colours: series use a blue, magenta, violet and orange set, checked for colour blindness, lightness and contrast on the dark panels with the dataviz palette validator. Green, amber and red are kept for health and won or lost figures. Every chart can be switched to a table.
+* Screens follow the frontend design guide from the Claude Code frontend design plugin: one memorable element per page, plain wording, and no decoration that does not carry information.
+
+## Deals
+
+* **Board:** drag a deal between stages with the mouse, or with the keyboard (space to pick up, arrow keys to move, space to drop). Each column shows the number of deals and their total value. Filter by owner, customer group or health, or switch to the list view. Closed deals leave the board after 90 days but stay in the list and reports.
+* **Closing:** dropping on Won asks for the final value and a short note on why it was won. Dropping on Lost asks for a reason from the fixed list (Budget, Timing, No decision, Lost to competitor, No economic buyer, Product fit, Other) and a short note.
+* **Deal page:** the eight qualification fields (MEDDPICC) with a completeness percentage, the people involved and their roles (Champion, Economic buyer, Blocker, Influencer, User), a health breakdown, the battlecard for any competitor named, details, and a timeline of notes, calls, emails, meetings, transcripts and stage changes.
+* **Health score** (0 to 100): qualification up to 35 points, engaged people up to 25, time in the current stage against the usual time up to 20, and recent activity up to 20. 65 or more is On track, 40 to 64 At risk, under 40 Stalled. A deal quiet for more than twice its stage's limit is always Stalled. Recalculated whenever the deal changes and every day at 05:30. `npm run deals:recalculate` does it straight away.
+* **Single threaded:** when a deal has had only one engaged person for more than 14 days (a setting), the deal shows a warning and the owner gets one task to bring in someone else.
+* **Battlecards:** one page per competitor with a comparison, objections and responses. Everyone can read them and admins edit them. A deal whose competitor field matches a battlecard shows it automatically.
+* **Alerts:** every stage move and every close emails the deal's owner and followers with the deal, company, old and new stage, value, who moved it, when, and a link. Each alert is saved once (never twice for the same move), sent by the worker, retried automatically if sending fails, and shown with its status and attempts in the alert log.
+* **Admin pages:** Deal stages (add, rename, reorder, recolour, set the chance of winning and the "no activity" limit), Battlecards and the Alert log are in the account menu at the top right.
+
+## Analytics and downloads
+
+* **Analytics** shows, for a chosen period, person and customer group: open pipeline and expected income, won value, win rate, average qualification, how many calls connect and emails get replies, calls, emails and meetings each week, health of open deals, pipeline by stage, average time in each stage, how deals move through the stages, reasons for losing, win rate and average deal size by customer group, activity by person, which templates work best, and which types of news lead to meetings. Everyone sees analytics for the records they are allowed to see.
+* **Pipeline review** (managers and admins, in the account menu) lists every open deal with the weakest health first, and flags weak qualification (under 50%), single threaded deals, no recent activity and passed close dates. Filter by team or person. Built for weekly pipeline meetings.
+* **CSV downloads:** every list (companies, contacts, deals, email templates, and later tasks, activities and news) and every dashboard table has a "Download CSV" link. Downloads follow the current filters and the person's access rights, stream in batches so large lists work, add a safe prefix to any cell that a spreadsheet could run as a formula, and are recorded in the audit log. Contact details of people who opted out are left out of downloads.
+* `npm run db:demo-activity` adds a fictional history of calls, emails, meetings and closed deals to the demo organisation, so the charts have something to show.
 
 ## Prospecting
 
@@ -164,6 +189,9 @@ All settings live in `.env` on your computer, and in the server's settings on Ho
 | `COMPANIES_HOUSE_API_KEY` | Free key from the Companies House developer hub, used to look up company records. |
 | `SEED_ADMIN_EMAIL` | Demo data only. This address is invited as an Admin when the demo data is loaded. |
 | `NEXT_TELEMETRY_DISABLED` | Set to `1` to stop Next.js sending anonymous usage statistics. |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | The mail server that sends alert emails, for example Hostinger's email service. |
+| `ALERT_FROM` | The address alert emails come from, for example `Moca CRM <crm@moca.energy>`. |
+| `EMAIL_TRANSPORT` | Development only. `log` writes alert emails to the worker's log instead of sending them. |
 
 To create a random 32 byte key, run:
 

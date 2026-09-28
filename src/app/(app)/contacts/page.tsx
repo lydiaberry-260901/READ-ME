@@ -59,7 +59,7 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
         description="People at the companies we work with. Business details only."
         actions={
           <>
-            <Link href="/import" className="btn btn-secondary no-underline">Import a CSV file</Link>
+            <a href={`/api/export/contacts${currentQuery}`} className="btn btn-secondary no-underline">Download CSV</a>
             <Link href="/contacts/new" className="btn btn-primary no-underline">Add a contact</Link>
           </>
         }

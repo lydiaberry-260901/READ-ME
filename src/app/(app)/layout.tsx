@@ -11,6 +11,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const items: NavItem[] = [
     { href: "/", label: "Home" },
     { href: "/deals", label: "Deals" },
+    { href: "/analytics", label: "Analytics" },
     { href: "/companies", label: "Companies" },
     { href: "/contacts", label: "Contacts" },
     { href: "/outreach", label: "Outreach" },
@@ -19,6 +20,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   ];
 
   const adminItems: NavItem[] = [{ href: "/battlecards", label: "Battlecards" }];
+  if (can(user, "pipelineReview.view")) adminItems.unshift({ href: "/deals/review", label: "Pipeline review" });
   if (can(user, "users.manage")) adminItems.push({ href: "/settings/users", label: "People and teams" });
   if (can(user, "settings.manage")) {
     adminItems.push({ href: "/settings/organisation", label: "Organisation" });
