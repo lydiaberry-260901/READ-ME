@@ -12,6 +12,7 @@ import { installStarterLibrary } from "@/lib/outreach/starter-library";
 import { OutreachBlockedError } from "@/lib/outreach/context";
 import { createEmailDraft, createScriptDraft, markScriptReady, ownDraft } from "@/lib/outreach/drafts";
 import { removeDashPunctuation } from "@/lib/text";
+import { sendDraft } from "@/lib/integrations/send";
 
 const groupSchema = z.enum(["ASSET_ESG", "PROPERTY_MANAGER", "OCCUPIER", ""]).transform((v) => (v ? v : null));
 const reasonSchema = z.enum(["EPC_RISK", "NET_ZERO", "NEW_ESG_HIRE", "TENDER", "ACQUISITION", "GENERAL_INTRO"]);
@@ -193,6 +194,26 @@ export async function markReady(_prev: ActionResult | null, formData: FormData):
     await audit({ organisationId: me.organisationId, userId: me.id, action: "outreach.call_ready", entityType: "OutreachDraft", entityId: id });
     revalidatePath(`/outreach/drafts/${id}`);
     return { ok: true, message: "Marked ready to call." };
+  } catch (error) {
+    return blocked(error);
+  }
+}
+
+export async function sendDraftAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+  try {
+    const me = await actionUser();
+    const id = z.string().parse(formData.get("id"));
+    // Save any last edits first, so exactly what the person sees is what is sent.
+    const subject = formData.get("subject");
+    const body = formData.get("body");
+    if (typeof subject === "string" && typeof body === "string") {
+      const draft = await ownDraft(me, id);
+      if (draft.status === "DRAFT") await prisma.outreachDraft.update({ where: { id }, data: { subject: subject.trim(), body: body.trim() } });
+    }
+    await sendDraft(me, id);
+    revalidatePath(`/outreach/drafts/${id}`);
+    revalidatePath("/outreach/drafts");
+    return { ok: true, message: "Sent from your email account." };
   } catch (error) {
     return blocked(error);
   }

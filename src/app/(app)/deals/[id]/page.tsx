@@ -96,6 +96,7 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
         </div>
         <div className="flex flex-wrap items-end gap-3">
           <StageMover deal={boardDeal} stages={deal.pipeline.stages.map((s) => ({ id: s.id, name: s.name, colour: s.colour, kind: s.kind }))} disabled={!editable} />
+          <Link href={`/calendar/new?dealId=${deal.id}${deal.contacts[0] ? `&contactId=${deal.contacts[0].contactId}` : ""}`} className="btn btn-secondary py-1.5 no-underline">Book a meeting</Link>
           <form action={toggleFollow}>
             <input type="hidden" name="dealId" value={deal.id} />
             <input type="hidden" name="follow" value={String(!following)} />

@@ -15,7 +15,9 @@ The full project brief is in [CLAUDE.md](CLAUDE.md).
 | Layout | Control room: dark theme, top bar, Ctrl+K search, live automations indicator, animated figures and charts | Done |
 | 5 | Deals: drag and drop board, qualification, stakeholders, health score, battlecards, win and loss reasons, alert emails | Done |
 | 9 | Analytics dashboards with animated charts, manager pipeline review, CSV downloads for every list and table | Done (brought forward) |
-| 4, 6, 7, 8, 10, 11 | Email and calendar, daily tasks, news, transcripts, privacy centre, going live | To do |
+| Visuals | Command centre home page, Automations page, visual summaries on lists | Done |
+| 4 | Email and calendar: connect Gmail or Outlook and Google or Outlook calendar, email sync, sending from the CRM, two way calendar, calendar page, booking meetings | Done |
+| 6, 7, 8, 10, 11 | Daily tasks, news, transcripts, privacy centre, going live | To do |
 
 ## What you need on your computer
 
@@ -156,6 +158,36 @@ Go to Import. Choose a CSV file, match its columns, say where the data came from
 * **Marketing email footer:** every marketing email ends with who we are, a privacy line with a link to the privacy notice, and a personal unsubscribe link. It is added when the email is put together and is never stored in a template, so it cannot be edited out. Admins set the legal name, address and privacy notice link under Settings, Organisation.
 * **Unsubscribe:** each link names one contact and carries a keyed check value, so it cannot be changed to opt out someone else. The public page opts the person out with one button press. Opening the link does not do it on its own, because email security scanners open links automatically. Email programs' own unsubscribe buttons are supported too (`/api/unsubscribe/...`). Opting out blocks everyone in the team from contacting them and adds them to the opt out list.
 * The template or script used is saved on every draft, so later dashboards can show which ones work best.
+
+## Email and calendar
+
+* **Connecting:** each person opens Email and calendar in the account menu and connects their own work email and calendar with Google or Microsoft. They sign in on Google's or Microsoft's own page; the CRM never sees their password. Email and calendar are connected separately, each asking only for the access it needs:
+  * Gmail: read messages and send (`gmail.readonly`, `gmail.send`).
+  * Google Calendar: events only (`calendar.events`).
+  * Outlook: `Mail.Read`, `Mail.Send`.
+  * Outlook calendar: `Calendars.ReadWrite`, plus `offline_access` so it keeps working between sign ins.
+* The sign in details are stored encrypted. The handshake uses a one time proof key (PKCE) and a check value kept in an encrypted cookie. Disconnecting deletes the saved details and, for Google, asks Google to forget the access.
+* **Email sync (every 10 minutes):** new sent and received emails are collected. Only emails with a CRM contact are kept, saved against the contact, their company and their most recent open deal. Only the addresses, subject and a short snippet are saved, never attachments; personal emails with nobody from the CRM are ignored. Replies are spotted, so "Emails replied to" and template reply rates work. The first sync looks back 30 days.
+* **Sending:** email drafts have a Send button, which asks for confirmation and sends from the person's own account. The contact rules are checked again at the moment of sending. Marketing emails get the fixed footer and the standard one click unsubscribe headers, so email programs show their own Unsubscribe button. The first marketing email to someone records that they have been told how we use their details (when a privacy notice link is set). The template used is saved for reporting.
+* **Calendar sync (every 15 minutes, both ways):** events from 30 days ago to 90 days ahead are brought in and linked to contacts among the attendees. Meetings booked in the CRM are created in the person's calendar. Events deleted in the calendar are marked cancelled.
+* **Calendar page:** day, week and month views of meetings, tasks due and follow ups, in London time, with a line showing the time now.
+* **Booking a meeting:** from a contact or a deal page, or the calendar. Invitations go only when the person ticks the box, and never to someone who has opted out. Without a connected calendar, meetings are kept in the CRM calendar only.
+* **When things go wrong:** if access expires or is removed, the account shows "Needs reconnecting" with a Reconnect button, and syncing stops until then. Limits set by Google or Microsoft, and temporary faults, are retried automatically, waiting longer each time.
+
+### Setting up email and calendar access with Google
+
+Use the same Google Cloud project and OAuth client as sign in.
+
+1. In APIs and Services, Library, enable the **Gmail API** and the **Google Calendar API**.
+2. On the OAuth consent screen, set the user type to **Internal** if Moca uses Google Workspace. Otherwise Google requires a formal security review before an app can read Gmail. Add the scopes listed above.
+3. In Credentials, add a second redirect address to the OAuth client: `http://localhost:3000/api/connect/callback/google`, and later the live one, for example `https://crm.moca.energy/api/connect/callback/google`.
+
+### Setting up email and calendar access with Microsoft
+
+Use the same app registration as sign in.
+
+1. In API permissions, add delegated Microsoft Graph permissions: `User.Read`, `Mail.Read`, `Mail.Send`, `Calendars.ReadWrite` and `offline_access`. An administrator can grant consent for the whole organisation.
+2. In Authentication, add the redirect address `http://localhost:3000/api/connect/callback/microsoft`, and later the live one.
 
 ## Knowledge library
 

@@ -142,7 +142,10 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
 
         <div className="flex flex-col gap-8">
           <section className="card p-6" aria-labelledby="outreach-heading">
-            <h2 id="outreach-heading" className="mb-4 text-lg font-semibold">Get in touch</h2>
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h2 id="outreach-heading" className="text-lg font-semibold">Get in touch</h2>
+              {!contact.optedOut ? <Link href={`/calendar/new?contactId=${contact.id}`} className="text-sm">Book a meeting</Link> : null}
+            </div>
             <OutreachPanel
               contactId={contact.id}
               templates={templates.map(toItem)}

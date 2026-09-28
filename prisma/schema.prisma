@@ -784,6 +784,7 @@ model Email {
   emailAccountId    String?
   userId            String?
   providerMessageId String?
+  internetMessageId String? // the standard Message-ID header, used to match emails sent from the CRM when they sync back
   threadId          String?
   direction         EmailDirection
   fromAddress       String
@@ -813,6 +814,7 @@ model Email {
   activity      Activity?
 
   @@unique([emailAccountId, providerMessageId])
+  @@unique([organisationId, internetMessageId])
   @@index([organisationId, contactId])
   @@index([organisationId, threadId])
 }

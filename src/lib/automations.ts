@@ -9,6 +9,10 @@ export const automationLabels: Record<QueueName, string> = {
   [QUEUES.companyEnrich]: "Company details",
   [QUEUES.sendNotification]: "Alert emails",
   [QUEUES.recalculateHealth]: "Deal health check",
+  [QUEUES.mailSyncAll]: "Email sync",
+  [QUEUES.mailSync]: "Email sync for one account",
+  [QUEUES.calendarSyncAll]: "Calendar sync",
+  [QUEUES.calendarSync]: "Calendar sync for one account",
 };
 
 export type AutomationStatus = {

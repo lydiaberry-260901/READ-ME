@@ -26,7 +26,10 @@ export default async function DraftPage({ params }: { params: Promise<{ id: stri
     if (error instanceof OutreachBlockedError) notFound();
     throw error;
   }
-  const org = await prisma.organisation.findUniqueOrThrow({ where: { id: user.organisationId } });
+  const [org, sendAccount] = await Promise.all([
+    prisma.organisation.findUniqueOrThrow({ where: { id: user.organisationId } }),
+    prisma.emailAccount.findFirst({ where: { userId: user.id, status: "ACTIVE" }, select: { emailAddress: true } }),
+  ]);
   const notes = (draft.aiNotes ?? {}) as { personalisationNotes?: string[]; missingInformation?: string[]; missingMergeFields?: string[] };
   const locked = draft.status === "SENT" || draft.status === "DISCARDED";
   const contactName = draft.contact ? `${draft.contact.firstName} ${draft.contact.lastName ?? ""}`.trim() : "a removed contact";
@@ -66,7 +69,7 @@ export default async function DraftPage({ params }: { params: Promise<{ id: stri
       <div className="grid gap-10 lg:grid-cols-[1.6fr_1fr]">
         <section aria-label="Draft">
           {draft.kind === "EMAIL" ? (
-            <EmailDraftEditor id={draft.id} subject={draft.subject ?? ""} body={draft.body ?? ""} footer={footer} locked={locked} />
+            <EmailDraftEditor id={draft.id} subject={draft.subject ?? ""} body={draft.body ?? ""} footer={footer} locked={locked} recipient={draft.contact?.email ?? null} sendFrom={sendAccount?.emailAddress ?? null} blocked={Boolean(blocked)} />
           ) : (
             <ScriptDraftEditor
               id={draft.id}
