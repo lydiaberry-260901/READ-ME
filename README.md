@@ -10,6 +10,7 @@ The full project brief is in [CLAUDE.md](CLAUDE.md).
 | --- | --- | --- |
 | 1 | Foundation: database design, sign in, roles, invitations, design settings, background worker, demo data | Done |
 | 2 | Prospecting: companies and contacts, search, filters, bulk actions, saved views, lists, tags, CSV import, company details lookup, AI summary and score | Done |
+| Extra | Knowledge library: drag and drop company context, case studies and transcripts to give the AI context on Moca | Done |
 | 3 to 11 | Outreach, email and calendar, deals, tasks, news, transcripts, dashboards, privacy, going live | To do |
 
 ## What you need on your computer
@@ -107,6 +108,16 @@ Go to Import. Choose a CSV file, match its columns, say where the data came from
 * Prompts are separate, versioned files in [prompts/](prompts/). The scoring guide is [prompts/scoring-guide.v1.md](prompts/scoring-guide.v1.md). To change one, add a new version and update the version number in the code, so saved results always show which version produced them.
 * All AI requests go through one module, [src/lib/ai](src/lib/ai), so the provider can be changed later. Every request is recorded with its model, tokens used and estimated cost.
 * The default model is Claude Opus 5 (`claude-opus-5`), set with `AI_MODEL`. If Claude declines a request, the Claude API tries a fallback model automatically (the `fallbacks: "default"` option). Anthropic does not train its models on data sent through its API by default.
+
+## Knowledge library
+
+The Knowledge page holds documents that explain Moca's business, so the CRM and its AI have the right context: company overviews, product notes, case studies and example transcripts.
+
+* **Adding documents:** admins and managers drag and drop files onto the page, or paste text. Word (.docx), PDF, text, Markdown, CSV and subtitle files (.vtt, .srt) are accepted, up to 10 MB at a time. The text is read from each file and saved. The original file is not kept. Scanned PDFs without real text cannot be read.
+* **Who can see it:** everyone can read the library. Admins and managers can add, edit and delete documents.
+* **How the AI uses it:** documents switched on for the AI are given to it as background when it writes company summaries (prompt version 2), and in later phases outreach drafts and call scripts. Company context and product notes come first, then case studies, then transcripts, up to about 40,000 characters. The AI is told to treat them as background, not instructions.
+* **Personal details:** remove personal details you do not need before uploading, especially from transcripts. Any document marked as holding personal details is kept for reference but never sent to the AI. Email addresses and phone numbers are removed from all documents before they are sent.
+* Uploads, changes and deletions are recorded in the audit log.
 
 ## Settings
 

@@ -32,7 +32,9 @@ export class ClaudeProvider implements AiProvider {
       betas: ["server-side-fallback-2026-07-01"],
       fallbacks: "default",
       output_config: { effort: "medium", format: betaZodOutputFormat(request.outputSchema) },
-      system: request.system,
+      // The instructions (including the knowledge library) rarely change, so they are cached
+      // by the API for a few minutes, which makes repeated requests cheaper and faster.
+      system: [{ type: "text", text: request.system, cache_control: { type: "ephemeral" } }],
       messages: [{ role: "user", content: request.user }],
     });
 

@@ -272,6 +272,7 @@ model Organisation {
   savedViews     SavedView[]
   importRuns     ImportRun[]
   aiUsage        AiUsage[]
+  knowledge      KnowledgeDocument[]
 }
 
 model User {
@@ -316,6 +317,7 @@ model User {
   prospectLists     ProspectList[]
   savedViews        SavedView[]
   importRuns        ImportRun[]
+  knowledgeUploads  KnowledgeDocument[]
 
   @@index([organisationId])
 }
@@ -1200,6 +1202,41 @@ model AiUsage {
   organisation Organisation? @relation(fields: [organisationId], references: [id], onDelete: Cascade)
 
   @@index([organisationId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Knowledge library: documents that give the CRM and its AI context on Moca's business
+// ---------------------------------------------------------------------------
+
+enum KnowledgeKind {
+  COMPANY_CONTEXT
+  PRODUCT
+  CASE_STUDY
+  TRANSCRIPT
+  OTHER
+}
+
+model KnowledgeDocument {
+  id                   String        @id @default(cuid())
+  organisationId       String
+  title                String
+  kind                 KnowledgeKind
+  description          String?
+  fileName             String? // null when the text was pasted in
+  mimeType             String?
+  sizeBytes            Int           @default(0)
+  text                 String // the extracted text; the original file is not kept
+  charCount            Int
+  useForAi             Boolean       @default(true)
+  containsPersonalData Boolean       @default(false) // if true, never sent to the AI
+  uploadedById         String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  uploadedBy   User?        @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+
+  @@index([organisationId, kind])
 }
 
 // Minimal record kept so an opted out person is never contacted again.

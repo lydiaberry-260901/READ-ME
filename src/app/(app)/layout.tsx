@@ -12,6 +12,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     { href: "/companies", label: "Companies", icon: "building" },
     { href: "/contacts", label: "Contacts", icon: "person" },
     { href: "/import", label: "Import", icon: "upload" },
+    { href: "/knowledge", label: "Knowledge", icon: "book" },
   ];
   if (can(user, "users.manage")) {
     items.push({ href: "/settings/users", label: "People and teams", icon: "users" });

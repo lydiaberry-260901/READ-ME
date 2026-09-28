@@ -43,6 +43,7 @@ Three groups of customers:
 16. Manager pipeline review view: a screen for managers and admins listing every open deal, sorted by health score, with weak qualification, a single threaded warning, or no recent activity shown clearly, and filterable by team or person. Built for weekly pipeline review meetings, separate from the drag and drop board.
 17. CSV export: every list and every dashboard table can be downloaded as a CSV file, following each person's access rights.
 18. Many users: sign in with Google or Microsoft. Roles: Admin, Manager and Rep. Reps see their own records and shared ones, managers see their team, admins see everything. Keep a log of important changes.
+19. Knowledge library (added on request): a page where admins and managers drag and drop company context, product notes, case studies and transcripts. The text is extracted and used as background context by every AI feature. Documents marked as holding personal details are never sent to the AI.
 
 ## Data protection rules (UK GDPR, Data Protection Act 2018 and PECR)
 

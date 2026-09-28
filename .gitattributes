@@ -1,0 +1,6 @@
+# Store text files with Unix line endings in the repository, whatever computer they come from.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.pdf binary
+*.docx binary

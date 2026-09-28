@@ -8,8 +8,9 @@ import { countSentences, redactPersonalDetails, removeDashPunctuation, truncate 
 import { customerGroupLabels } from "@/lib/labels";
 import type { CustomerGroup } from "@/generated/prisma/enums";
 import type { CompanyEnrichment } from "@/lib/enrichment/types";
+import { getBusinessContext } from "@/lib/knowledge/context";
 
-export const COMPANY_SUMMARY_PROMPT = { name: "company-summary", version: 1 } as const;
+export const COMPANY_SUMMARY_PROMPT = { name: "company-summary", version: 2 } as const;
 export const SCORING_GUIDE = { name: "scoring-guide", version: 1 } as const;
 export const COMPANY_SUMMARY_PROMPT_VERSION = `company-summary.v${COMPANY_SUMMARY_PROMPT.version}+scoring-guide.v${SCORING_GUIDE.version}`;
 
@@ -103,9 +104,10 @@ export function buildCompanyInput(company: CompanyForAi): string {
   return redactPersonalDetails(truncate(lines.join("\n"), 8000));
 }
 
-export function buildCompanySummaryPrompts(company: CompanyForAi) {
+export function buildCompanySummaryPrompts(company: CompanyForAi, businessContext = "") {
   const system = fillPrompt(loadPrompt(COMPANY_SUMMARY_PROMPT.name, COMPANY_SUMMARY_PROMPT.version), {
     scoringGuide: loadPrompt(SCORING_GUIDE.name, SCORING_GUIDE.version),
+    businessContext: businessContext || "No documents have been added yet.",
   });
   const user = `Here is everything we know about the company. Write the note and score using only this.\n\n<company_information>\n${buildCompanyInput(company)}\n</company_information>`;
   return { system, user };
@@ -114,7 +116,8 @@ export function buildCompanySummaryPrompts(company: CompanyForAi) {
 /** Generates and saves the summary. The caller must already have checked the person may edit the company. */
 export async function generateCompanySummary(companyId: string, organisationId: string, userId: string | null) {
   const company = await prisma.company.findFirstOrThrow({ where: { id: companyId, organisationId } });
-  const { system, user } = buildCompanySummaryPrompts(company);
+  const context = await getBusinessContext(organisationId);
+  const { system, user } = buildCompanySummaryPrompts(company, context.text);
 
   const { result, model } = await runAiTask({
     feature: "company_summary",
@@ -148,7 +151,7 @@ export async function generateCompanySummary(companyId: string, organisationId: 
       action: "company.ai_summary_generated",
       entityType: "Company",
       entityId: companyId,
-      details: { model, score: result.score, promptVersion: COMPANY_SUMMARY_PROMPT_VERSION },
+      details: { model, score: result.score, promptVersion: COMPANY_SUMMARY_PROMPT_VERSION, knowledgeDocumentIds: context.usedIds },
     },
   });
   return updated;

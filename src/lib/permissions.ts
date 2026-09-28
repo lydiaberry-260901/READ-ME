@@ -27,6 +27,7 @@ export type Capability =
   | "settings.manage" // organisation settings, deal stages, task rules
   | "battlecards.edit"
   | "templates.manage" // create and edit the outreach library
+  | "knowledge.manage" // add, edit and remove documents in the knowledge library
   | "pipelineReview.view"
   | "dashboards.viewTeam"
   | "alerts.view"
@@ -40,6 +41,7 @@ const capabilitiesByRole: Record<Role, readonly Capability[]> = {
     "settings.manage",
     "battlecards.edit",
     "templates.manage",
+    "knowledge.manage",
     "pipelineReview.view",
     "dashboards.viewTeam",
     "alerts.view",
@@ -47,7 +49,7 @@ const capabilitiesByRole: Record<Role, readonly Capability[]> = {
     "privacy.access",
     "audit.view",
   ],
-  MANAGER: ["templates.manage", "pipelineReview.view", "dashboards.viewTeam"],
+  MANAGER: ["templates.manage", "knowledge.manage", "pipelineReview.view", "dashboards.viewTeam"],
   REP: [],
 };
 
