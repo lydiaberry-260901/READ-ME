@@ -45,10 +45,11 @@ if (devLoginEnabled) {
   );
 }
 
-export const configuredProviders = providers.map((p) => {
-  const cfg = typeof p === "function" ? p() : p;
-  return { id: cfg.id, name: cfg.name };
-});
+// Google and Microsoft sign in buttons. The development demo login is listed separately on the sign in page.
+export const configuredProviders = providers
+  .map((p) => (typeof p === "function" ? p() : p))
+  .filter((cfg) => cfg.type === "oauth" || cfg.type === "oidc")
+  .map((cfg) => ({ id: cfg.id, name: cfg.name }));
 
 // Store and look up email addresses in lower case so invitations always match.
 const baseAdapter = PrismaAdapter(prisma);

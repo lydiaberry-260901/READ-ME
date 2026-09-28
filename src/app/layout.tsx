@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Figtree } from "next/font/google";
+import { Outfit } from "next/font/google";
 import { tokensToCss } from "@/design/tokens";
 import "./globals.css";
 
-const figtree = Figtree({
+// One typeface for the whole app. The name must match fonts.sans in src/design/tokens.ts.
+const outfit = Outfit({
   subsets: ["latin"],
-  variable: "--font-figtree",
+  variable: "--font-outfit",
   display: "swap",
 });
 
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-GB" className={figtree.variable}>
+    <html lang="en-GB" className={outfit.variable}>
       <head>
         <style dangerouslySetInnerHTML={{ __html: tokensToCss() }} />
       </head>

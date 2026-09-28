@@ -9,7 +9,7 @@ export default function NoAccessPage() {
       <div className="card w-full max-w-md p-8">
         <Logo />
         <h1 className="mt-8 text-2xl font-semibold">You do not have access to this page</h1>
-        <p className="mt-2 text-mocha-muted">
+        <p className="mt-2 text-ink-muted">
           Your role does not include this area. If you need it for your work, ask an admin to change your role.
         </p>
         <Link href="/" className="btn btn-primary mt-6 no-underline">

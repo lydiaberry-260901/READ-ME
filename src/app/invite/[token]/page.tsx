@@ -23,11 +23,11 @@ export default async function InvitePage({ params }: { params: Promise<{ token: 
         {valid ? (
           <>
             <h1 className="mt-8 text-2xl font-semibold">You have been invited to {invite.organisation.name}</h1>
-            <p className="mt-2 text-mocha-muted">
-              {invite.invitedBy.name ?? "An admin"} has invited <strong className="text-mocha">{invite.email}</strong> to
+            <p className="mt-2 text-ink-muted">
+              {invite.invitedBy.name ?? "An admin"} has invited <strong className="text-ink">{invite.email}</strong> to
               join as a {roleLabels[invite.role]}. The invitation lasts until {formatDate(invite.expiresAt)}.
             </p>
-            <p className="mt-4 text-sm text-mocha-muted">
+            <p className="mt-4 text-sm text-ink-muted">
               Sign in with the Google or Microsoft work account that uses this exact email address.
             </p>
             <Link href="/signin" className="btn btn-primary mt-6 w-full no-underline">

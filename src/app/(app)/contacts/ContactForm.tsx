@@ -46,7 +46,7 @@ export function ContactForm({
   return (
     <form action={formAction} className="grid gap-5 sm:grid-cols-2">
       {c.id ? <input type="hidden" name="id" value={c.id} /> : null}
-      <p className="text-sm text-mocha-muted sm:col-span-2">
+      <p className="text-sm text-ink-muted sm:col-span-2">
         Collect business details only: name, job title, work email, work phone, company and a public professional profile link.
       </p>
       <div>
@@ -75,7 +75,7 @@ export function ContactForm({
       <div>
         <label htmlFor="p-phone" className="label">Work phone</label>
         <input id="p-phone" name="phone" type="tel" maxLength={40} defaultValue={c.phone ?? ""} className="field" />
-        {!isNew ? <p className="mt-1 text-xs text-mocha-muted">Changing the number means it must be checked against the do not call lists again.</p> : null}
+        {!isNew ? <p className="mt-1 text-xs text-ink-muted">Changing the number means it must be checked against the do not call lists again.</p> : null}
       </div>
       <div className="sm:col-span-2">
         <label htmlFor="p-link" className="label">Public professional profile link</label>
@@ -91,7 +91,7 @@ export function ContactForm({
           <option value="PARTNERSHIP">Other partnership</option>
           <option value="UNKNOWN">Not known yet</option>
         </select>
-        <p className="mt-1 text-xs text-mocha-muted">Sole traders and other partnerships are treated as individuals, so marketing emails need their consent.</p>
+        <p className="mt-1 text-xs text-ink-muted">Sole traders and other partnerships are treated as individuals, so marketing emails need their consent.</p>
       </div>
       <div>
         <label htmlFor="p-owner" className="label">Owner</label>

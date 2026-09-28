@@ -54,7 +54,7 @@ export default async function HomePage() {
 
       <section className="card mt-8 p-6">
         <h2 className="text-lg font-semibold">Open deals by stage</h2>
-        <p className="text-sm text-mocha-muted">Only deals you are allowed to see are counted.</p>
+        <p className="text-sm text-ink-muted">Only deals you are allowed to see are counted.</p>
         {openDeals.length === 0 ? (
           <div className="mt-5">
             <EmptyState title="No open deals yet">Deals will appear here once they are added.</EmptyState>
@@ -67,7 +67,7 @@ export default async function HomePage() {
                 <span className="h-2.5 overflow-hidden rounded-full bg-surface-sunk" aria-hidden="true">
                   <span className="block h-full rounded-full bg-green" style={{ width: `${(s.value / maxValue) * 100}%` }} />
                 </span>
-                <span className="text-right tabular-nums text-mocha-muted">
+                <span className="text-right tabular-nums text-ink-muted">
                   {s.count} {s.count === 1 ? "deal" : "deals"}, {formatPounds(s.value)}
                 </span>
               </li>

@@ -9,7 +9,7 @@ export function SaveViewForm({ entity, query }: { entity: "companies" | "contact
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="rounded-full border border-dashed border-stone-strong px-3 py-1 text-mocha hover:bg-surface">
+      <button type="button" onClick={() => setOpen(true)} className="rounded-full border border-dashed border-stone-strong px-3 py-1 text-ink hover:bg-surface">
         Save these filters
       </button>
     );

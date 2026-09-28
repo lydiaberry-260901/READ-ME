@@ -32,7 +32,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               await signOut({ redirectTo: "/signin" });
             }}
           >
-            <button type="submit" className="text-sm font-medium text-mocha-soft underline-offset-4 hover:text-cream hover:underline">
+            <button type="submit" className="text-sm font-medium text-ink-soft underline-offset-4 hover:text-cream hover:underline">
               Sign out
             </button>
           </form>

@@ -39,7 +39,7 @@ function KindAndPrivacy({ idPrefix }: { idPrefix: string }) {
         <input type="checkbox" name="containsPersonalData" className="mt-0.5 size-4 accent-green" />
         <span>
           It still contains personal details about people (names, contact details, opinions).
-          <span className="block text-xs text-mocha-muted">If ticked, it is stored for reference but never sent to the AI.</span>
+          <span className="block text-xs text-ink-muted">If ticked, it is stored for reference but never sent to the AI.</span>
         </span>
       </label>
     </div>
@@ -83,7 +83,7 @@ export function UploadPanel() {
               type="button"
               aria-selected={tab === t}
               onClick={() => setTab(t)}
-              className={clsx("rounded px-3 py-1.5 font-medium", tab === t ? "bg-mocha text-cream" : "text-mocha hover:bg-surface-sunk")}
+              className={clsx("rounded px-3 py-1.5 font-medium", tab === t ? "bg-ink text-cream" : "text-ink hover:bg-surface-sunk")}
             >
               {t === "files" ? "Upload files" : "Paste text"}
             </button>
@@ -114,11 +114,11 @@ export function UploadPanel() {
               dragging ? "border-green bg-green-tint" : "border-stone-strong/60 bg-surface-sunk",
             )}
           >
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="stroke-mocha-muted" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="stroke-ink-muted" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
             </svg>
             <p className="mt-3 font-medium">Drag and drop files here</p>
-            <p className="mt-1 text-sm text-mocha-muted">Word, PDF, text, Markdown, CSV or subtitle files (.vtt, .srt). Up to 10 MB at a time.</p>
+            <p className="mt-1 text-sm text-ink-muted">Word, PDF, text, Markdown, CSV or subtitle files (.vtt, .srt). Up to 10 MB at a time.</p>
             <button type="button" className="btn btn-secondary mt-4" onClick={() => inputRef.current?.click()}>
               Choose files
             </button>
@@ -141,7 +141,7 @@ export function UploadPanel() {
               {files.map((f) => (
                 <li key={f.name} className="flex items-center justify-between gap-3 px-3 py-2">
                   <span className="truncate">{f.name}</span>
-                  <span className="flex items-center gap-3 text-mocha-muted">
+                  <span className="flex items-center gap-3 text-ink-muted">
                     {formatSize(f.size)}
                     <button type="button" onClick={() => setFiles((cur) => cur.filter((x) => x !== f))} className="text-red-ink hover:underline" aria-label={`Remove ${f.name}`}>
                       Remove

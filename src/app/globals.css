@@ -3,10 +3,10 @@
 /* Colour and radius values come from src/design/tokens.ts, injected as CSS variables
    in the root layout. Edit colours there, not here. */
 @theme inline {
-  --color-mocha: var(--moca-mocha);
-  --color-mocha-muted: var(--moca-mocha-muted);
-  --color-mocha-soft: var(--moca-mocha-soft);
-  --color-mocha-deep: var(--moca-mocha-deep);
+  --color-ink: var(--moca-ink);
+  --color-ink-muted: var(--moca-ink-muted);
+  --color-ink-soft: var(--moca-ink-soft);
+  --color-ink-deep: var(--moca-ink-deep);
   --color-cream: var(--moca-cream);
   --color-surface: var(--moca-surface);
   --color-surface-sunk: var(--moca-surface-sunk);
@@ -14,6 +14,7 @@
   --color-green-ink: var(--moca-green-ink);
   --color-green-hover: var(--moca-green-hover);
   --color-green-tint: var(--moca-green-tint);
+  --color-green-on-ink: var(--moca-green-on-ink);
   --color-amber: var(--moca-amber);
   --color-amber-ink: var(--moca-amber-ink);
   --color-amber-tint: var(--moca-amber-tint);
@@ -27,7 +28,7 @@
   --radius-md: var(--moca-radius-md);
   --radius-lg: var(--moca-radius-lg);
 
-  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 @layer base {
@@ -36,12 +37,12 @@
   }
   body {
     background: var(--moca-cream);
-    color: var(--moca-mocha);
+    color: var(--moca-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3 {
-    color: var(--moca-mocha);
+    color: var(--moca-ink);
     letter-spacing: -0.01em;
   }
   a {
@@ -63,18 +64,22 @@
     @apply bg-green text-white hover:bg-green-hover;
   }
   .btn-secondary {
-    @apply border border-stone-strong bg-surface text-mocha hover:bg-surface-sunk;
+    @apply border border-stone-strong bg-surface text-ink hover:bg-surface-sunk;
   }
   .btn-danger {
     @apply bg-red text-white hover:bg-red-ink;
   }
+  /* Main panels only. Secondary information sits in plain sections with dividers. */
   .card {
     @apply rounded-lg border border-stone bg-surface;
   }
+  .section-plain {
+    @apply border-t border-stone pt-6;
+  }
   .field {
-    @apply w-full rounded-md border border-stone-strong bg-surface px-3 py-2 text-sm text-mocha placeholder:text-mocha-muted;
+    @apply w-full rounded-md border border-stone-strong bg-surface px-3 py-2 text-sm text-ink placeholder:text-ink-muted;
   }
   .label {
-    @apply mb-1 block text-sm font-medium text-mocha;
+    @apply mb-1 block text-sm font-medium text-ink;
   }
 }

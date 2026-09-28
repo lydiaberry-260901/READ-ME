@@ -1,14 +1,17 @@
 // Moca CRM design settings. Every colour and font used by the app and its charts lives here.
-// To change the look, edit this file only. If Moca's official colour codes are supplied,
-// replace the brand values below.
+// To change the look, edit this file only.
+//
+// Brand: the ink colour is the charcoal of Moca's official logo (public/brand/moca-logo.png),
+// which replaces the brief's suggested mocha brown. The other colours are the brief's suggestions
+// and should be replaced if Moca supplies official codes for them.
 //
 // Contrast notes (WCAG AA needs 4.5 to 1 for normal text):
-//   mocha on cream 12.2, white on green 5.0, greenInk on cream 5.7,
-//   red on cream 5.3, amberInk on amberTint 5.0, mochaMuted on cream 5.8.
+//   ink on cream 10.9, inkMuted on cream 5.6, white on green 5.0, greenInk on cream 5.7,
+//   red on cream 5.3, amberInk on amberTint 5.0, inkSoft on ink 6.2.
 //   Amber and stone are too light for text, so they are only used for fills and borders.
 
 export const brand = {
-  mocha: "#3B2A20", // headings, side menu, main text
+  ink: "#353535", // Moca logo charcoal: headings, side menu, main text
   cream: "#F7F1EA", // page backgrounds
   green: "#2E7D5B", // main buttons, positive results
   amber: "#E8A33D", // highlights, warnings, things needing attention
@@ -18,19 +21,20 @@ export const brand = {
 
 export const colours = {
   ...brand,
-  surface: "#FFFFFF", // cards and panels on the cream background
+  surface: "#FFFFFF", // main panels on the cream background
   surfaceSunk: "#FBF7F2", // subtle alternate rows and wells
-  mochaMuted: "#6E5A4C", // secondary text
-  mochaSoft: "#C9B8A8", // secondary text on the mocha side menu
-  mochaDeep: "#2A1D16", // pressed states on the side menu
+  inkMuted: "#65605A", // secondary text
+  inkSoft: "#BDB8B2", // secondary text on the charcoal side menu
+  inkDeep: "#262626", // pressed states on the side menu
   greenInk: "#256B4D", // link text and green text on light backgrounds
   greenHover: "#256B4D",
   greenTint: "#E6F0EA",
+  greenOnInk: "#6FBF97", // green used on the charcoal side menu
   amberInk: "#8A5A12", // warning text
   amberTint: "#FBEBD2",
   redInk: "#8F2D25",
   redTint: "#F8E4E1",
-  stoneStrong: "#8E7A6B", // form field borders (needs 3 to 1 against the background)
+  stoneStrong: "#8A8178", // form field borders (3.4 to 1 or more against the background)
   focus: "#2E7D5B",
 } as const;
 
@@ -43,7 +47,7 @@ export const healthColours = {
 // Starting colours for the default deal stages. Admins can recolour stages later.
 export const defaultStageColours = {
   Prospect: colours.stone,
-  Contacted: colours.mochaSoft,
+  Contacted: colours.inkSoft,
   Conversation: "#E8C27A", // light amber
   Demo: colours.amber,
   Proposal: "#9DBFA9", // light green
@@ -56,23 +60,31 @@ export const defaultStageColours = {
 export const chartPalette = [
   colours.green,
   colours.amber,
-  colours.mocha,
+  colours.ink,
   "#7FA88F", // soft green
   "#C98A5B", // copper
-  colours.mochaMuted,
+  colours.inkMuted,
   colours.red,
 ] as const;
 
 export const fonts = {
-  // One clean, readable typeface for everything. Loaded in src/app/layout.tsx.
-  sans: "Figtree",
+  // One typeface for everything: a geometric sans with a single storey "a", like the Moca logo.
+  // Loaded in src/app/layout.tsx.
+  sans: "Outfit",
   fallback: "ui-sans-serif, system-ui, 'Segoe UI', Roboto, Arial, sans-serif",
 } as const;
 
+// Radius follows hierarchy: large for main panels, medium for controls, full for pills and dots.
 export const radii = {
   sm: "6px",
-  md: "10px",
-  lg: "16px",
+  md: "8px",
+  lg: "14px",
+} as const;
+
+export const logo = {
+  src: "/brand/moca-logo.png",
+  width: 1147,
+  height: 414,
 } as const;
 
 // Turns the settings above into CSS variables that Tailwind reads (see globals.css).

@@ -3,7 +3,7 @@ import { signIn, configuredProviders, devLoginEnabled } from "@/auth";
 import { getCurrentUser } from "@/lib/session";
 import { prisma } from "@/lib/db";
 import { roleLabels } from "@/lib/labels";
-import { Logo, LogoMark } from "@/components/Logo";
+import { Logo } from "@/components/Logo";
 import { Notice } from "@/components/ui";
 
 export const metadata = { title: "Sign in" };
@@ -31,7 +31,7 @@ export default async function SignInPage({
   const { error, callbackUrl } = await searchParams;
   const redirectTo = callbackUrl?.startsWith("/") && !callbackUrl.startsWith("//") ? callbackUrl : "/";
 
-  const oauthProviders = configuredProviders.filter((p) => p.id !== "dev-login");
+  const oauthProviders = configuredProviders;
   const demoUsers = devLoginEnabled
     ? await prisma.user.findMany({
         where: { active: true, organisationId: { not: null } },
@@ -44,40 +44,27 @@ export default async function SignInPage({
   return (
     <main className="grid min-h-screen lg:grid-cols-[1.1fr_1fr]">
       {/* Brand panel */}
-      <section className="relative hidden overflow-hidden bg-mocha px-14 py-12 text-cream lg:flex lg:flex-col">
-        <Logo onDark />
-        <div className="mt-auto max-w-md">
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-amber">Moca sales CRM</p>
-          <h1 className="mt-4 text-4xl font-semibold leading-tight text-cream">
-            Turn energy into income, cashflow and asset value.
+      <section className="hidden bg-ink px-14 py-12 text-cream lg:flex lg:flex-col">
+        <div className="my-auto max-w-md">
+          <Logo onDark height={112} showProduct={false} />
+          <h1 className="mt-12 text-3xl font-medium leading-snug text-cream">
+            Our prospects, customers, deals and follow ups, in one place.
           </h1>
-          <p className="mt-4 text-mocha-soft">
-            One place for our prospects, customers, deals and follow ups across asset and ESG managers,
-            property managers and occupiers.
+          <p className="mt-4 max-w-sm leading-relaxed text-ink-soft">
+            For the team selling energy software to asset and ESG managers, property managers and occupiers.
           </p>
         </div>
-        {/* Rising sun over the horizon */}
-        <svg className="pointer-events-none absolute -right-24 bottom-24 h-[420px] w-[420px] opacity-90" viewBox="0 0 420 420" aria-hidden="true">
-          <circle cx="210" cy="260" r="150" className="fill-amber/15" />
-          <circle cx="210" cy="260" r="100" className="fill-amber/25" />
-          <circle cx="210" cy="260" r="56" className="fill-amber" />
-          <rect x="0" y="260" width="420" height="160" className="fill-mocha" />
-          <path d="M0 260h420" className="stroke-cream/40" strokeWidth="2" />
-        </svg>
-        <p className="relative mt-10 text-xs text-mocha-soft">Powered by Octopus. For Moca staff only.</p>
+        <p className="text-xs text-ink-soft">For Moca staff only.</p>
       </section>
 
       {/* Sign in */}
       <section className="flex items-center justify-center px-5 py-12 sm:px-10">
         <div className="w-full max-w-sm">
-          <div className="mb-8 lg:hidden">
-            <Logo />
-          </div>
-          <div className="mb-6 hidden lg:block">
-            <LogoMark size={40} />
+          <div className="mb-10">
+            <Logo height={36} />
           </div>
           <h2 className="text-2xl font-semibold">Sign in</h2>
-          <p className="mt-1 text-mocha-muted">Use your Moca work account.</p>
+          <p className="mt-1 text-ink-muted">Use your Moca work account.</p>
 
           {error ? (
             <div className="mt-6">
@@ -111,11 +98,11 @@ export default async function SignInPage({
           {devLoginEnabled ? (
             <div className="mt-10 border-t border-stone pt-6">
               <p className="text-sm font-semibold">Demo sign in (this computer only)</p>
-              <p className="mt-1 text-xs text-mocha-muted">
+              <p className="mt-1 text-xs text-ink-muted">
                 Available while developing, never on the live site. Pick a fictional demo user to try each role.
               </p>
               {demoUsers.length === 0 ? (
-                <p className="mt-3 text-sm text-mocha-muted">No demo users yet. Run npm run db:seed first.</p>
+                <p className="mt-3 text-sm text-ink-muted">No demo users yet. Run npm run db:seed first.</p>
               ) : (
                 <ul className="mt-3 flex flex-col gap-2">
                   {demoUsers.map((u) => (
@@ -132,9 +119,9 @@ export default async function SignInPage({
                         >
                           <span>
                             <span className="font-medium">{u.name}</span>
-                            <span className="block text-xs text-mocha-muted">{u.email}</span>
+                            <span className="block text-xs text-ink-muted">{u.email}</span>
                           </span>
-                          <span className="text-xs text-mocha-muted">{roleLabels[u.role]}</span>
+                          <span className="text-xs text-ink-muted">{roleLabels[u.role]}</span>
                         </button>
                       </form>
                     </li>
@@ -144,7 +131,7 @@ export default async function SignInPage({
             </div>
           ) : null}
 
-          <p className="mt-10 text-xs text-mocha-muted">
+          <p className="mt-10 text-xs text-ink-muted">
             This site uses only essential cookies, which keep you signed in.
           </p>
         </div>

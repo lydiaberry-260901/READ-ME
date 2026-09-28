@@ -44,7 +44,7 @@ export default async function UsersPage() {
 
       <section className="card p-6">
         <h2 className="text-lg font-semibold">Invite someone</h2>
-        <p className="mb-5 text-sm text-mocha-muted">
+        <p className="mb-5 text-sm text-ink-muted">
           They must sign in with a Google or Microsoft work account using this exact address. Links last 14 days.
         </p>
         <InviteForm roles={roles} teams={teamOptions} />
@@ -57,7 +57,7 @@ export default async function UsersPage() {
                 <li key={inv.id} className="flex flex-wrap items-center justify-between gap-3 py-2.5 text-sm">
                   <span>
                     <span className="font-medium">{inv.email}</span>
-                    <span className="text-mocha-muted">, {roleLabels[inv.role]}, until {formatDate(inv.expiresAt)}</span>
+                    <span className="text-ink-muted">, {roleLabels[inv.role]}, until {formatDate(inv.expiresAt)}</span>
                   </span>
                   <form action={revokeInvitation}>
                     <input type="hidden" name="id" value={inv.id} />
@@ -75,13 +75,13 @@ export default async function UsersPage() {
       <section className="card mt-8 overflow-hidden">
         <div className="p-6 pb-4">
           <h2 className="text-lg font-semibold">People</h2>
-          <p className="text-sm text-mocha-muted">
+          <p className="text-sm text-ink-muted">
             Admins see everything. Managers see their team's records. Reps see their own records and shared ones.
           </p>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left text-sm">
-            <thead className="border-y border-stone bg-surface-sunk text-mocha-muted">
+            <thead className="border-y border-stone bg-surface-sunk text-ink-muted">
               <tr>
                 <th scope="col" className="px-6 py-2.5 font-medium">Name</th>
                 <th scope="col" className="px-3 py-2.5 font-medium">Last signed in</th>
@@ -96,9 +96,9 @@ export default async function UsersPage() {
                       {u.name ?? "No name yet"} {u.id === me.id ? <Badge>You</Badge> : null}{" "}
                       {!u.active ? <Badge tone="red">Switched off</Badge> : null}
                     </p>
-                    <p className="text-mocha-muted">{u.email}</p>
+                    <p className="text-ink-muted">{u.email}</p>
                   </td>
-                  <td className="px-3 py-3 align-top text-mocha-muted">{formatDateTime(u.lastSignInAt, "Never")}</td>
+                  <td className="px-3 py-3 align-top text-ink-muted">{formatDateTime(u.lastSignInAt, "Never")}</td>
                   <td className="px-6 py-3 align-top">
                     <UserRowForm user={{ id: u.id, role: u.role, teamId: u.teamId, active: u.active }} roles={roles} teams={teamOptions} />
                   </td>
@@ -111,13 +111,13 @@ export default async function UsersPage() {
 
       <section className="card mt-8 p-6">
         <h2 className="text-lg font-semibold">Teams</h2>
-        <p className="mb-5 text-sm text-mocha-muted">A manager sees the records of everyone in the teams they manage.</p>
+        <p className="mb-5 text-sm text-ink-muted">A manager sees the records of everyone in the teams they manage.</p>
         {teams.length > 0 ? (
           <ul className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {teams.map((t) => (
               <li key={t.id} className="rounded-md border border-stone bg-surface-sunk px-4 py-3">
                 <p className="font-medium">{t.name}</p>
-                <p className="text-sm text-mocha-muted">
+                <p className="text-sm text-ink-muted">
                   {t.manager?.name ? `Managed by ${t.manager.name}` : "No manager"}, {t._count.members}{" "}
                   {t._count.members === 1 ? "person" : "people"}
                 </p>

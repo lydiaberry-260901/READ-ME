@@ -83,6 +83,13 @@ All demo companies, people and deals are fictional. Company websites use the res
 * Every page and every action checks the person's role before doing anything. Roles are read fresh on every request, so changes and switched off accounts take effect straight away.
 * Important changes, such as invitations and role changes, are recorded in the audit log.
 
+## Look and feel
+
+* Moca's official logo is [public/brand/moca-logo.png](public/brand/moca-logo.png). On the charcoal side menu the same file is shown in cream, so there is only one logo file to update.
+* The logo's charcoal (#353535) is the main text and side menu colour ("ink"). The other colours come from the project brief. Every colour, the font and the logo details live in [src/design/tokens.ts](src/design/tokens.ts).
+* One typeface, Outfit, chosen because its rounded geometric shapes match the logo.
+* Screens follow the frontend design guide from the Claude Code frontend design plugin: one memorable element (the logo's dots, used for the company score), plain wording, and no decoration that does not carry information.
+
 ## Prospecting
 
 * **Companies and Contacts** pages list every record you may see, with search, filters (customer group, importance, owner, score, tag, list and data protection status) and sorting.

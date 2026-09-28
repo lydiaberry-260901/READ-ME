@@ -1,23 +1,26 @@
 import clsx from "clsx";
 
-/** Company score, shown as a number so the meaning never depends on colour alone. */
+/**
+ * Company score as five dots, echoing the dots in Moca's logo. Filled dots show the score,
+ * and the number is always written beside them, so the meaning never depends on colour alone.
+ */
 export function ScoreBadge({ score, size = "sm" }: { score: number | null; size?: "sm" | "lg" }) {
   if (score === null) {
-    return <span className="text-xs text-mocha-muted">Not scored</span>;
+    return <span className="text-xs text-ink-muted">Not scored</span>;
   }
-  const tone = score >= 4 ? "bg-green-tint text-green-ink border-green/30" : score === 3 ? "bg-amber-tint text-amber-ink border-amber/50" : "bg-surface-sunk text-mocha border-stone";
+  const fill = score >= 4 ? "bg-green" : score === 3 ? "bg-amber" : "bg-ink";
+  const dot = size === "lg" ? "size-3.5" : "size-2";
   return (
-    <span
-      className={clsx(
-        "inline-flex items-baseline gap-0.5 rounded-md border font-semibold tabular-nums",
-        tone,
-        size === "lg" ? "px-3 py-1 text-2xl" : "px-2 py-0.5 text-sm",
-      )}
-      aria-label={`Score ${score} out of 5`}
-      title={`Score ${score} out of 5`}
-    >
-      {score}
-      <span className={clsx("font-normal opacity-70", size === "lg" ? "text-sm" : "text-xs")}>/5</span>
+    <span className="inline-flex shrink-0 items-center gap-2" role="img" aria-label={`Score ${score} out of 5`} title={`Score ${score} out of 5`}>
+      <span className={clsx("inline-flex items-center", size === "lg" ? "gap-1.5" : "gap-1")} aria-hidden="true">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <span key={n} className={clsx("rounded-full", dot, n <= score ? fill : "border border-stone-strong/70 bg-transparent")} />
+        ))}
+      </span>
+      <span aria-hidden="true" className={clsx("font-semibold tabular-nums", size === "lg" ? "text-xl" : "text-sm")}>
+        {score}
+        <span className="font-normal text-ink-muted">/5</span>
+      </span>
     </span>
   );
 }

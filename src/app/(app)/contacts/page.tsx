@@ -137,7 +137,7 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[860px] text-left text-sm">
-              <thead className="border-b border-stone text-mocha-muted">
+              <thead className="border-b border-stone text-ink-muted">
                 <tr>
                   <th scope="col" className="w-10 py-2.5 pl-6"><SelectAll formId={FORM_ID} label="Select all contacts on this page" /></th>
                   <th scope="col" className="px-3 py-2.5 font-medium">Name</th>
@@ -157,15 +157,15 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
                         <input type="checkbox" name="ids" value={c.id} form={FORM_ID} aria-label={`Select ${c.firstName} ${c.lastName ?? ""}`} className="size-4 accent-green" />
                       </td>
                       <td className="px-3 py-3">
-                        <Link href={`/contacts/${c.id}`} className="font-medium text-mocha underline-offset-4 hover:underline">{c.firstName} {c.lastName}</Link>
-                        <p className="text-xs text-mocha-muted">{c.jobTitle ?? "Job title not recorded"}</p>
+                        <Link href={`/contacts/${c.id}`} className="font-medium text-ink underline-offset-4 hover:underline">{c.firstName} {c.lastName}</Link>
+                        <p className="text-xs text-ink-muted">{c.jobTitle ?? "Job title not recorded"}</p>
                         {c.tags.length ? <p className="mt-1 flex flex-wrap gap-1">{c.tags.map((t) => <Badge key={t.tagId}>{t.tag.name}</Badge>)}</p> : null}
                       </td>
                       <td className="px-3 py-3">
-                        {c.company ? <Link href={`/companies/${c.company.id}`} className="text-mocha">{c.company.name}</Link> : <span className="text-mocha-muted">None</span>}
-                        {c.company?.customerGroup ? <p className="text-xs text-mocha-muted">{customerGroupLabels[c.company.customerGroup]}</p> : null}
+                        {c.company ? <Link href={`/companies/${c.company.id}`} className="text-ink">{c.company.name}</Link> : <span className="text-ink-muted">None</span>}
+                        {c.company?.customerGroup ? <p className="text-xs text-ink-muted">{customerGroupLabels[c.company.customerGroup]}</p> : null}
                       </td>
-                      <td className="px-3 py-3">{c.email ?? <span className="text-mocha-muted">None</span>}</td>
+                      <td className="px-3 py-3">{c.email ?? <span className="text-ink-muted">None</span>}</td>
                       <td className="px-3 py-3">
                         <span className="flex flex-wrap gap-1">
                           {c.optedOut ? <Badge tone="red">Opted out</Badge> : null}
@@ -174,7 +174,7 @@ export default async function ContactsPage({ searchParams }: { searchParams: Pro
                           {!c.optedOut && (call.ok || !c.phone) && notice.state !== "overdue" ? <Badge tone="green">OK to contact</Badge> : null}
                         </span>
                       </td>
-                      <td className="px-3 py-3 pr-6">{c.owner?.name ?? <span className="text-mocha-muted">No owner</span>}</td>
+                      <td className="px-3 py-3 pr-6">{c.owner?.name ?? <span className="text-ink-muted">No owner</span>}</td>
                     </tr>
                   );
                 })}

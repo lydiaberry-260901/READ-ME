@@ -22,7 +22,7 @@ export function GenerateSummaryButton({ id, hasSummary, aiReady }: { id: string;
       <button type="submit" className={hasSummary ? "btn btn-secondary" : "btn btn-primary"} disabled={pending || !aiReady}>
         {pending ? "Writing, this can take up to a minute" : hasSummary ? "Regenerate" : "Write summary and score"}
       </button>
-      {!aiReady ? <p className="mt-2 text-xs text-mocha-muted">AI is not set up yet. An admin needs to add the ANTHROPIC_API_KEY setting.</p> : null}
+      {!aiReady ? <p className="mt-2 text-xs text-ink-muted">AI is not set up yet. An admin needs to add the ANTHROPIC_API_KEY setting.</p> : null}
       <Message state={state} />
     </form>
   );
@@ -75,7 +75,7 @@ export function EnrichButton({ id, disabledReason }: { id: string; disabledReaso
       <button type="submit" className="btn btn-secondary" disabled={pending || Boolean(disabledReason)}>
         {pending ? "Fetching" : "Fetch details"}
       </button>
-      {disabledReason ? <p className="mt-2 text-xs text-mocha-muted">{disabledReason}</p> : null}
+      {disabledReason ? <p className="mt-2 text-xs text-ink-muted">{disabledReason}</p> : null}
       <Message state={state} />
     </form>
   );

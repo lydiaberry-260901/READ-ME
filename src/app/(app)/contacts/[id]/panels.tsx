@@ -19,7 +19,7 @@ export function PhoneCheckForm({ id }: { id: string }) {
   return (
     <form action={action} className="mt-2">
       <input type="hidden" name="id" value={id} />
-      <p className="text-xs text-mocha-muted">
+      <p className="text-xs text-ink-muted">
         Check the number on the TPS and CTPS websites, then record the result here.
       </p>
       <div className="mt-2 flex flex-wrap gap-2">
@@ -38,7 +38,7 @@ export function DateRecordForm({ id, kind, todayIso, label, button }: { id: stri
     <form action={action} className="mt-2 flex flex-wrap items-end gap-2">
       <input type="hidden" name="id" value={id} />
       <div>
-        <label htmlFor={`${kind}-${id}`} className="text-xs text-mocha-muted">{label}</label>
+        <label htmlFor={`${kind}-${id}`} className="text-xs text-ink-muted">{label}</label>
         <input id={`${kind}-${id}`} name={name} type="date" defaultValue={todayIso} max={todayIso} required className="field py-1" />
       </div>
       <button type="submit" className="btn btn-secondary py-1.5" disabled={pending}>{button}</button>
@@ -62,7 +62,7 @@ export function OptOutForm({ id }: { id: string }) {
       <input type="hidden" name="id" value={id} />
       <label htmlFor="optout-reason" className="label">How did they ask us to stop?</label>
       <input id="optout-reason" name="reason" required minLength={2} maxLength={300} className="field" placeholder="For example: replied to our email asking not to be contacted" />
-      <p className="text-xs text-mocha-muted">This blocks all contact straight away, for everyone in the team, and cannot be undone here.</p>
+      <p className="text-xs text-ink-muted">This blocks all contact straight away, for everyone in the team, and cannot be undone here.</p>
       <div className="flex gap-2">
         <button type="submit" className="btn btn-danger" disabled={pending}>{pending ? "Saving" : "Confirm opt out"}</button>
         <button type="button" className="btn btn-secondary" onClick={() => setOpen(false)}>Cancel</button>

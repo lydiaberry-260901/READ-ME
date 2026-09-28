@@ -13,7 +13,7 @@ function Step({ n, title, active, children }: { n: number; title: string; active
   return (
     <section className={`card p-6 ${active ? "" : "opacity-60"}`} aria-labelledby={`step-${n}`}>
       <h2 id={`step-${n}`} className="flex items-center gap-3 text-lg font-semibold">
-        <span className="grid size-7 place-items-center rounded-full bg-mocha text-sm text-cream">{n}</span>
+        <span className="grid size-7 place-items-center rounded-full bg-ink text-sm text-cream">{n}</span>
         {title}
       </h2>
       <div className="mt-5">{children}</div>
@@ -98,7 +98,7 @@ export function ImportWizard({ me, owners, todayIso }: { me: string; owners: { i
       <Step n={1} title="Choose a CSV file" active>
         <label htmlFor="csv-file" className="label">CSV file (the first row must hold the column headings)</label>
         <input id="csv-file" type="file" accept=".csv,text/csv" onChange={(e) => onFile(e.target.files?.[0])} className="block text-sm file:mr-3 file:rounded-md file:border file:border-stone-strong file:bg-surface file:px-3 file:py-1.5 file:text-sm file:font-medium" />
-        <p className="mt-2 text-sm text-mocha-muted">
+        <p className="mt-2 text-sm text-ink-muted">
           Each row can hold a company, a contact, or both. <a href="/samples/moca-import-sample.csv" download>Download a sample file</a> to see the layout.
         </p>
         {fileError ? <div className="mt-3"><Notice tone="red">{fileError}</Notice></div> : null}
@@ -107,10 +107,10 @@ export function ImportWizard({ me, owners, todayIso }: { me: string; owners: { i
 
       <Step n={2} title="Match the columns" active={rows.length > 0}>
         {rows.length === 0 ? (
-          <p className="text-sm text-mocha-muted">Choose a file first.</p>
+          <p className="text-sm text-ink-muted">Choose a file first.</p>
         ) : (
           <>
-            <p className="mb-4 text-sm text-mocha-muted">We have guessed where we can. Leave a field as "Not in this file" if the file does not have it. Only business details can be imported.</p>
+            <p className="mb-4 text-sm text-ink-muted">We have guessed where we can. Leave a field as "Not in this file" if the file does not have it. Only business details can be imported.</p>
             <div className="grid gap-x-6 gap-y-3 md:grid-cols-2">
               {(["Company", "Contact"] as const).map((group) => (
                 <div key={group}>
@@ -196,7 +196,7 @@ export function ImportWizard({ me, owners, todayIso }: { me: string; owners: { i
             Share new records with everyone
           </label>
         </div>
-        <p className="mt-4 text-sm text-mocha-muted">
+        <p className="mt-4 text-sm text-ink-muted">
           People whose details come from somewhere other than themselves must be told about it within one month. The first email to each of them includes the privacy notice.
         </p>
       </Step>
@@ -210,7 +210,7 @@ export function ImportWizard({ me, owners, todayIso }: { me: string; owners: { i
             {pending && preview ? "Importing" : "Import now"}
           </button>
         </div>
-        {!ready && rows.length > 0 ? <p className="mt-3 text-sm text-mocha-muted">Fill in the source in step 3 to continue.</p> : null}
+        {!ready && rows.length > 0 ? <p className="mt-3 text-sm text-ink-muted">Fill in the source in step 3 to continue.</p> : null}
 
         {preview && !preview.ok ? <div className="mt-4"><Notice tone="red">{preview.message}</Notice></div> : null}
         {preview?.ok && !result ? (
@@ -261,11 +261,11 @@ function LinesTable({ lines, title, empty }: { lines: Line[]; title: string; emp
     <div className="mt-6">
       <h3 className="text-sm font-semibold">{title}</h3>
       {lines.length === 0 ? (
-        <p className="mt-2 text-sm text-mocha-muted">{empty}</p>
+        <p className="mt-2 text-sm text-ink-muted">{empty}</p>
       ) : (
         <div className="mt-2 max-h-96 overflow-auto rounded-md border border-stone">
           <table className="w-full text-left text-sm">
-            <thead className="sticky top-0 bg-surface-sunk text-mocha-muted">
+            <thead className="sticky top-0 bg-surface-sunk text-ink-muted">
               <tr>
                 <th scope="col" className="px-3 py-2 font-medium">Row</th>
                 <th scope="col" className="px-3 py-2 font-medium">Company</th>
@@ -284,7 +284,7 @@ function LinesTable({ lines, title, empty }: { lines: Line[]; title: string; emp
               ))}
             </tbody>
           </table>
-          {lines.length > 200 ? <p className="p-3 text-sm text-mocha-muted">Showing the first 200. Download the report for all of them.</p> : null}
+          {lines.length > 200 ? <p className="p-3 text-sm text-ink-muted">Showing the first 200. Download the report for all of them.</p> : null}
         </div>
       )}
     </div>

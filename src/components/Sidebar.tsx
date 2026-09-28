@@ -56,7 +56,7 @@ export function Sidebar({
             "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium no-underline transition-colors",
             isActive(item.href)
               ? "bg-cream/10 text-cream shadow-[inset_3px_0_0_var(--moca-amber)]"
-              : "text-mocha-soft hover:bg-cream/5 hover:text-cream",
+              : "text-ink-soft hover:bg-cream/5 hover:text-cream",
           )}
         >
           <Icon name={item.icon} />
@@ -69,7 +69,7 @@ export function Sidebar({
   const footer = (
     <div className="border-t border-cream/10 px-5 py-4">
       <p className="truncate text-sm font-medium text-cream">{userName}</p>
-      <p className="truncate text-xs text-mocha-soft">{userEmail}</p>
+      <p className="truncate text-xs text-ink-soft">{userEmail}</p>
       <p className="mt-2 inline-block rounded-full bg-cream/10 px-2 py-0.5 text-xs text-cream">{roleLabel}</p>
       <div className="mt-3">{signOutSlot}</div>
     </div>
@@ -78,7 +78,7 @@ export function Sidebar({
   return (
     <>
       {/* Phone: top bar with a menu button */}
-      <div className="sticky top-0 z-30 flex items-center justify-between bg-mocha px-4 py-3 lg:hidden">
+      <div className="sticky top-0 z-30 flex items-center justify-between bg-ink px-4 py-3 lg:hidden">
         <Logo onDark />
         <button
           type="button"
@@ -91,14 +91,14 @@ export function Sidebar({
         </button>
       </div>
       {open ? (
-        <div id="mobile-menu" className="fixed inset-x-0 top-[56px] bottom-0 z-20 flex flex-col bg-mocha pt-3 lg:hidden">
+        <div id="mobile-menu" className="fixed inset-x-0 top-[56px] bottom-0 z-20 flex flex-col bg-ink pt-3 lg:hidden">
           {nav}
           {footer}
         </div>
       ) : null}
 
       {/* Laptop: fixed side menu */}
-      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col bg-mocha lg:flex">
+      <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col bg-ink lg:flex">
         <div className="px-6 pb-6 pt-7">
           <Logo onDark />
         </div>
