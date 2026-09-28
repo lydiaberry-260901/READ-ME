@@ -246,6 +246,10 @@ model Organisation {
   retainNewsMonths        Int     @default(12)
   privacyNoticeUrl        String?
   dataProtectionLeadId    String?
+  // Who we are, shown in the footer of every marketing email
+  legalName               String?
+  postalAddress           String?
+  websiteUrl              String? @default("https://moca.energy")
 
   users          User[]
   teams          Team[]
@@ -273,6 +277,7 @@ model Organisation {
   importRuns     ImportRun[]
   aiUsage        AiUsage[]
   knowledge      KnowledgeDocument[]
+  outreachDrafts OutreachDraft[]
 }
 
 model User {
@@ -318,6 +323,7 @@ model User {
   savedViews        SavedView[]
   importRuns        ImportRun[]
   knowledgeUploads  KnowledgeDocument[]
+  outreachDrafts    OutreachDraft[]
 
   @@index([organisationId])
 }
@@ -446,6 +452,7 @@ model Company {
   newsItems      NewsItem[]
   tags           CompanyTag[]
   listMembers    ProspectListMember[]
+  outreachDrafts OutreachDraft[]
 
   @@index([organisationId, domain])
   @@index([organisationId, name])
@@ -497,6 +504,7 @@ model Contact {
   transcripts    CallTranscript[]
   tags           ContactTag[]
   listMembers    ProspectListMember[]
+  outreachDrafts OutreachDraft[]
 
   @@index([organisationId, emailNormalised])
   @@index([organisationId, companyId])
@@ -888,6 +896,7 @@ model EmailTemplate {
   organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   emails       Email[]
   activities   Activity[]
+  drafts       OutreachDraft[]
 
   @@index([organisationId, customerGroup, reason])
 }
@@ -909,8 +918,61 @@ model CallScript {
 
   organisation Organisation @relation(fields: [organisationId], references: [id], onDelete: Cascade)
   activities   Activity[]
+  drafts       OutreachDraft[]
 
   @@index([organisationId, customerGroup, reason])
+}
+
+enum DraftKind {
+  EMAIL
+  CALL_SCRIPT
+}
+
+enum DraftStatus {
+  DRAFT
+  READY // call scripts: checked and ready to call
+  SENT
+  DISCARDED
+}
+
+// A personalised email or call script for one contact. Always a draft for a person to review.
+// Nothing is sent from here: sending needs a person to click send (Phase 4).
+model OutreachDraft {
+  id              String      @id @default(cuid())
+  organisationId  String
+  userId          String
+  kind            DraftKind
+  status          DraftStatus @default(DRAFT)
+  contactId       String?
+  companyId       String?
+  dealId          String?
+  emailTemplateId String?
+  callScriptId    String?
+  isMarketing     Boolean     @default(true)
+
+  subject    String?
+  body       String? // email body, without the fixed footer
+  opening    String?
+  questions  Json? // list of questions
+  objections Json? // list of { objection, response }
+  ask        String?
+
+  aiGenerated   Boolean   @default(false)
+  aiModel       String?
+  aiNotes       Json? // what the AI personalised and what it could not find
+  readyAt       DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  organisation  Organisation   @relation(fields: [organisationId], references: [id], onDelete: Cascade)
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contact       Contact?       @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  company       Company?       @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  emailTemplate EmailTemplate? @relation(fields: [emailTemplateId], references: [id], onDelete: SetNull)
+  callScript    CallScript?    @relation(fields: [callScriptId], references: [id], onDelete: SetNull)
+
+  @@index([organisationId, userId, status])
+  @@index([organisationId, contactId])
 }
 
 // ---------------------------------------------------------------------------

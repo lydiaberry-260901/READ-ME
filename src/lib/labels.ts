@@ -7,6 +7,7 @@ import type {
   StakeholderRole,
   ContactEntityType,
   LawfulBasis,
+  OutreachReason,
 } from "@/generated/prisma/enums";
 
 export const roleLabels: Record<Role, string> = {
@@ -59,6 +60,15 @@ export const entityTypeLabels: Record<ContactEntityType, string> = {
   SOLE_TRADER: "Sole trader",
   PARTNERSHIP: "Partnership",
   UNKNOWN: "Not known yet",
+};
+
+export const outreachReasonLabels: Record<OutreachReason, string> = {
+  EPC_RISK: "EPC risk",
+  NET_ZERO: "Net zero targets",
+  NEW_ESG_HIRE: "New ESG hire",
+  TENDER: "Tender",
+  ACQUISITION: "Acquisition",
+  GENERAL_INTRO: "General introduction",
 };
 
 export const lawfulBasisLabels: Record<LawfulBasis, string> = {

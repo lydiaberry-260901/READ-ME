@@ -11,11 +11,15 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     { href: "/", label: "Home", icon: "home" },
     { href: "/companies", label: "Companies", icon: "building" },
     { href: "/contacts", label: "Contacts", icon: "person" },
+    { href: "/outreach", label: "Outreach", icon: "mail" },
     { href: "/import", label: "Import", icon: "upload" },
     { href: "/knowledge", label: "Knowledge", icon: "book" },
   ];
   if (can(user, "users.manage")) {
     items.push({ href: "/settings/users", label: "People and teams", icon: "users" });
+  }
+  if (can(user, "settings.manage")) {
+    items.push({ href: "/settings/organisation", label: "Organisation", icon: "settings" });
   }
 
   return (

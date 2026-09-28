@@ -3,6 +3,7 @@ import type { PrismaClient } from "@/generated/prisma/client";
 import type { Role } from "@/generated/prisma/enums";
 import { normaliseEmail } from "@/lib/crypto";
 import { defaultStageColours } from "@/design/tokens";
+import { installStarterLibrary } from "@/lib/outreach/starter-library";
 
 const c = defaultStageColours;
 
@@ -17,10 +18,10 @@ export const DEFAULT_STAGES = [
   { name: "Lost", kind: "LOST", probability: 0, colour: c.Lost },
 ] as const;
 
-type Db = Pick<PrismaClient, "organisation" | "pipeline" | "user" | "invitation" | "$transaction">;
+type Db = Pick<PrismaClient, "organisation" | "pipeline" | "user" | "invitation" | "emailTemplate" | "callScript" | "$transaction">;
 
 export async function createOrganisation(db: Db, name: string) {
-  return db.organisation.create({
+  const org = await db.organisation.create({
     data: {
       name,
       pipelines: {
@@ -34,6 +35,8 @@ export async function createOrganisation(db: Db, name: string) {
       },
     },
   });
+  await installStarterLibrary(db, org.id);
+  return org;
 }
 
 export type SignInDecision =

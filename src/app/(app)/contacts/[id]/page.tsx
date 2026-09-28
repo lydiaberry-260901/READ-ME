@@ -13,6 +13,10 @@ import { Badge, Notice } from "@/components/ui";
 import { ContactForm } from "../ContactForm";
 import { updateContact, removeContactTag } from "../actions";
 import { AddContactTagForm, DateRecordForm, OptOutForm, PhoneCheckForm } from "./panels";
+import { OutreachPanel } from "./OutreachPanel";
+import { callBlockReason, emailBlockReason } from "@/lib/outreach/drafts";
+import { aiIsConfigured } from "@/lib/ai";
+import { outreachReasonLabels } from "@/lib/labels";
 
 function Check({ ok, label, detail }: { ok: boolean; label: string; detail?: string }) {
   return (
@@ -47,13 +51,21 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
   await audit({ organisationId: user.organisationId, userId: user.id, action: "contact.viewed", entityType: "Contact", entityId: contact.id });
 
   const editable = canEdit(user, contact, { sharedIsEditable: true });
-  const [org, options, companies] = await Promise.all([
+  const [org, options, companies, templates, scripts, companyGroup] = await Promise.all([
     prisma.organisation.findUniqueOrThrow({ where: { id: user.organisationId }, select: { phoneCheckMaxAgeDays: true, privacyNoticeUrl: true } }),
     loadPickerOptions(user),
     editable
       ? prisma.company.findMany({ where: visibleWhere(user), select: { id: true, name: true }, orderBy: { name: "asc" }, take: 2000 })
       : Promise.resolve([] as { id: string; name: string }[]),
+    prisma.emailTemplate.findMany({ where: { organisationId: user.organisationId, active: true }, select: { id: true, name: true, customerGroup: true, reason: true }, orderBy: { name: "asc" } }),
+    prisma.callScript.findMany({ where: { organisationId: user.organisationId, active: true }, select: { id: true, name: true, customerGroup: true, reason: true }, orderBy: { name: "asc" } }),
+    contact.companyId ? prisma.company.findUnique({ where: { id: contact.companyId }, select: { customerGroup: true } }).then((c) => c?.customerGroup ?? null) : Promise.resolve(null),
   ]);
+  const toItem = (i: { id: string; name: string; customerGroup: string | null; reason: keyof typeof outreachReasonLabels }) => ({
+    id: i.id,
+    label: `${i.name} (${outreachReasonLabels[i.reason]})`,
+    suggested: !!companyGroup && i.customerGroup === companyGroup,
+  });
 
   const email = canEmailForMarketing(contact);
   const call = canColdCall(contact, org.phoneCheckMaxAgeDays);
@@ -129,6 +141,18 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
         </section>
 
         <div className="flex flex-col gap-8">
+          <section className="card p-6" aria-labelledby="outreach-heading">
+            <h2 id="outreach-heading" className="mb-4 text-lg font-semibold">Get in touch</h2>
+            <OutreachPanel
+              contactId={contact.id}
+              templates={templates.map(toItem)}
+              scripts={scripts.map(toItem)}
+              emailBlocked={emailBlockReason(contact, true)}
+              callBlocked={callBlockReason(contact)}
+              aiReady={aiIsConfigured()}
+            />
+          </section>
+
           <section className="card p-6" aria-labelledby="dp-heading">
             <h2 id="dp-heading" className="text-lg font-semibold">Data protection</h2>
             <dl className="mt-4 grid grid-cols-[9rem_1fr] gap-x-3 gap-y-2 text-sm">

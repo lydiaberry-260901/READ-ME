@@ -11,7 +11,8 @@ The full project brief is in [CLAUDE.md](CLAUDE.md).
 | 1 | Foundation: database design, sign in, roles, invitations, design settings, background worker, demo data | Done |
 | 2 | Prospecting: companies and contacts, search, filters, bulk actions, saved views, lists, tags, CSV import, company details lookup, AI summary and score | Done |
 | Extra | Knowledge library: drag and drop company context, case studies and transcripts to give the AI context on Moca | Done |
-| 3 to 11 | Outreach, email and calendar, deals, tasks, news, transcripts, dashboards, privacy, going live | To do |
+| 3 | Outreach: email templates and call scripts by customer group and reason, merge fields and preview, starter library, drafts with AI help, fixed marketing footer, unsubscribe page, contact rules | Done |
+| 4 to 11 | Email and calendar, deals, tasks, news, transcripts, dashboards, privacy, going live | To do |
 
 ## What you need on your computer
 
@@ -115,6 +116,21 @@ Go to Import. Choose a CSV file, match its columns, say where the data came from
 * Prompts are separate, versioned files in [prompts/](prompts/). The scoring guide is [prompts/scoring-guide.v1.md](prompts/scoring-guide.v1.md). To change one, add a new version and update the version number in the code, so saved results always show which version produced them.
 * All AI requests go through one module, [src/lib/ai](src/lib/ai), so the provider can be changed later. Every request is recorded with its model, tokens used and estimated cost.
 * The default model is Claude Opus 5 (`claude-opus-5`), set with `AI_MODEL`. If Claude declines a request, the Claude API tries a fallback model automatically (the `fallbacks: "default"` option). Anthropic does not train its models on data sent through its API by default.
+
+## Outreach
+
+* **Library:** the Outreach page lists email templates and call scripts by customer group and reason for getting in touch (EPC risk, net zero targets, new ESG hire, tender, acquisition, general introduction). Admins and managers create and edit them. Everyone can use them.
+* **Starter library:** every organisation starts with 3 email templates and 2 call scripts for each customer group. The only figures they use are the Moca facts in the brief. `npm run outreach:starter` adds any that are missing.
+* **Merge fields** such as `{{contact.firstName}}`, `{{company.name}}`, `{{company.summary}}`, `{{news.headline}}` and `{{sender.name}}` are filled in for each contact. The editor shows a live preview. A detail that is missing shows as `[[news.headline]]` with a warning, so no email goes out with a gap.
+* **Getting in touch:** on a contact's page, choose an email template or call script, then "Use template as it is" or "Draft with AI". Either way you get a draft to read and edit, listed under My drafts. Nothing is ever sent automatically. Sending from the CRM comes with email accounts in Phase 4.
+* **AI drafts** use the company's details, the latest news, the knowledge library and the contact's job title. The AI never sees the contact's name or contact details: it writes placeholders that the CRM fills in afterwards. Drafts are checked before use. Any figure not found in the information given is rejected, as are made up merge fields and home made unsubscribe text. A call script must have exactly three questions, two to four objections with replies, and a clear ask. Prompts: [prompts/outreach-email.v1.md](prompts/outreach-email.v1.md) and [prompts/call-script.v1.md](prompts/call-script.v1.md).
+* **Rules enforced:**
+  * People who opted out, or whose use is limited, cannot be emailed or called.
+  * Marketing emails to sole traders and some partnerships need their recorded consent.
+  * A call script cannot be marked "ready to call" until the number has a TPS and CTPS check newer than the allowed limit (28 days at most).
+* **Marketing email footer:** every marketing email ends with who we are, a privacy line with a link to the privacy notice, and a personal unsubscribe link. It is added when the email is put together and is never stored in a template, so it cannot be edited out. Admins set the legal name, address and privacy notice link under Settings, Organisation.
+* **Unsubscribe:** each link names one contact and carries a keyed check value, so it cannot be changed to opt out someone else. The public page opts the person out with one button press. Opening the link does not do it on its own, because email security scanners open links automatically. Email programs' own unsubscribe buttons are supported too (`/api/unsubscribe/...`). Opting out blocks everyone in the team from contacting them and adds them to the opt out list.
+* The template or script used is saved on every draft, so later dashboards can show which ones work best.
 
 ## Knowledge library
 

@@ -21,6 +21,16 @@ const DEMO_SOURCE = "Demo data (fictional)";
 async function wipe() {
   // Order matters: remove records that point at others first.
   await prisma.$transaction([
+    prisma.outreachDraft.deleteMany(),
+    prisma.knowledgeDocument.deleteMany(),
+    prisma.aiUsage.deleteMany(),
+    prisma.importRun.deleteMany(),
+    prisma.savedView.deleteMany(),
+    prisma.prospectListMember.deleteMany(),
+    prisma.prospectList.deleteMany(),
+    prisma.companyTag.deleteMany(),
+    prisma.contactTag.deleteMany(),
+    prisma.tag.deleteMany(),
     prisma.auditLog.deleteMany(),
     prisma.notification.deleteMany(),
     prisma.task.deleteMany(),
