@@ -49,6 +49,78 @@ export async function addDemoNews(prisma: PrismaClient, organisationId: string, 
   return { skipped: false, items: data.length };
 }
 
+const DEMO_CALL = "Discovery call with Pennant (fictional demo)";
+
+/** A fictional call transcript already read, with suggestions waiting, and one call waiting to be linked. Runs once. */
+export async function addDemoCalls(prisma: PrismaClient, organisationId: string, now = new Date()) {
+  if (await prisma.callTranscript.count({ where: { organisationId, title: DEMO_CALL } })) return { skipped: true, calls: 0 };
+  const deal = await prisma.deal.findFirst({
+    where: { organisationId, name: "Pennant multi site energy view", closedAt: null },
+    include: { pipeline: { include: { stages: { orderBy: { position: "asc" } } } }, contacts: { include: { contact: true } } },
+  });
+  const farah = deal?.contacts.find((c) => c.contact.firstName === "Farah")?.contact;
+  if (!deal || !farah) return { skipped: true, calls: 0 };
+  const demo = deal.pipeline.stages.find((s) => s.name === "Demo");
+  const callAt = new Date(now.getTime() - 2 * DAY);
+  const text = [
+    "Owen: Thanks for making the time, Farah. Before we start, this call is recorded so I can keep accurate notes. Is that all right?",
+    "Farah: Yes, that's fine.",
+    "Owen: Great. Last time you mentioned the ESOS deadline. Where are you with it?",
+    "Farah: Honestly we are behind. We have 120 stores and the meter data sits in three different spreadsheets.",
+    "Owen: That's common. What would good look like for you by the end of next year?",
+    "Farah: One view of energy across every store, and a plan we can defend to the board. We want to cut energy use by 10 percent.",
+    "Owen: Who would sign off the spend on something like this?",
+    "Farah: Peter Doyle, our CFO. He will want to see the savings case before anything goes to procurement.",
+    "Owen: Understood. Are you looking at anyone else?",
+    "Farah: Our current energy consultant has offered to build something, but it would be another spreadsheet.",
+    "Owen: Would a demo with Peter be useful?",
+    "Farah: Yes. Could you send some times for a demo next week? And the Octopus Real Estate case study.",
+    "Owen: I will send both today.",
+  ].join("\n");
+  const t = await prisma.callTranscript.create({
+    data: {
+      organisationId, source: "PASTE", title: DEMO_CALL, text, callAt, durationSeconds: 1380, uploadedById: deal.ownerId,
+      contactId: farah.id, companyId: deal.companyId, dealId: deal.id, matchStatus: "MATCHED",
+      recordingNoticeGiven: true, recordingNoticeDetail: "Told at the start of the call, for accurate notes.",
+      processingStatus: "DONE", processedAt: callAt, aiModel: "Demo data (not AI written)", outcome: "INTERESTED",
+      summary: "Farah explained that Pennant is behind on ESOS, with meter data for 120 stores spread across three spreadsheets. She wants one view of energy across every store and a plan the board will accept. She asked for demo times next week and the Octopus Real Estate case study.",
+      promises: [{ text: "Send demo times for next week and the Octopus Real Estate case study", dueDate: callAt.toISOString().slice(0, 10), byWhom: "US" }],
+      objections: [{ objection: "Their current energy consultant has offered to build something.", howHandled: null }],
+      nextStep: "A demo next week with Farah and Peter Doyle.",
+      aiResult: { dropped: [], recordingNotice: { mentioned: true, evidence: "this call is recorded so I can keep accurate notes" } },
+    },
+  });
+  await prisma.transcriptSuggestion.createMany({
+    data: [
+      { transcriptId: t.id, dealId: deal.id, kind: "QUALIFICATION_FIELD", field: "economicBuyer", proposedValue: "Peter Doyle, CFO. Wants the savings case before procurement.", currentValue: deal.economicBuyer, evidence: "Peter Doyle, our CFO. He will want to see the savings case before anything goes to procurement." },
+      { transcriptId: t.id, dealId: deal.id, kind: "QUALIFICATION_FIELD", field: "metric", proposedValue: "Cut energy use by 10 percent", currentValue: deal.metric, evidence: "We want to cut energy use by 10 percent." },
+      { transcriptId: t.id, dealId: deal.id, kind: "QUALIFICATION_FIELD", field: "competition", proposedValue: "Their current energy consultant", currentValue: deal.competition, evidence: "Our current energy consultant has offered to build something" },
+      ...(demo && demo.id !== deal.stageId ? [{ transcriptId: t.id, dealId: deal.id, kind: "STAGE_CHANGE" as const, field: null, proposedValue: demo.id, currentValue: deal.stageId, evidence: 'Farah asked for a demo next week. "Could you send some times for a demo next week?"' }] : []),
+    ],
+  });
+  await prisma.task.createMany({
+    skipDuplicates: true,
+    data: [{
+      organisationId, assigneeId: deal.ownerId, title: "Send demo times and the Octopus Real Estate case study to Farah", type: "EMAIL", priority: "HIGH",
+      dueAt: new Date(now.getTime() + DAY), reason: "Promised on the call (fictional demo).", origin: "TRANSCRIPT", dedupeKey: `transcript:${t.id}:0`,
+      suggestedAction: "Check this against the call before acting. It was suggested by the AI.",
+      draftMessage: "Hello Farah,\n\nThank you for your time today. As promised, here are some times for a demo next week, and the Octopus Real Estate case study.\n\nBest wishes,\nOwen",
+      companyId: deal.companyId, contactId: farah.id, dealId: deal.id, transcriptId: t.id,
+    }],
+  });
+  await prisma.activity.create({ data: { organisationId, type: "CALL", userId: deal.ownerId, occurredAt: callAt, subject: DEMO_CALL, callResult: "CONNECTED", durationSeconds: 1380, companyId: deal.companyId, contactId: farah.id, dealId: deal.id, transcriptId: t.id } });
+
+  await prisma.callTranscript.create({
+    data: {
+      organisationId, source: "WEBHOOK", externalId: "demo-call-unlinked", title: "Call from the recording tool (fictional demo)", callAt: new Date(now.getTime() - 3 * 3_600_000), durationSeconds: 540,
+      participants: [{ name: "Unknown caller", email: null }], matchStatus: "NEEDS_MATCHING", processingStatus: "PENDING",
+      processingError: "The AI is not set up yet, so this call has not been read.",
+      text: "Caller: Hi, I manage a few office buildings in Leeds and a colleague said you help with energy billing for tenants.\nAisha: We do. Could you tell me a bit about the buildings?\nCaller: Three multi let offices. Recharging energy to tenants takes us days every quarter.\nAisha: That is exactly what we automate. Could I send you a short overview?\nCaller: Please do.",
+    },
+  });
+  return { skipped: false, calls: 2 };
+}
+
 export async function addDemoActivity(prisma: PrismaClient, organisationId: string, now = new Date()) {
   if (await prisma.activity.count({ where: { organisationId, subject: MARKER } })) return { skipped: true };
   const rand = seeded(20260928);

@@ -5,7 +5,8 @@ import { loadActor } from "@/lib/actor";
 import { canEdit } from "@/lib/permissions";
 import { generateCompanySummary } from "@/lib/companies/summary";
 import { enrichCompany } from "@/lib/enrichment";
-import { AiNotConfiguredError } from "@/lib/ai";
+import { AiNotConfiguredError, aiIsConfigured } from "@/lib/ai";
+import { processTranscript } from "@/lib/transcripts/service";
 import { DEFAULT_RETRY, QUEUES, type JobData, type QueueName } from "@/jobs/queues";
 import { getBoss } from "@/jobs/boss";
 import { syncMailAccount } from "@/lib/integrations/mail-sync";
@@ -111,6 +112,27 @@ export const handlers: Handlers = {
 
   [QUEUES.newsCollect]: async (data) => {
     await runNewsCollection({ organisationId: data?.organisationId });
+  },
+
+  [QUEUES.transcriptProcess]: async ({ transcriptId }) => {
+    await processTranscript(transcriptId);
+  },
+
+  [QUEUES.transcriptSweep]: async () => {
+    if (!aiIsConfigured()) return;
+    // Calls left waiting, or stuck part way through for more than an hour.
+    const waiting = await prisma.callTranscript.findMany({
+      where: { OR: [{ processingStatus: "PENDING" }, { processingStatus: "PROCESSING", updatedAt: { lt: new Date(Date.now() - 3_600_000) } }] },
+      select: { id: true },
+      take: 50,
+    });
+    for (const t of waiting) {
+      try {
+        await processTranscript(t.id);
+      } catch (error) {
+        logger.warn("Transcript could not be read, it will be tried again", { transcriptId: t.id, error: String(error) });
+      }
+    }
   },
 
   [QUEUES.companyEnrich]: async ({ companyId, userId }) => {

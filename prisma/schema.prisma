@@ -256,6 +256,10 @@ model Organisation {
   newsDailyCallLimit      Int      @default(100) // most news service requests per day
   newsLastRunAt           DateTime?
   newsLastRunSummary      Json?
+  // Secure web address for call recording tools: only a hash of the secret key is kept
+  transcriptWebhookKeyHash   String?
+  transcriptWebhookKeyHint   String? // last four characters, so admins can tell keys apart
+  transcriptWebhookCreatedAt DateTime?
 
   users          User[]
   teams          Team[]
@@ -994,6 +998,7 @@ model CallTranscript {
   organisationId String
   source         TranscriptSource
   externalId     String? // id from the call recording tool, to avoid saving the same call twice
+  title          String?
   text           String
   callAt         DateTime?
   durationSeconds Int?

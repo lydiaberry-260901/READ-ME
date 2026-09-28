@@ -9,6 +9,7 @@ import type {
   LawfulBasis,
   OutreachReason,
   NewsType,
+  CallOutcome,
 } from "@/generated/prisma/enums";
 
 export const roleLabels: Record<Role, string> = {
@@ -81,6 +82,16 @@ export const newsTypeLabels: Record<NewsType, string> = {
   TENDER_APPOINTMENT: "Tender or appointment",
   NEW_RULES: "New rules",
   OTHER: "Other",
+};
+
+export const callOutcomeLabels: Record<CallOutcome, string> = {
+  INTERESTED: "Interested",
+  SEND_INFORMATION: "Send information",
+  CALL_BACK_LATER: "Call back later",
+  MEETING_BOOKED: "Meeting booked",
+  NOT_NOW: "Not now",
+  WRONG_PERSON: "Wrong person",
+  NOT_INTERESTED: "Not interested",
 };
 
 export const lawfulBasisLabels: Record<LawfulBasis, string> = {

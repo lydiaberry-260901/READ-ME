@@ -14,6 +14,8 @@ export const QUEUES = {
   calendarSync: "calendar-sync",
   dailyTasks: "daily-tasks",
   newsCollect: "news-collect",
+  transcriptProcess: "transcript-process",
+  transcriptSweep: "transcript-sweep",
 } as const;
 
 export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];
@@ -31,6 +33,8 @@ export type JobData = {
   [QUEUES.calendarSync]: { accountId: string };
   [QUEUES.dailyTasks]: Record<string, never> | null;
   [QUEUES.newsCollect]: { organisationId?: string } | null;
+  [QUEUES.transcriptProcess]: { transcriptId: string };
+  [QUEUES.transcriptSweep]: Record<string, never> | null;
 };
 
 /** Scheduled jobs. Cron timings use the Europe/London time zone, so they follow British Summer Time. */
@@ -44,6 +48,8 @@ export const SCHEDULES: { queue: QueueName; cron: string; description: string }[
   { queue: QUEUES.dailyTasks, cron: "0 7 * * 1-5", description: "Builds each person's task list for the day and sends morning summaries to those who want one." },
   // Runs before the daily task lists at 07:00, so very relevant news can become a task the same morning.
   { queue: QUEUES.newsCollect, cron: "30 6 * * *", description: "Looks for news about companies: the most important every day, the rest weekly." },
+  // Catches calls that were saved but not read, for example if the AI was not set up at the time.
+  { queue: QUEUES.transcriptSweep, cron: "20 * * * *", description: "Reads any call transcripts still waiting, every hour." },
 ];
 
 export const SCHEDULE_TIME_ZONE = TIME_ZONE;
@@ -60,4 +66,6 @@ export const CONCURRENCY: Partial<Record<QueueName, number>> = {
   [QUEUES.calendarSync]: 2,
   [QUEUES.dailyTasks]: 1,
   [QUEUES.newsCollect]: 1,
+  [QUEUES.transcriptProcess]: 1,
+  [QUEUES.transcriptSweep]: 1,
 };

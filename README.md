@@ -19,7 +19,8 @@ The full project brief is in [CLAUDE.md](CLAUDE.md).
 | 4 | Email and calendar: connect Gmail or Outlook and Google or Outlook calendar, email sync, sending from the CRM, two way calendar, calendar page, booking meetings | Done |
 | 6 | Daily task list: manual tasks, Today page, 07:00 weekday suggestions with reasons, no duplicates, daily limit, morning summary email | Done |
 | 7 | News about companies: news service or feeds, daily and weekly checks, AI summary and relevance, News page, company news, news tasks | Done |
-| 8, 10, 11 | Transcripts, privacy centre, going live | To do |
+| 8 | Call transcripts: paste, upload or a secure web address for recording tools, AI reading with evidence, suggestions approved one by one, follow up tasks, recording notice checks | Done |
+| 10, 11 | Privacy centre, going live | To do |
 
 ## What you need on your computer
 
@@ -167,11 +168,10 @@ Go to Import. Choose a CSV file, match its columns, say where the data came from
 * **Adding a task:** choose a type (call, email, follow up, research, meeting, other), a priority and a due date and time. Tick the circle to complete a task, snooze it until tomorrow, in 3 days or next week (it comes back at 08:00), or remove it.
 * **Suggested tasks, every weekday at 07:00 London time.** The worker builds each active person's list from these rules:
   1. An outreach step is waiting: an email draft started more than a day ago and not sent, or a call script marked ready.
-  2. A follow up is due: an email sent 5 to 14 days ago with no reply (only the newest to each person, never to someone who opted out). A draft follow up message is included. Follow ups promised in calls are added from call transcripts (Phase 8).
+  2. A follow up is due: an email sent 5 to 14 days ago with no reply (only the newest to each person, never to someone who opted out). A draft follow up message is included. Follow ups promised in calls are added as soon as a call transcript is read.
   3. A deal has had no activity for longer than its stage allows (set per stage under Deal stages).
   4. A deal has just become at risk or stalled. Single threaded deals get their own task as soon as they are spotted.
-  5. A very relevant news item (4 or 5 out of 5) has appeared for a company the person owns, with a suggested opening line.
-  6. The highest scoring companies (4 or 5 out of 5) the person owns, with no open deal and no contact for 60 days, up to 3 a day.
+  5. A very relevant news item (4 or 5 out of 5) has appeared for a company the person owns, with a suggested opening line.  6. The highest scoring companies (4 or 5 out of 5) the person owns, with no open deal and no contact for 60 days, up to 3 a day.
 * Every suggested task says why it was created, where it came from and what to do, with a draft message where useful. Each has a stable key, so running the job again never creates the same task twice. At most 25 suggestions per person per day (a setting under Organisation), most important first: high priority, then stalled or at risk deals, ready calls, news, follow ups, quiet deals, unsent drafts and new prospects. Suggestions about deals that have since closed are removed each morning.
 * **Check for new suggestions** on the Today page runs the rules for you straight away. Admins can run the whole job from the Automations page, and `npm run tasks:daily` does the same from the terminal.
 * **Morning summary:** anyone can switch on a 07:00 weekday email listing the day's tasks, sent through the alert email system.
@@ -186,6 +186,18 @@ Go to Import. Choose a CSV file, match its columns, say where the data came from
 * **Where it shows:** the **News** page (top bar) lists news from every company you can see, with filters for type, relevance, status, company and period, charts by type and by week, and a CSV download. Each company page has its own news with a filter by type. Items can be marked as read, acted on, or back to new. News scoring 4 or 5 becomes a task on the owner's daily list.
 * **Problems:** the last run's figures and any problems are shown on the News settings page; a failed search is recorded on the company and does not stop the run. Admins can start a check straight away from News settings or the Automations page.
 * The demo data includes fictional news items from "Demo news (fictional)" on `news.example` links.
+
+## Call transcripts
+
+* **Adding a call:** on the **Calls** page (top bar), or with Add a call on a contact or deal. Paste the transcript, or drag and drop a text, subtitle (.vtt, .srt), Word or PDF file. Link it to a contact and deal; if only a contact is chosen, their open deal is used.
+* **From a call recording tool:** an admin creates a secret key under Call recording tools (account menu). The tool sends JSON to `/api/transcripts/webhook` with the header `Authorization: Bearer <key>`. Only a scrambled copy (a hash) of the key is kept, so it cannot be read back, only replaced or removed. Participants are matched by work email to a contact (and their open deal) and to the team member who made the call. Calls that cannot be matched wait under "Not linked yet". The same call id is never saved twice.
+* **What the AI records:** the outcome (interested, send information, call back later, meeting booked, not now, wrong person, not interested), a short summary, promises with dates, objections, the agreed next step, and any qualification details it can quote from the call. Email addresses and phone numbers are removed before the call is sent to the AI. Prompt: `prompts/call-transcript.v1.md`.
+* **Checks:** every qualification detail and stage change must come with words quoted from the call, and those words must really be there. Figures not said in the call are refused. Only open stages can be suggested, so the AI never closes a deal. Anything left out by the checks is listed on the call page.
+* **A person approves every change:** suggested qualification details (which can be edited first) and stage changes appear on the call page and on the deal page, each with Approve and Reject. Approving goes through the normal deal rules, so the stage history, alert emails and health score all update as usual. Only the deal's owner, their manager or an admin can decide.
+* **Follow up tasks:** up to 5 per call, with due dates and draft messages, go on the deal owner's Today list (or the person who added the call). The call also counts as a connected call in the dashboards. Reading a call again never repeats tasks.
+* **Recording notice:** each call records whether the person was told it was being recorded, and why. Calls without this are flagged on the Calls page and the call page until someone records it; the AI points out any words in the call that look like a notice.
+* **Access and deletion:** a call can be seen by the person who added it (and their manager), anyone who can see its deal or contact, and admins. Every view is recorded in the audit log. A call can be deleted at any time; approved changes stay on the deal and tasks stay on the list. Transcripts are kept for 12 months by default (the privacy centre in Phase 10 handles deletion).
+* If the AI is not set up, calls are saved and read automatically once it is (an hourly job picks up anything waiting).
 
 ## Email and calendar
 

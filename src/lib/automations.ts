@@ -15,6 +15,8 @@ export const automationLabels: Record<QueueName, string> = {
   [QUEUES.calendarSync]: "Calendar sync for one account",
   [QUEUES.dailyTasks]: "Daily task list",
   [QUEUES.newsCollect]: "News about companies",
+  [QUEUES.transcriptProcess]: "Reading a call transcript",
+  [QUEUES.transcriptSweep]: "Call transcripts waiting to be read",
 };
 
 export type AutomationStatus = {

@@ -4,7 +4,9 @@ import { requireUser } from "@/lib/session";
 import { prisma } from "@/lib/db";
 import { canEdit, canView } from "@/lib/permissions";
 import { formatDate, formatDateTime, formatPounds } from "@/lib/format";
-import { lossReasonLabels, stakeholderRoleLabels } from "@/lib/labels";
+import { callOutcomeLabels, lossReasonLabels, stakeholderRoleLabels } from "@/lib/labels";
+import { QUALIFICATION_FIELDS } from "@/lib/qualification";
+import { SuggestionCard } from "../../transcripts/forms";
 import { calculateHealth, wholeDays } from "@/lib/deals/health";
 import { averageDaysByStage } from "@/lib/deals/recalculate";
 import { loadPickerOptions } from "@/lib/options";
@@ -13,7 +15,7 @@ import { Badge, Notice } from "@/components/ui";
 import { AddStakeholder, DealBasicsForm, NoteForm, QualificationForm, StageMover, StakeholderRow } from "./DealPanels";
 import { dropStakeholder, toggleFollow } from "../actions";
 
-type TimelineItem = { at: Date; kind: string; title: string; detail?: string | null; who?: string | null };
+type TimelineItem = { at: Date; kind: string; title: string; detail?: string | null; who?: string | null; href?: string };
 
 export default async function DealPage({ params }: { params: Promise<{ id: string }> }) {
   const user = await requireUser();
@@ -47,6 +49,13 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
     prisma.contact.findMany({ where: { organisationId: user.organisationId, companyId: deal.companyId }, select: { id: true, firstName: true, lastName: true, ownerId: true, isShared: true, organisationId: true }, orderBy: { firstName: "asc" } }),
     loadPickerOptions(user),
   ]);
+  const suggestions = await prisma.transcriptSuggestion.findMany({
+    where: { dealId: deal.id, status: "PENDING" },
+    include: { transcript: { select: { id: true, title: true, callAt: true, createdAt: true } } },
+    orderBy: [{ kind: "desc" }, { createdAt: "asc" }],
+  });
+  const stageName = (stageId: string | null) => deal.pipeline.stages.find((s) => s.id === stageId)?.name ?? "an unknown stage";
+  const fieldLabel = (key: string | null) => QUALIFICATION_FIELDS.find((f) => f.key === key)?.label ?? "Deal stage";
 
   const engaged = deal.contacts.filter((c) => c.engaged).length;
   const isOpen = deal.stage.kind === "OPEN";
@@ -66,11 +75,12 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
   const owners = [...options.people];
 
   const timeline: TimelineItem[] = [
-    ...activities.map((a) => ({ at: a.occurredAt, kind: { CALL: "Call", EMAIL: "Email", MEETING: "Meeting", NOTE: "Note" }[a.type], title: a.subject ?? { CALL: "Call", EMAIL: "Email", MEETING: "Meeting", NOTE: "Note" }[a.type], detail: a.body, who: a.user?.name })),
+    // Calls with a transcript are shown once, as the transcript.
+    ...activities.filter((a) => !a.transcriptId).map((a) => ({ at: a.occurredAt, kind: { CALL: "Call", EMAIL: "Email", MEETING: "Meeting", NOTE: "Note" }[a.type], title: a.subject ?? { CALL: "Call", EMAIL: "Email", MEETING: "Meeting", NOTE: "Note" }[a.type], detail: a.body, who: a.user?.name })),
     ...history.map((h) => ({ at: h.movedAt, kind: "Stage", title: h.fromStage ? `Moved from ${h.fromStage.name} to ${h.toStage.name}` : `Created in ${h.toStage.name}`, who: h.movedBy?.name })),
     ...emails.map((e) => ({ at: e.sentAt, kind: "Email", title: e.subject ?? "Email", detail: e.snippet, who: e.direction === "SENT" ? "Sent" : `Received from ${e.fromAddress}` })),
     ...events.map((e) => ({ at: e.startAt, kind: "Meeting", title: e.title, detail: e.location })),
-    ...transcripts.map((t) => ({ at: t.callAt ?? t.createdAt, kind: "Transcript", title: "Call transcript", detail: t.summary })),
+    ...transcripts.map((t) => ({ at: t.callAt ?? t.createdAt, kind: "Call transcript", title: t.outcome ? `Call: ${callOutcomeLabels[t.outcome]}` : "Call transcript", detail: t.summary, href: `/transcripts/${t.id}` })),
   ].sort((a, b) => b.at.getTime() - a.at.getTime());
 
   const boardDeal = {
@@ -97,6 +107,7 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
         <div className="flex flex-wrap items-end gap-3">
           <StageMover deal={boardDeal} stages={deal.pipeline.stages.map((s) => ({ id: s.id, name: s.name, colour: s.colour, kind: s.kind }))} disabled={!editable} />
           <Link href={`/calendar/new?dealId=${deal.id}${deal.contacts[0] ? `&contactId=${deal.contacts[0].contactId}` : ""}`} className="btn btn-secondary py-1.5 no-underline">Book a meeting</Link>
+          <Link href={`/transcripts/new?dealId=${deal.id}${deal.contacts[0] ? `&contactId=${deal.contacts[0].contactId}` : ""}`} className="btn btn-secondary py-1.5 no-underline">Add a call</Link>
           <form action={toggleFollow}>
             <input type="hidden" name="dealId" value={deal.id} />
             <input type="hidden" name="follow" value={String(!following)} />
@@ -123,6 +134,30 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
           </Notice>
         ) : null}
       </div>
+
+      {suggestions.length ? (
+        <section className="mb-8 rounded-lg border border-green/40 bg-panel" aria-labelledby="call-suggestions-heading">
+          <div className="border-b border-line px-5 py-3">
+            <h2 id="call-suggestions-heading" className="text-sm font-semibold">Suggested from calls: {suggestions.length} waiting for a decision</h2>
+            <p className="mt-0.5 text-xs text-fg-muted">The AI picked these out of call transcripts. The deal only changes when you approve each one.</p>
+          </div>
+          <ul className="divide-y divide-line">
+            {suggestions.map((s) => (
+              <SuggestionCard
+                  key={s.id}
+                  source={<>From <Link href={`/transcripts/${s.transcript.id}`}>{s.transcript.title ?? "a call"}</Link> on {formatDate(s.transcript.callAt ?? s.transcript.createdAt)}</>}
+                  id={s.id}
+                  kind={s.kind}
+                  label={s.kind === "STAGE_CHANGE" ? "Move to a new stage" : fieldLabel(s.field)}
+                  current={s.kind === "STAGE_CHANGE" ? stageName(s.currentValue) : s.currentValue}
+                  proposed={s.kind === "STAGE_CHANGE" ? stageName(s.proposedValue) : s.proposedValue}
+                  evidence={s.evidence}
+                  canDecide={editable}
+                />
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <div className="grid gap-8 xl:grid-cols-[1.6fr_1fr]">
         <div className="grid content-start gap-8">
@@ -183,7 +218,7 @@ export default async function DealPage({ params }: { params: Promise<{ id: strin
                   <li key={i} className="relative pb-5">
                     <span aria-hidden="true" className="absolute -left-[25px] top-1.5 size-2.5 rounded-full border-2 border-canvas bg-fg-muted" />
                     <p className="text-xs text-fg-muted">{formatDateTime(t.at)}, {t.kind}{t.who ? `, ${t.who}` : ""}</p>
-                    <p className="mt-0.5 text-sm font-medium">{t.title}</p>
+                    <p className="mt-0.5 text-sm font-medium">{t.href ? <Link href={t.href} className="text-fg">{t.title}</Link> : t.title}</p>
                     {t.detail ? <p className="mt-0.5 whitespace-pre-wrap text-sm text-fg-muted">{t.detail}</p> : null}
                   </li>
                 ))}

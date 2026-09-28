@@ -16,7 +16,8 @@ import { AddContactTagForm, DateRecordForm, OptOutForm, PhoneCheckForm } from ".
 import { OutreachPanel } from "./OutreachPanel";
 import { callBlockReason, emailBlockReason } from "@/lib/outreach/drafts";
 import { aiIsConfigured } from "@/lib/ai";
-import { outreachReasonLabels } from "@/lib/labels";
+import { callOutcomeLabels, outreachReasonLabels } from "@/lib/labels";
+import { transcriptWhere } from "@/lib/transcripts/access";
 
 function Check({ ok, label, detail }: { ok: boolean; label: string; detail?: string }) {
   return (
@@ -51,7 +52,7 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
   await audit({ organisationId: user.organisationId, userId: user.id, action: "contact.viewed", entityType: "Contact", entityId: contact.id });
 
   const editable = canEdit(user, contact, { sharedIsEditable: true });
-  const [org, options, companies, templates, scripts, companyGroup] = await Promise.all([
+  const [org, options, companies, templates, scripts, companyGroup, calls] = await Promise.all([
     prisma.organisation.findUniqueOrThrow({ where: { id: user.organisationId }, select: { phoneCheckMaxAgeDays: true, privacyNoticeUrl: true } }),
     loadPickerOptions(user),
     editable
@@ -60,6 +61,12 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
     prisma.emailTemplate.findMany({ where: { organisationId: user.organisationId, active: true }, select: { id: true, name: true, customerGroup: true, reason: true }, orderBy: { name: "asc" } }),
     prisma.callScript.findMany({ where: { organisationId: user.organisationId, active: true }, select: { id: true, name: true, customerGroup: true, reason: true }, orderBy: { name: "asc" } }),
     contact.companyId ? prisma.company.findUnique({ where: { id: contact.companyId }, select: { customerGroup: true } }).then((c) => c?.customerGroup ?? null) : Promise.resolve(null),
+    prisma.callTranscript.findMany({
+      where: { AND: [transcriptWhere(user), { contactId: contact.id }] },
+      select: { id: true, title: true, callAt: true, createdAt: true, outcome: true },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    }),
   ]);
   const toItem = (i: { id: string; name: string; customerGroup: string | null; reason: keyof typeof outreachReasonLabels }) => ({
     id: i.id,
@@ -232,6 +239,27 @@ export default async function ContactPage({ params }: { params: Promise<{ id: st
                       <span className="block text-fg-muted">{r.deal.stage.name}{r.role ? `, ${stakeholderRoleLabels[r.role]}` : ""}</span>
                     </span>
                     <span className="tabular-nums">{formatPounds(r.deal.value)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section className="section-plain" aria-labelledby="calls-heading">
+            <div className="flex items-center justify-between gap-3">
+              <h2 id="calls-heading" className="text-lg font-semibold">Calls</h2>
+              <Link href={`/transcripts/new?contactId=${contact.id}`} className="btn btn-secondary py-1.5 no-underline">Add a call</Link>
+            </div>
+            {calls.length === 0 ? (
+              <p className="mt-3 text-sm text-fg-muted">No call transcripts you can see.</p>
+            ) : (
+              <ul className="mt-3 divide-y divide-line text-sm">
+                {calls.map((c) => (
+                  <li key={c.id} className="py-2.5">
+                    <Link href={`/transcripts/${c.id}`} className="font-medium text-fg">{c.title ?? "Call transcript"}</Link>
+                    <span className="block text-fg-muted">
+                      {formatDate(c.callAt ?? c.createdAt)}{c.outcome ? `, ${callOutcomeLabels[c.outcome]}` : ""}
+                    </span>
                   </li>
                 ))}
               </ul>
