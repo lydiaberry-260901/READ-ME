@@ -13,6 +13,7 @@ import { syncCalendarAccount } from "@/lib/integrations/calendar-sync";
 import { runDailyTasks } from "@/lib/tasks/daily";
 import { deliverNotification } from "@/lib/notifications/deal-alerts";
 import { recalculateOrganisation } from "@/lib/deals/recalculate";
+import { runNewsCollection } from "@/lib/news/collect";
 
 const MAX_ALERT_ATTEMPTS = 8;
 
@@ -106,6 +107,10 @@ export const handlers: Handlers = {
     // Send any morning summaries straight away rather than waiting for the next sweep.
     const boss = await getBoss("worker");
     await boss.send(QUEUES.sendNotification, null as never, { ...DEFAULT_RETRY });
+  },
+
+  [QUEUES.newsCollect]: async (data) => {
+    await runNewsCollection({ organisationId: data?.organisationId });
   },
 
   [QUEUES.companyEnrich]: async ({ companyId, userId }) => {

@@ -2,7 +2,7 @@
 // Development only. Run with: npm run db:demo-activity
 import "dotenv/config";
 import { createClient } from "../src/lib/db";
-import { addDemoActivity } from "../prisma/demo-activity";
+import { addDemoActivity, addDemoNews } from "../prisma/demo-activity";
 import { recalculateOrganisation } from "../src/lib/deals/recalculate";
 
 const prisma = createClient();
@@ -11,8 +11,10 @@ async function main() {
   if (process.env.NODE_ENV === "production") throw new Error("Demo data must never be added to the live database.");
   for (const org of await prisma.organisation.findMany()) {
     const r = await addDemoActivity(prisma, org.id);
+    const news = await addDemoNews(prisma, org.id);
     await recalculateOrganisation(org.id);
     console.log(r.skipped ? `${org.name}: demo activity already present.` : `${org.name}: added ${r.activities} fictional activities and closed deals.`);
+    console.log(news.skipped ? `${org.name}: demo news already present.` : `${org.name}: added ${news.items} fictional news items.`);
   }
 }
 

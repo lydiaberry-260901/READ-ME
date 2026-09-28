@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/session";
 import { prisma } from "@/lib/db";
 import { canEdit, canView, visibleWhere } from "@/lib/permissions";
-import { customerGroupLabels } from "@/lib/labels";
+import { customerGroupLabels, newsTypeLabels } from "@/lib/labels";
+import type { NewsType } from "@/generated/prisma/enums";
+import { NewsList } from "@/components/NewsList";
+import { setNewsPaused } from "../../news/actions";
 import { formatDate, formatDateTime, formatPounds } from "@/lib/format";
 import { loadPickerOptions } from "@/lib/options";
 import { aiIsConfigured } from "@/lib/ai";
@@ -14,7 +17,9 @@ import { CompanyForm } from "../CompanyForm";
 import { updateCompany, removeCompanyTag } from "../actions";
 import { AddTagForm, EditSummary, EnrichButton, GenerateSummaryButton } from "./panels";
 
-export default async function CompanyPage({ params }: { params: Promise<{ id: string }> }) {
+const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
+
+export default async function CompanyPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const user = await requireUser();
   const { id } = await params;
   const company = await prisma.company.findFirst({
@@ -27,7 +32,8 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
   if (!company || !canView(user, company)) notFound();
 
   const editable = canEdit(user, company, { sharedIsEditable: true });
-  const [contacts, deals, options, editor] = await Promise.all([
+  const newsType = one((await searchParams).newsType);
+  const [contacts, deals, options, editor, news, newsWatch, newsSource] = await Promise.all([
     prisma.contact.findMany({
       where: { AND: [visibleWhere(user), { companyId: company.id }] },
       orderBy: [{ firstName: "asc" }],
@@ -40,6 +46,13 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
     }),
     loadPickerOptions(user),
     company.aiEditedById ? prisma.user.findUnique({ where: { id: company.aiEditedById }, select: { name: true } }) : null,
+    prisma.newsItem.findMany({
+      where: { organisationId: user.organisationId, companyId: company.id, ...(newsType in newsTypeLabels ? { newsType: newsType as NewsType } : {}) },
+      orderBy: [{ publishedAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }],
+      take: 15,
+    }),
+    prisma.newsWatch.findUnique({ where: { companyId: company.id } }),
+    prisma.organisation.findUniqueOrThrow({ where: { id: user.organisationId }, select: { newsSource: true } }).then((o) => o.newsSource),
   ]);
 
   const enrichment = (company.enrichment ?? {}) as CompanyEnrichment;
@@ -261,6 +274,44 @@ export default async function CompanyPage({ params }: { params: Promise<{ id: st
           </section>
         </div>
       </div>
+
+      <section className="card mt-8" aria-labelledby="news-heading">
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-line px-5 py-4">
+          <div>
+            <h2 id="news-heading" className="text-lg font-semibold">News</h2>
+            <p className="mt-0.5 text-sm text-fg-muted">
+              {newsSource === "OFF"
+                ? "News checks are switched off for the organisation."
+                : newsWatch?.paused
+                  ? "News checks are paused for this company."
+                  : `Checked ${company.importance === 1 ? "every morning" : "about once a week"}${newsWatch?.lastCheckedAt ? `, last on ${formatDateTime(newsWatch.lastCheckedAt)}` : ", not checked yet"}.`}
+            </p>
+            {newsWatch?.lastError ? <p className="mt-1 text-xs text-amber-text">Last check had a problem: {newsWatch.lastError}</p> : null}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <form method="get" className="flex gap-2">
+              <label htmlFor="c-news-type" className="sr-only">Type of news</label>
+              <select id="c-news-type" name="newsType" defaultValue={newsType} className="field w-auto py-1.5 text-sm">
+                <option value="">All types</option>
+                {(Object.keys(newsTypeLabels) as NewsType[]).map((t) => <option key={t} value={t}>{newsTypeLabels[t]}</option>)}
+              </select>
+              <button type="submit" className="btn btn-secondary py-1.5">Show</button>
+            </form>
+            {editable ? (
+              <form action={setNewsPaused}>
+                <input type="hidden" name="companyId" value={company.id} />
+                <input type="hidden" name="paused" value={String(!newsWatch?.paused)} />
+                <button type="submit" className="btn btn-secondary py-1.5">{newsWatch?.paused ? "Restart news checks" : "Pause news checks"}</button>
+              </form>
+            ) : null}
+          </div>
+        </div>
+        {news.length === 0 ? (
+          <p className="px-5 py-6 text-sm text-fg-muted">No news found{newsType ? " of this type" : ""} yet.</p>
+        ) : (
+          <NewsList items={news} />
+        )}
+      </section>
     </>
   );
 }

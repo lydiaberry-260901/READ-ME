@@ -15,7 +15,7 @@ async function main() {
     await page.goto(`${base}${p}`, { waitUntil: "load" });
     await page.waitForTimeout(1500); // let chart animations finish
     const file = `${outDir}/${p.replace(/[^a-z0-9]+/gi, "_") || "home"}.png`;
-    await page.screenshot({ path: file, fullPage: false });
+    await page.screenshot({ path: file, fullPage: process.env.FULL_PAGE === "1" });
     console.log(file);
   }
   await browser.close();

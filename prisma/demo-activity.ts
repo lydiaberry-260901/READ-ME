@@ -2,7 +2,7 @@
 // Deterministic (a fixed random seed), so every computer gets the same demo. Only touches demo
 // users (addresses ending @example.com) and only runs once per organisation.
 import type { PrismaClient } from "../src/generated/prisma/client";
-import type { CallResult, CustomerGroup, LossReason } from "../src/generated/prisma/enums";
+import type { CallResult, CustomerGroup, LossReason, NewsStatus, NewsType } from "../src/generated/prisma/enums";
 
 const DAY = 86_400_000;
 const MARKER = "Demo activity (fictional)";
@@ -13,6 +13,40 @@ function seeded(seed: number) {
     s = (s * 1664525 + 1013904223) % 4294967296;
     return s / 4294967296;
   };
+}
+
+const NEWS_SOURCE = "Demo news (fictional)";
+
+/** Fictional news items for the demo companies, so the news screens have something to show. Runs once. */
+export async function addDemoNews(prisma: PrismaClient, organisationId: string, now = new Date()) {
+  if (await prisma.newsItem.count({ where: { organisationId, source: NEWS_SOURCE } })) return { skipped: true, items: 0 };
+  const companies = await prisma.company.findMany({ where: { organisationId, domain: { endsWith: "-demo.example" } }, select: { id: true, domain: true } });
+  const byDomain = new Map(companies.map((c) => [c.domain!.replace("-demo.example", ""), c.id]));
+  const items: { key: string; days: number; headline: string; summary: string; openingLine: string; newsType: NewsType; relevance: number; status: NewsStatus }[] = [
+    { key: "harbourline", days: 1, headline: "Harbourline Real Estate Partners buys two Manchester office buildings", summary: "Harbourline has bought two office buildings in Manchester for its core fund.", openingLine: "Congratulations on the Manchester purchases; new buildings are often the best moment to get energy data in order.", newsType: "PROPERTY_TRANSACTION", relevance: 5, status: "NEW" },
+    { key: "harbourline", days: 19, headline: "Harbourline sets out net zero pathway for its UK offices", summary: "Harbourline has published a net zero pathway covering its UK office portfolio.", openingLine: "I read your new net zero pathway and wondered how you plan to track progress building by building.", newsType: "EPC_CRREM", relevance: 4, status: "READ" },
+    { key: "northgate", days: 3, headline: "Northgate Pension Property Fund appoints Head of ESG", summary: "Northgate has appointed a new Head of ESG to lead sustainability across the fund.", openingLine: "Congratulations to your new Head of ESG; the first months are usually when the data gaps become clear.", newsType: "NEW_ESG_HIRE", relevance: 5, status: "NEW" },
+    { key: "kestrel", days: 6, headline: "Kestrel Urban Logistics starts refit of Birmingham warehouse", summary: "Kestrel has started refurbishing a warehouse in Birmingham.", openingLine: "I saw the Birmingham refit is under way; it is a good time to plan metering before the work finishes.", newsType: "BUILDING_WORK", relevance: 4, status: "NEW" },
+    { key: "fernhill", days: 2, headline: "Fernhill Property Management invites tenders for energy reporting", summary: "Fernhill is inviting tenders for energy reporting across its managed buildings.", openingLine: "I noticed your tender for energy reporting and would welcome the chance to respond.", newsType: "TENDER_APPOINTMENT", relevance: 5, status: "ACTED_ON" },
+    { key: "calderrowe", days: 11, headline: "Calder and Rowe wins management of Leeds business park", summary: "Calder and Rowe has been appointed to manage a business park in Leeds.", openingLine: "Congratulations on the Leeds appointment; recharging tenants for energy is often the first headache on a new site.", newsType: "TENDER_APPOINTMENT", relevance: 3, status: "NEW" },
+    { key: "brightwater", days: 26, headline: "Brightwater Estate Services opens new regional office", summary: "Brightwater has opened a new regional office.", openingLine: "I saw you have opened a new regional office and hope the move went smoothly.", newsType: "OTHER", relevance: 2, status: "READ" },
+    { key: "pennant", days: 4, headline: "Pennant Retail Group raises funding to upgrade its stores", summary: "Pennant has raised funding to upgrade its store estate.", openingLine: "I read about the funding for your store upgrades and wondered how energy savings will be measured.", newsType: "FUND_RAISE", relevance: 4, status: "NEW" },
+    { key: "pennant", days: 40, headline: "Pennant Retail Group reviews store EPC ratings ahead of new rules", summary: "Pennant is reviewing the EPC ratings of its stores ahead of rule changes.", openingLine: "I saw you are reviewing store EPC ratings and thought a costed action plan might help.", newsType: "NEW_RULES", relevance: 4, status: "ACTED_ON" },
+    { key: "meridianlabs", days: 8, headline: "Meridian Labs UK expands laboratory space in Cambridge", summary: "Meridian Labs is taking more laboratory space in Cambridge.", openingLine: "Congratulations on the Cambridge expansion; laboratories bring big energy questions for occupiers.", newsType: "PROPERTY_TRANSACTION", relevance: 3, status: "NEW" },
+    { key: "oakbridge", days: 55, headline: "Oakbridge Hotels refurbishes seaside hotel", summary: "Oakbridge has refurbished one of its seaside hotels.", openingLine: "I saw the hotel refurbishment is complete and wondered how energy use has changed since.", newsType: "BUILDING_WORK", relevance: 2, status: "READ" },
+  ];
+  const data = items
+    .filter((i) => byDomain.has(i.key))
+    .map((i, n) => {
+      const at = new Date(now.getTime() - i.days * DAY);
+      const url = `https://news.example/demo/${i.key}-${n + 1}`;
+      return {
+        organisationId, companyId: byDomain.get(i.key)!, headline: i.headline, source: NEWS_SOURCE, url, urlHash: `demo-${i.key}-${n + 1}`,
+        publishedAt: at, createdAt: at, summary: i.summary, openingLine: i.openingLine, newsType: i.newsType, relevance: i.relevance, status: i.status, aiModel: null,
+      };
+    });
+  await prisma.newsItem.createMany({ data });
+  return { skipped: false, items: data.length };
 }
 
 export async function addDemoActivity(prisma: PrismaClient, organisationId: string, now = new Date()) {

@@ -20,7 +20,7 @@ export function describeCron(cron: string): string {
 }
 
 /** Automations people may start by hand from the page. */
-export const RUNNABLE: QueueName[] = [QUEUES.dailyTasks, QUEUES.recalculateHealth, QUEUES.sendNotification, QUEUES.mailSyncAll, QUEUES.calendarSyncAll];
+export const RUNNABLE: QueueName[] = [QUEUES.dailyTasks, QUEUES.newsCollect, QUEUES.recalculateHealth, QUEUES.sendNotification, QUEUES.mailSyncAll, QUEUES.calendarSyncAll];
 
 type RawJob = { name: string; state: string; created_ms: number; started_ms: number | null; completed_ms: number | null };
 type JobRow = { name: string; state: string; created_on: Date; started_on: Date | null; completed_on: Date | null };

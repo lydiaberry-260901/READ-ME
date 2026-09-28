@@ -15,6 +15,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     { href: "/analytics", label: "Analytics" },
     { href: "/companies", label: "Companies" },
     { href: "/contacts", label: "Contacts" },
+    { href: "/news", label: "News" },
     { href: "/outreach", label: "Outreach" },
     { href: "/calendar", label: "Calendar" },
     { href: "/automations", label: "Automations" },
@@ -31,6 +32,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (can(user, "settings.manage")) {
     adminItems.push({ href: "/settings/organisation", label: "Organisation" });
     adminItems.push({ href: "/settings/pipeline", label: "Deal stages" });
+    adminItems.push({ href: "/settings/news", label: "News settings" });
   }
   if (can(user, "alerts.view")) adminItems.push({ href: "/settings/alerts", label: "Alert log" });
 

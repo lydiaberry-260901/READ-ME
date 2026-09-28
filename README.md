@@ -18,7 +18,8 @@ The full project brief is in [CLAUDE.md](CLAUDE.md).
 | Visuals | Command centre home page, Automations page, visual summaries on lists | Done |
 | 4 | Email and calendar: connect Gmail or Outlook and Google or Outlook calendar, email sync, sending from the CRM, two way calendar, calendar page, booking meetings | Done |
 | 6 | Daily task list: manual tasks, Today page, 07:00 weekday suggestions with reasons, no duplicates, daily limit, morning summary email | Done |
-| 7, 8, 10, 11 | News, transcripts, privacy centre, going live | To do |
+| 7 | News about companies: news service or feeds, daily and weekly checks, AI summary and relevance, News page, company news, news tasks | Done |
+| 8, 10, 11 | Transcripts, privacy centre, going live | To do |
 
 ## What you need on your computer
 
@@ -169,11 +170,22 @@ Go to Import. Choose a CSV file, match its columns, say where the data came from
   2. A follow up is due: an email sent 5 to 14 days ago with no reply (only the newest to each person, never to someone who opted out). A draft follow up message is included. Follow ups promised in calls are added from call transcripts (Phase 8).
   3. A deal has had no activity for longer than its stage allows (set per stage under Deal stages).
   4. A deal has just become at risk or stalled. Single threaded deals get their own task as soon as they are spotted.
-  5. A very relevant news item (4 or 5 out of 5) has appeared for a company the person owns, with a suggested opening line (Phase 7 collects the news).
+  5. A very relevant news item (4 or 5 out of 5) has appeared for a company the person owns, with a suggested opening line.
   6. The highest scoring companies (4 or 5 out of 5) the person owns, with no open deal and no contact for 60 days, up to 3 a day.
 * Every suggested task says why it was created, where it came from and what to do, with a draft message where useful. Each has a stable key, so running the job again never creates the same task twice. At most 25 suggestions per person per day (a setting under Organisation), most important first: high priority, then stalled or at risk deals, ready calls, news, follow ups, quiet deals, unsent drafts and new prospects. Suggestions about deals that have since closed are removed each morning.
 * **Check for new suggestions** on the Today page runs the rules for you straight away. Admins can run the whole job from the Automations page, and `npm run tasks:daily` does the same from the terminal.
 * **Morning summary:** anyone can switch on a 07:00 weekday email listing the day's tasks, sent through the alert email system.
+
+## News about companies
+
+* **Where news comes from:** an admin chooses under News settings (account menu): off, a news service (GNews, needs `NEWS_API_KEY`), or a list of RSS or Atom news feeds such as trade press. Only headlines and the short descriptions the service or feed provides are read. Articles themselves are never fetched, so paywalls and site rules are respected, and feeds whose site asks automated visitors to stay away are skipped.
+* **When:** every morning at 06:30 London time, before the 07:00 task lists. Companies with importance 1 are checked every day, the rest about once a week. With the news service, each company checked uses one search; a daily limit (default 100) keeps within the service plan, with a one second gap between searches, and companies not reached go first the next day. Anyone who can edit a company can pause its news checks from the company page.
+* **What is kept:** only the headline, source, link, date and a short AI summary, relevance score (1 to 5), type of news and a suggested opening line. The service's short description is used only for the AI review and then deleted (after 7 days at most, even if the AI is not set up).
+* **Matching:** an item must name the company (or one of its other names) as a whole phrase; one word names must appear with their capital letter, to avoid ordinary words. The AI then checks it is really about this company, and items that are not are removed. The same story is never saved twice, by link (ignoring tracking parts) or by a near identical headline within 14 days.
+* **The AI** uses only the headline, source and description, never invents figures (answers with figures not in the news are rejected), and its opening line is a draft for a person to check. Prompt: `prompts/news-review.v1.md`.
+* **Where it shows:** the **News** page (top bar) lists news from every company you can see, with filters for type, relevance, status, company and period, charts by type and by week, and a CSV download. Each company page has its own news with a filter by type. Items can be marked as read, acted on, or back to new. News scoring 4 or 5 becomes a task on the owner's daily list.
+* **Problems:** the last run's figures and any problems are shown on the News settings page; a failed search is recorded on the company and does not stop the run. Admins can start a check straight away from News settings or the Automations page.
+* The demo data includes fictional news items from "Demo news (fictional)" on `news.example` links.
 
 ## Email and calendar
 
@@ -235,6 +247,7 @@ All settings live in `.env` on your computer, and in the server's settings on Ho
 | `ANTHROPIC_API_KEY` | Key for the Claude API, used for AI summaries and drafts. |
 | `AI_MODEL` | Which Claude model to use. Leave blank for the default, `claude-opus-5`. |
 | `COMPANIES_HOUSE_API_KEY` | Free key from the Companies House developer hub, used to look up company records. |
+| `NEWS_API_KEY` | Key for the GNews news service (gnews.io), used when "News service" is chosen in News settings. Not needed for news feeds. |
 | `SEED_ADMIN_EMAIL` | Demo data only. This address is invited as an Admin when the demo data is loaded. |
 | `NEXT_TELEMETRY_DISABLED` | Set to `1` to stop Next.js sending anonymous usage statistics. |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | The mail server that sends alert emails, for example Hostinger's email service. |

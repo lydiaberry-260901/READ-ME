@@ -13,6 +13,7 @@ export const QUEUES = {
   calendarSyncAll: "calendar-sync-all",
   calendarSync: "calendar-sync",
   dailyTasks: "daily-tasks",
+  newsCollect: "news-collect",
 } as const;
 
 export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];
@@ -29,6 +30,7 @@ export type JobData = {
   [QUEUES.calendarSyncAll]: Record<string, never> | null;
   [QUEUES.calendarSync]: { accountId: string };
   [QUEUES.dailyTasks]: Record<string, never> | null;
+  [QUEUES.newsCollect]: { organisationId?: string } | null;
 };
 
 /** Scheduled jobs. Cron timings use the Europe/London time zone, so they follow British Summer Time. */
@@ -40,6 +42,8 @@ export const SCHEDULES: { queue: QueueName; cron: string; description: string }[
   { queue: QUEUES.mailSyncAll, cron: "*/10 * * * *", description: "Collects new emails with CRM contacts from every connected email account." },
   { queue: QUEUES.calendarSyncAll, cron: "*/15 * * * *", description: "Brings every connected calendar up to date, both ways." },
   { queue: QUEUES.dailyTasks, cron: "0 7 * * 1-5", description: "Builds each person's task list for the day and sends morning summaries to those who want one." },
+  // Runs before the daily task lists at 07:00, so very relevant news can become a task the same morning.
+  { queue: QUEUES.newsCollect, cron: "30 6 * * *", description: "Looks for news about companies: the most important every day, the rest weekly." },
 ];
 
 export const SCHEDULE_TIME_ZONE = TIME_ZONE;
@@ -55,4 +59,5 @@ export const CONCURRENCY: Partial<Record<QueueName, number>> = {
   [QUEUES.mailSync]: 2,
   [QUEUES.calendarSync]: 2,
   [QUEUES.dailyTasks]: 1,
+  [QUEUES.newsCollect]: 1,
 };

@@ -250,6 +250,12 @@ model Organisation {
   legalName               String?
   postalAddress           String?
   websiteUrl              String? @default("https://moca.energy")
+  // News: where it comes from ("OFF", "API" for the news service, "FEEDS" for RSS feeds)
+  newsSource              String   @default("OFF")
+  newsFeeds               String[] @default([])
+  newsDailyCallLimit      Int      @default(100) // most news service requests per day
+  newsLastRunAt           DateTime?
+  newsLastRunSummary      Json?
 
   users          User[]
   teams          Team[]
@@ -1082,6 +1088,8 @@ model NewsItem {
   urlHash        String // used to avoid saving the same story twice
   publishedAt    DateTime?
   summary        String? // short AI summary, never the full article
+  reviewText     String? // the service's short description, kept only until the AI review, then deleted
+  headlineKey    String? // simplified headline, to spot the same story from different sources
   newsType       NewsType?
   relevance      Int? // 1 to 5
   openingLine    String? // suggested opening line for outreach
