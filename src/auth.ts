@@ -7,7 +7,7 @@ import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/db";
 import { attachUserToOrganisation, decideSignIn } from "@/lib/organisation";
-import { normaliseEmail } from "@/lib/crypto";
+import { normaliseEmail, randomToken } from "@/lib/crypto";
 
 export const devLoginEnabled =
   process.env.NODE_ENV !== "production" && process.env.DEV_LOGIN_ENABLED === "true";
@@ -75,13 +75,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (decision.allowed) return true;
       return `/signin?error=${decision.reason === "inactive" ? "Inactive" : "NotInvited"}`;
     },
-    async jwt({ token, user }) {
-      if (user?.id) token.sub = user.id;
+    async jwt({ token, user, account }) {
+      if (user?.id) {
+        token.sub = user.id;
+        // A fresh random id for each sign in. The server records when this sign in has passed
+        // two step sign in, so the browser cannot claim it has.
+        token.sid = randomToken(24);
+        token.provider = account?.provider ?? null;
+      }
       return token;
     },
     async session({ session, token }) {
       if (token.sub) session.user.id = token.sub;
-      return session;
+      const s = session as typeof session & { sid?: string; provider?: string | null };
+      s.sid = typeof token.sid === "string" ? token.sid : undefined;
+      s.provider = typeof token.provider === "string" ? token.provider : null;
+      return s;
     },
   },
   events: {

@@ -1,0 +1,51 @@
+# Runs the automatic tests and a production build on every push to GitHub, so problems are caught
+# before anything goes live. Uses GitHub's free allowance of Actions minutes.
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: moca
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: moca_crm_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U moca"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Test only values. Real settings are never stored in GitHub.
+      DATABASE_URL: postgresql://moca:ci-only-password@localhost:5432/moca_crm_test?schema=public
+      TEST_DATABASE_URL: postgresql://moca:ci-only-password@localhost:5432/moca_crm_test?schema=public
+      AUTH_SECRET: ci-only-secret-ci-only-secret-ci-only-secret
+      ENCRYPTION_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      SUPPRESSION_HMAC_KEY: AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE=
+      APP_URL: http://localhost:3000
+      AUTH_URL: http://localhost:3000
+      NEXT_TELEMETRY_DISABLED: "1"
+      EMAIL_TRANSPORT: log
+      TZ: Europe/London
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx vitest run
+      - run: npm run build

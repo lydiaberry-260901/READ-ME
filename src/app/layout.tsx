@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { Outfit } from "next/font/google";
 import { tokensToCss } from "@/design/tokens";
 import "./globals.css";
@@ -16,7 +17,9 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Every page is rendered when it is requested, so each gets its own security nonce (see src/proxy.ts).
+  await connection();
   return (
     <html lang="en-GB" className={outfit.variable}>
       <head>

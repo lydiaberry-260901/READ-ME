@@ -312,6 +312,13 @@ model User {
   active         Boolean   @default(true)
   morningSummary Boolean   @default(false) // email the day's task list at 07:00 on weekdays
   lastSignInAt   DateTime?
+  // Two step sign in with an authenticator app (required for admins and the data protection lead)
+  twoStepSecretEnc     String? // encrypted
+  twoStepEnabledAt     DateTime?
+  twoStepRecoveryHashes String[] @default([]) // one time recovery codes, stored as hashes
+  twoStepLastStep      Int? // the last code used, so a code cannot be used twice
+  twoStepFailures      Int      @default(0)
+  twoStepLockedUntil   DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
@@ -347,8 +354,21 @@ model User {
   dataRequestsAssigned DataRequest[] @relation("DataRequestAssignee")
   breachesReported  Breach[]
   retentionDecisions RetentionReview[]
+  twoStepSessions   TwoStepSession[]
 
   @@index([organisationId])
+}
+
+// A sign in that has passed the second step. Kept on the server, so it cannot be faked in the browser.
+model TwoStepSession {
+  id         String   @id // the random id stored in the person's sign in cookie
+  userId     String
+  verifiedAt DateTime @default(now())
+  expiresAt  DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Team {

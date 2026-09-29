@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { actionUser, AccessDeniedError } from "@/lib/session";
 import { audit } from "@/lib/audit";
 import { normaliseEmail, randomToken } from "@/lib/crypto";
+import { resetTwoStep } from "@/lib/two-step";
 
 export type ActionResult = { ok: boolean; message: string; link?: string };
 
@@ -139,6 +140,18 @@ export async function updateUser(_prev: ActionResult | null, formData: FormData)
   } catch (error) {
     return fail(error);
   }
+}
+
+/** For someone who has lost their phone: they set two step sign in up again at their next sign in. */
+export async function resetTwoStepAction(formData: FormData): Promise<void> {
+  const me = await actionUser("users.manage");
+  const id = z.string().parse(formData.get("userId"));
+  if (id === me.id) throw new AccessDeniedError("Ask another admin to reset your own two step sign in.");
+  const target = await prisma.user.findFirst({ where: { id, organisationId: me.organisationId } });
+  if (!target) throw new AccessDeniedError("That person could not be found.");
+  await resetTwoStep(target.id);
+  await audit({ organisationId: me.organisationId, userId: me.id, action: "two_step.reset", entityType: "User", entityId: target.id });
+  revalidatePath("/settings/users");
 }
 
 export async function createTeam(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {

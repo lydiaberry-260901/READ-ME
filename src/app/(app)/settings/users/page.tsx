@@ -5,14 +5,14 @@ import { roleLabels } from "@/lib/labels";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { PageHeader, Badge } from "@/components/ui";
 import { InviteForm, UserRowForm, TeamForm } from "./forms";
-import { revokeInvitation } from "./actions";
+import { resetTwoStepAction, revokeInvitation } from "./actions";
 
 export const metadata = { title: "People and teams" };
 
 export default async function UsersPage() {
   const me = await requireCapability("users.manage");
 
-  const [users, teams, invitations] = await Promise.all([
+  const [users, teams, invitations, dpLeadId] = await Promise.all([
     prisma.user.findMany({
       where: { organisationId: me.organisationId },
       orderBy: [{ active: "desc" }, { name: "asc" }],
@@ -27,6 +27,7 @@ export default async function UsersPage() {
       where: { organisationId: me.organisationId, acceptedAt: null, revokedAt: null, expiresAt: { gt: new Date() } },
       orderBy: { createdAt: "desc" },
     }),
+    prisma.organisation.findUniqueOrThrow({ where: { id: me.organisationId }, select: { dataProtectionLeadId: true } }).then((o) => o.dataProtectionLeadId),
   ]);
 
   const roles = assignableRoles(me).map((r) => ({ value: r, label: roleLabels[r] }));
@@ -98,7 +99,24 @@ export default async function UsersPage() {
                     </p>
                     <p className="text-fg-muted">{u.email}</p>
                   </td>
-                  <td className="px-3 py-3 align-top text-fg-muted">{formatDateTime(u.lastSignInAt, "Never")}</td>
+                  <td className="px-3 py-3 align-top text-fg-muted">
+                    {formatDateTime(u.lastSignInAt, "Never")}
+                    <span className="mt-1 block text-xs">
+                      {u.twoStepEnabledAt ? (
+                        <>
+                          <span className="text-green-text">Two step sign in on</span>
+                          {u.id !== me.id ? (
+                            <form action={resetTwoStepAction} className="inline">
+                              <input type="hidden" name="userId" value={u.id} />
+                              <button type="submit" className="ml-2 underline" title="For a lost phone: they set it up again at their next sign in">Reset</button>
+                            </form>
+                          ) : null}
+                        </>
+                      ) : u.role === "ADMIN" || u.id === dpLeadId ? (
+                        <span className="text-amber-text">Two step sign in set up at next sign in</span>
+                      ) : null}
+                    </span>
+                  </td>
                   <td className="px-6 py-3 align-top">
                     <UserRowForm user={{ id: u.id, role: u.role, teamId: u.teamId, active: u.active }} roles={roles} teams={teamOptions} />
                   </td>

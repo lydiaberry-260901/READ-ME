@@ -2,6 +2,7 @@
 // The tool must send the organisation's secret key in the "Authorization: Bearer" header.
 import { NextResponse } from "next/server";
 import { logger } from "@/lib/logger";
+import { clientAddress, rateLimit, tooMany } from "@/lib/rate-limit";
 import { enqueue } from "@/jobs/boss";
 import { QUEUES } from "@/jobs/queues";
 import { organisationForKey, parseWebhookPayload } from "@/lib/transcripts/webhook";
@@ -10,6 +11,8 @@ import { matchParticipants, saveTranscript, TranscriptError } from "@/lib/transc
 const MAX_BODY_BYTES = 2_500_000;
 
 export async function POST(request: Request) {
+  const limit = rateLimit(`webhook:${clientAddress(request.headers)}`, 60, 60_000);
+  if (!limit.ok) return tooMany(limit.retryAfterSeconds);
   const organisationId = await organisationForKey(request.headers);
   if (!organisationId) return NextResponse.json({ error: "The key is missing or not recognised." }, { status: 401 });
 

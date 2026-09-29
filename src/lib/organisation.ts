@@ -48,6 +48,16 @@ export type SignInDecision =
  * The very first person to sign in creates the organisation and becomes its admin.
  * After that, only existing active users and people with a valid invitation can join.
  */
+/**
+ * Who may create the organisation by signing in first. On the live site this must be the address in
+ * FIRST_ADMIN_EMAIL, so a stranger who finds the site before Moca does cannot make themselves admin.
+ */
+export function mayBeFirstAdmin(email: string, env: Record<string, string | undefined> = process.env) {
+  const first = env.FIRST_ADMIN_EMAIL ? normaliseEmail(env.FIRST_ADMIN_EMAIL) : null;
+  if (first) return normaliseEmail(email) === first;
+  return env.NODE_ENV !== "production";
+}
+
 export async function decideSignIn(db: Db, rawEmail: string, now = new Date()): Promise<SignInDecision> {
   const email = normaliseEmail(rawEmail);
   const user = await db.user.findUnique({ where: { email } });
@@ -57,7 +67,7 @@ export async function decideSignIn(db: Db, rawEmail: string, now = new Date()): 
   const invite = await findValidInvitation(db, email, now);
   if (invite) return { allowed: true, reason: "invited" };
   const orgCount = await db.organisation.count();
-  if (orgCount === 0) return { allowed: true, reason: "first_user" };
+  if (orgCount === 0 && mayBeFirstAdmin(email)) return { allowed: true, reason: "first_user" };
   return { allowed: false, reason: "not_invited" };
 }
 

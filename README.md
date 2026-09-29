@@ -21,7 +21,7 @@ The full project brief is in [CLAUDE.md](CLAUDE.md).
 | 7 | News about companies: news service or feeds, daily and weekly checks, AI summary and relevance, News page, company news, news tasks | Done |
 | 8 | Call transcripts: paste, upload or a secure web address for recording tools, AI reading with evidence, suggestions approved one by one, follow up tasks, recording notice checks | Done |
 | 10 | Privacy centre: requests about data with one month deadlines, one file of everything held, deletion, breaches with a 72 hour clock, keeping periods with admin approval, supplier register, records, assessment, go live checklist, access log, reminders | Done |
-| 11 | Going live on Hostinger | To do |
+| 11 | Ready for Hostinger: two step sign in for admins, security review, security headers, rate limits, settings check, health check, deploy and backup scripts, step by step guide, automatic tests on GitHub | Done |
 
 ## What you need on your computer
 
@@ -271,6 +271,8 @@ All settings live in `.env` on your computer, and in the server's settings on Ho
 | `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET` | Google sign in details, from Google Cloud Console. |
 | `AUTH_MICROSOFT_ENTRA_ID_ID`, `AUTH_MICROSOFT_ENTRA_ID_SECRET`, `AUTH_MICROSOFT_ENTRA_ID_ISSUER` | Microsoft sign in details, from Microsoft Entra. |
 | `DEV_LOGIN_ENABLED` | `true` shows the demo sign in buttons while developing. Ignored on the live site. |
+| `DEV_TWO_STEP` | Development only. `true` makes the demo sign in ask admins for two step sign in too. |
+| `FIRST_ADMIN_EMAIL` | Live site: the only address allowed to create the organisation by signing in first. |
 | `ENCRYPTION_KEY` | 32 random bytes in base64. Encrypts stored email and calendar sign in details. |
 | `SUPPRESSION_HMAC_KEY` | 32 random bytes in base64. Lets the opt out list be checked without storing readable addresses. |
 | `ANTHROPIC_API_KEY` | Key for the Claude API, used for AI summaries and drafts. |
@@ -350,4 +352,24 @@ The background job list uses pg-boss, which keeps its jobs in a separate `pgboss
 
 ## Putting it online
 
-Step by step Hostinger VPS instructions will be added in Phase 11.
+Step by step instructions for a Hostinger VPS are in [DEPLOY.md](DEPLOY.md): securing the server, the database, settings, encrypted nightly backups, HTTPS, and updating. The files it uses are in `deploy/`:
+
+| File | What it does |
+| --- | --- |
+| `deploy/deploy.sh` | Gets the newest version, checks the settings, backs up, updates the database, builds and restarts. |
+| `deploy/ecosystem.config.cjs` | Keeps the web app and the worker running (PM2). |
+| `deploy/nginx.conf`, `deploy/moca-proxy.conf` | The web server in front of the app, with rate limits. |
+| `deploy/backup.sh`, `deploy/restore.sh` | Encrypted database backups, and restoring one. |
+
+Useful server commands: `npm run check:env` checks the settings; `npm run twostep:reset -- email` resets someone's two step sign in; `/api/health` shows whether the database and worker are running.
+
+Every push to GitHub runs the tests and a production build automatically (`.github/workflows/ci.yml`), using GitHub's free allowance.
+
+## Security
+
+* **Two step sign in** with an authenticator app is required for admins and the data protection lead, because they can see everyone's personal data. It is set up at their first sign in, with 10 one time recovery codes. Codes cannot be reused, and five wrong codes lock it for 15 minutes. Which sign ins have passed is recorded on the server, so it cannot be faked in the browser. Admins can reset it for someone under People and teams.
+* **First admin:** on the live site, only the address in `FIRST_ADMIN_EMAIL` can create the organisation; everyone else needs an invitation.
+* **Headers:** a Content Security Policy with a fresh nonce on every page, so only the CRM's own scripts run; the CRM cannot be shown inside another site; HTTPS is enforced on the live site.
+* **Rate limits** on sign in, two step sign in, the call recording address and unsubscribe links, in Nginx and in the app.
+* **Checked in this review:** every server action and API address checks who is signed in (or is deliberately public, with its own protection); tests never contact outside services; secrets are never committed.
+* **Package audit:** Nodemailer was upgraded to fix its advisories. The remaining reported issues are in the Prisma command line tool's optional MySQL and settings parts, which only run when deploying and are not used with Postgres. The only suggested fix is an older Prisma version, which was not taken. Check again with `npm audit` when Prisma releases an update.

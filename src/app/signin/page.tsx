@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { signIn, configuredProviders, devLoginEnabled } from "@/auth";
-import { getCurrentUser } from "@/lib/session";
+import { getSessionState } from "@/lib/session";
 import { prisma } from "@/lib/db";
 import { roleLabels } from "@/lib/labels";
 import { Logo } from "@/components/Logo";
@@ -27,7 +27,9 @@ export default async function SignInPage({
 }: {
   searchParams: Promise<{ error?: string; callbackUrl?: string }>;
 }) {
-  if (await getCurrentUser()) redirect("/");
+  const state = await getSessionState();
+  if (state.status === "ok") redirect("/");
+  if (state.status === "two_step_needed") redirect("/two-step");
   const { error, callbackUrl } = await searchParams;
   const redirectTo = callbackUrl?.startsWith("/") && !callbackUrl.startsWith("//") ? callbackUrl : "/";
 
