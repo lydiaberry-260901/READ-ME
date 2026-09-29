@@ -2,7 +2,7 @@
 
 A sales CRM for Moca: a system for managing prospects, customers, deals and follow ups. It is used by several people in the team and will be put online on a Hostinger VPS (a virtual private server, meaning a rented server of our own).
 
-The full project brief is in [CLAUDE.md](CLAUDE.md).
+The full project brief is in [CLAUDE.md](CLAUDE.md). How to put it online is in [DEPLOY.md](DEPLOY.md). Draft data protection documents, for a solicitor to review, are in [docs/data-protection](docs/data-protection/README.md).
 
 ## What is built so far
 
