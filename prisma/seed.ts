@@ -10,7 +10,7 @@ import { createClient } from "../src/lib/db";
 import { createOrganisation } from "../src/lib/organisation";
 import { qualificationCompleteness } from "../src/lib/qualification";
 import { recalculateOrganisation } from "../src/lib/deals/recalculate";
-import { addDemoActivity, addDemoCalls, addDemoNews } from "./demo-activity";
+import { addDemoActivity, addDemoCalls, addDemoNews, addDemoPrivacy } from "./demo-activity";
 import { normaliseEmail, randomToken, suppressionHash, maskEmail } from "../src/lib/crypto";
 import type { CustomerGroup, Role, StakeholderRole } from "../src/generated/prisma/enums";
 
@@ -420,6 +420,7 @@ async function main() {
   await addDemoActivity(prisma, org.id);
   await addDemoNews(prisma, org.id);
   await addDemoCalls(prisma, org.id);
+  await addDemoPrivacy(prisma, org.id);
   await recalculateOrganisation(org.id);
 
   console.log(`Demo data loaded: ${USERS.length} users, ${COMPANIES.length} companies, ${contactIds.size} contacts, ${DEALS.length} deals.`);

@@ -7,6 +7,8 @@ import { generateCompanySummary } from "@/lib/companies/summary";
 import { enrichCompany } from "@/lib/enrichment";
 import { AiNotConfiguredError, aiIsConfigured } from "@/lib/ai";
 import { processTranscript } from "@/lib/transcripts/service";
+import { runPrivacyReminders } from "@/lib/privacy/reminders";
+import { buildRetentionReview } from "@/lib/privacy/retention";
 import { DEFAULT_RETRY, QUEUES, type JobData, type QueueName } from "@/jobs/queues";
 import { getBoss } from "@/jobs/boss";
 import { syncMailAccount } from "@/lib/integrations/mail-sync";
@@ -132,6 +134,23 @@ export const handlers: Handlers = {
       } catch (error) {
         logger.warn("Transcript could not be read, it will be tried again", { transcriptId: t.id, error: String(error) });
       }
+    }
+  },
+
+  [QUEUES.privacyReminders]: async () => {
+    const created = await runPrivacyReminders();
+    logger.info("Privacy reminders", { created });
+    if (created) {
+      const boss = await getBoss("worker");
+      await boss.send(QUEUES.sendNotification, null as never, { ...DEFAULT_RETRY });
+    }
+  },
+
+  [QUEUES.retentionReview]: async () => {
+    const orgs = await prisma.organisation.findMany({ select: { id: true } });
+    for (const o of orgs) {
+      const review = await buildRetentionReview(o.id);
+      logger.info("Retention list built", { organisationId: o.id, items: review ? (review.items as unknown[]).length : 0 });
     }
   },
 

@@ -3,6 +3,7 @@
 // users (addresses ending @example.com) and only runs once per organisation.
 import type { PrismaClient } from "../src/generated/prisma/client";
 import type { CallResult, CustomerGroup, LossReason, NewsStatus, NewsType } from "../src/generated/prisma/enums";
+import { requestDeadline } from "../src/lib/privacy/requests";
 
 const DAY = 86_400_000;
 const MARKER = "Demo activity (fictional)";
@@ -47,6 +48,35 @@ export async function addDemoNews(prisma: PrismaClient, organisationId: string, 
     });
   await prisma.newsItem.createMany({ data });
   return { skipped: false, items: data.length };
+}
+
+const DEMO_BREACH = "Contact list emailed to the wrong address (fictional demo)";
+
+/** A fictional open request and a closed breach record, so the privacy centre has something to show. Runs once. */
+export async function addDemoPrivacy(prisma: PrismaClient, organisationId: string, now = new Date()) {
+  if (await prisma.breach.count({ where: { organisationId, title: DEMO_BREACH } })) return { skipped: true };
+  const contact = await prisma.contact.findFirst({ where: { organisationId, email: { endsWith: ".example" }, firstName: "Peter" } });
+  const admin = await prisma.user.findFirst({ where: { organisationId, role: "ADMIN", email: { endsWith: "@example.com" } } });
+  const received = new Date(now.getTime() - 24 * DAY);
+  await prisma.dataRequest.create({
+    data: {
+      organisationId, type: "ACCESS", requesterName: contact ? `${contact.firstName} ${contact.lastName ?? ""}`.trim() : "Demo person",
+      requesterEmail: contact?.email ?? null, details: "Asked by email what information we hold about them (fictional demo).",
+      contactId: contact?.id ?? null, receivedAt: received, dueAt: requestDeadline(received), assignedToId: admin?.id ?? null, createdById: admin?.id ?? null,
+    },
+  });
+  const found = new Date(now.getTime() - 40 * DAY);
+  await prisma.breach.create({
+    data: {
+      organisationId, title: DEMO_BREACH, description: "A rep emailed a list of 12 prospects' work details to the wrong internal address. The recipient deleted it within the hour (fictional demo).",
+      discoveredAt: found, reportedById: admin?.id ?? null, status: "CLOSED", dataInvolved: "Names, job titles and work email addresses of 12 business contacts.", peopleAffected: 12,
+      risk: "UNLIKELY", riskReason: "Sent to a colleague bound by confidentiality, who deleted it straight away.", icoDecision: "NOT_REQUIRED",
+      icoDecisionReason: "Unlikely to result in a risk to the people involved.", actionsTaken: "Recipient confirmed deletion in writing. Rep reminded to check addresses before sending.",
+      lessons: "Use the CRM to share lists rather than email.", closedAt: new Date(found.getTime() + 2 * DAY),
+      checklist: { contain: { done: true }, assess: { done: true }, record: { done: true }, prevent: { done: true } },
+    },
+  });
+  return { skipped: false };
 }
 
 const DEMO_CALL = "Discovery call with Pennant (fictional demo)";

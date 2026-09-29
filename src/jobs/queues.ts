@@ -16,6 +16,8 @@ export const QUEUES = {
   newsCollect: "news-collect",
   transcriptProcess: "transcript-process",
   transcriptSweep: "transcript-sweep",
+  privacyReminders: "privacy-reminders",
+  retentionReview: "retention-review",
 } as const;
 
 export type QueueName = (typeof QUEUES)[keyof typeof QUEUES];
@@ -35,6 +37,8 @@ export type JobData = {
   [QUEUES.newsCollect]: { organisationId?: string } | null;
   [QUEUES.transcriptProcess]: { transcriptId: string };
   [QUEUES.transcriptSweep]: Record<string, never> | null;
+  [QUEUES.privacyReminders]: Record<string, never> | null;
+  [QUEUES.retentionReview]: Record<string, never> | null;
 };
 
 /** Scheduled jobs. Cron timings use the Europe/London time zone, so they follow British Summer Time. */
@@ -50,6 +54,8 @@ export const SCHEDULES: { queue: QueueName; cron: string; description: string }[
   { queue: QUEUES.newsCollect, cron: "30 6 * * *", description: "Looks for news about companies: the most important every day, the rest weekly." },
   // Catches calls that were saved but not read, for example if the AI was not set up at the time.
   { queue: QUEUES.transcriptSweep, cron: "20 * * * *", description: "Reads any call transcripts still waiting, every hour." },
+  { queue: QUEUES.privacyReminders, cron: "0 8 * * *", description: "Emails the data protection lead and admins about requests due, breaches and other privacy work, at 08:00 when needed." },
+  { queue: QUEUES.retentionReview, cron: "0 6 1 * *", description: "Lists records kept longer than the retention periods, on the 1st of each month, for an admin to approve." },
 ];
 
 export const SCHEDULE_TIME_ZONE = TIME_ZONE;
@@ -68,4 +74,6 @@ export const CONCURRENCY: Partial<Record<QueueName, number>> = {
   [QUEUES.newsCollect]: 1,
   [QUEUES.transcriptProcess]: 1,
   [QUEUES.transcriptSweep]: 1,
+  [QUEUES.privacyReminders]: 1,
+  [QUEUES.retentionReview]: 1,
 };

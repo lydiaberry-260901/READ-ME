@@ -37,6 +37,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     adminItems.push({ href: "/settings/transcripts", label: "Call recording tools" });
   }
   if (can(user, "alerts.view")) adminItems.push({ href: "/settings/alerts", label: "Alert log" });
+  if (can(user, "privacy.access")) adminItems.push({ href: "/privacy", label: "Privacy centre" });
 
   return (
     <div className="min-h-screen">

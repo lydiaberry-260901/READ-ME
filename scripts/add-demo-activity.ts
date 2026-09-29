@@ -2,7 +2,7 @@
 // Development only. Run with: npm run db:demo-activity
 import "dotenv/config";
 import { createClient } from "../src/lib/db";
-import { addDemoActivity, addDemoCalls, addDemoNews } from "../prisma/demo-activity";
+import { addDemoActivity, addDemoCalls, addDemoNews, addDemoPrivacy } from "../prisma/demo-activity";
 import { recalculateOrganisation } from "../src/lib/deals/recalculate";
 
 const prisma = createClient();
@@ -13,6 +13,8 @@ async function main() {
     const r = await addDemoActivity(prisma, org.id);
     const news = await addDemoNews(prisma, org.id);
     const calls = await addDemoCalls(prisma, org.id);
+    const privacy = await addDemoPrivacy(prisma, org.id);
+    console.log(privacy.skipped ? `${org.name}: demo privacy records already present.` : `${org.name}: added a fictional request and breach record.`);
     console.log(calls.skipped ? `${org.name}: demo calls already present, or the demo deal was not found.` : `${org.name}: added ${calls.calls} fictional calls.`);
     await recalculateOrganisation(org.id);
     console.log(r.skipped ? `${org.name}: demo activity already present.` : `${org.name}: added ${r.activities} fictional activities and closed deals.`);

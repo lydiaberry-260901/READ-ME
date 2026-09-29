@@ -20,7 +20,8 @@ The full project brief is in [CLAUDE.md](CLAUDE.md).
 | 6 | Daily task list: manual tasks, Today page, 07:00 weekday suggestions with reasons, no duplicates, daily limit, morning summary email | Done |
 | 7 | News about companies: news service or feeds, daily and weekly checks, AI summary and relevance, News page, company news, news tasks | Done |
 | 8 | Call transcripts: paste, upload or a secure web address for recording tools, AI reading with evidence, suggestions approved one by one, follow up tasks, recording notice checks | Done |
-| 10, 11 | Privacy centre, going live | To do |
+| 10 | Privacy centre: requests about data with one month deadlines, one file of everything held, deletion, breaches with a 72 hour clock, keeping periods with admin approval, supplier register, records, assessment, go live checklist, access log, reminders | Done |
+| 11 | Going live on Hostinger | To do |
 
 ## What you need on your computer
 
@@ -196,8 +197,24 @@ Go to Import. Choose a CSV file, match its columns, say where the data came from
 * **A person approves every change:** suggested qualification details (which can be edited first) and stage changes appear on the call page and on the deal page, each with Approve and Reject. Approving goes through the normal deal rules, so the stage history, alert emails and health score all update as usual. Only the deal's owner, their manager or an admin can decide.
 * **Follow up tasks:** up to 5 per call, with due dates and draft messages, go on the deal owner's Today list (or the person who added the call). The call also counts as a connected call in the dashboards. Reading a call again never repeats tasks.
 * **Recording notice:** each call records whether the person was told it was being recorded, and why. Calls without this are flagged on the Calls page and the call page until someone records it; the AI points out any words in the call that look like a notice.
-* **Access and deletion:** a call can be seen by the person who added it (and their manager), anyone who can see its deal or contact, and admins. Every view is recorded in the audit log. A call can be deleted at any time; approved changes stay on the deal and tasks stay on the list. Transcripts are kept for 12 months by default (the privacy centre in Phase 10 handles deletion).
+* **Access and deletion:** a call can be seen by the person who added it (and their manager), anyone who can see its deal or contact, and admins. Every view is recorded in the audit log. A call can be deleted at any time; approved changes stay on the deal and tasks stay on the list. Transcripts are kept for 12 months by default, then listed for deletion in the privacy centre.
 * If the AI is not set up, calls are saved and read automatically once it is (an hourly job picks up anything waiting).
+
+## Privacy centre
+
+For the data protection lead and admins, under Privacy centre in the account menu. It covers UK GDPR, the Data Protection Act 2018 and PECR. The lead is named under Keeping data, and can use the privacy centre without being an admin.
+
+* **Requests about data:** record any request to see, correct, delete or limit the use of data, object to its use, or receive a copy. The deadline is worked out automatically: the same date the following month (or the last day of a shorter month), moved to the Monday if it falls at a weekend. Bank holidays are not counted, so check those by hand. A complex request can be extended by up to two months, with the reason recorded.
+  * **See their data / a copy:** Download their data gives one JSON file with everything linked to the person: details, source, marketing checks, deals, activities, emails, meetings, tasks, transcripts and drafts, plus other places their name appears in free text. Each download is recorded.
+  * **Delete:** closing the request deletes their contact record, emails, transcripts, drafts and tasks about them. Calls and meetings stay counted in the dashboards without anything that identifies them. A scrambled copy of their email and phone can stay on the do not contact list so they are never contacted again.
+  * **Limit** marks them as limited, which blocks all outreach. **Object** opts them out for everyone at once.
+  * Every request page lists other places the person's name appears (notes, tasks, transcripts, drafts, deal fields), since those are not linked to their record.
+* **Breaches:** report straight away and a live 72 hour clock starts, for deciding whether to tell the ICO. A checklist, the risk to people, the ICO decision (with the reason if not reported), whether people were told, what was done and lessons are recorded. Every breach is kept, even if not reported.
+* **Keeping data:** contacts with no activity for 24 months, transcripts after 12 months and news after 12 months (all adjustable). On the 1st of each month a list is made; nothing is deleted until an admin approves it, and anything can be ticked to keep. Contacts on open deals or with a request in progress are never listed, and each record is checked again when the list is approved. Opted out people stay on the do not contact list.
+* **Suppliers:** a register of Hostinger, the AI provider, the email sending service, the news service, Google and Microsoft: what each receives, where it is stored, whether data leaves the UK (and the safeguard), whether a data processing agreement is in place, and for AI whether it trains on our data. Entries start with only what the CRM sends each one; the rest must be confirmed.
+* **Records and checklist:** a record of what personal data is held, why, the lawful basis, who can see it, how long it is kept and who it is shared with, filled in from the CRM. Also the legitimate interests assessment (three tests, in your own words), the go live checklist (some items tick themselves from the settings), how data is protected, and the cookies statement (essential cookies only).
+* **Access log:** who viewed contacts or transcripts, and who downloaded personal data.
+* **Reminders:** at 08:00 each day, when something needs attention, the lead and admins are emailed: requests due within 7 days or overdue, breaches waiting for an ICO decision, a deletion list waiting, and the ICO fee renewal (from 30 days before) or impact assessment review falling due.
 
 ## Email and calendar
 

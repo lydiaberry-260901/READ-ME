@@ -17,6 +17,8 @@ export const automationLabels: Record<QueueName, string> = {
   [QUEUES.newsCollect]: "News about companies",
   [QUEUES.transcriptProcess]: "Reading a call transcript",
   [QUEUES.transcriptSweep]: "Call transcripts waiting to be read",
+  [QUEUES.privacyReminders]: "Privacy reminders",
+  [QUEUES.retentionReview]: "Monthly list of records due for deletion",
 };
 
 export type AutomationStatus = {
